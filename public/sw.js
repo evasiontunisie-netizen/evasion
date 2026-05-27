@@ -1,4 +1,4 @@
-const CACHE_NAME = 'evasion-erp-v1';
+const CACHE_NAME = 'evasion-erp-v2';
 const ASSETS = ['/', '/assets/app.css', '/assets/app.js', '/manifest.json'];
 
 self.addEventListener('install', event => {
