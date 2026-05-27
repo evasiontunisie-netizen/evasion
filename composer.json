@@ -1,0 +1,20 @@
+{
+  "name": "evasion/modern-erp",
+  "description": "Modern PHP 8 MVC ERP for multi-showroom and WooCommerce operations.",
+  "type": "project",
+  "license": "proprietary",
+  "require": {
+    "php": ">=8.0",
+    "ext-pdo": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "scripts": {
+    "serve": "php -S 0.0.0.0:8080 -t public",
+    "lint": "php -l public/index.php && php -l app/bootstrap.php"
+  }
+}
