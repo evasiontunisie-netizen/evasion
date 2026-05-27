@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#EF4444" />
+  <title>ERP Pro — Tableau de bord</title>
+  <link rel="manifest" href="/erp/public/manifest.json" />
+  <link rel="icon" href="/erp/public/assets/images/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/erp/public/assets/css/erp.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#EF4444', dark: '#DC2626' },
+            accent:  '#F97316',
+          }
+        }
+      }
+    }
+  </script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="/erp/public/assets/js/erp-core.js"></script>
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100" x-data="erpApp()" x-init="init()">
+
+  <!-- ============================================================
+       MOBILE OVERLAY
+       ============================================================ -->
+  <div x-show="mobileMenuOpen && isMobile" @click="mobileMenuOpen = false"
+       class="fixed inset-0 bg-black/50 z-30 lg:hidden" x-transition:enter="transition-opacity duration-200"
+       x-transition:leave="transition-opacity duration-200 ease-in" style="display:none"></div>
+
+  <div class="layout h-screen">
+    <!-- ============================================================
+         SIDEBAR
+         ============================================================ -->
+    <aside :class="[
+             'sidebar bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 flex flex-col',
+             isMobile ? 'fixed inset-y-0 left-0 z-40 shadow-2xl transition-transform duration-300' : '',
+             isMobile && !mobileMenuOpen ? '-translate-x-full' : 'translate-x-0',
+             !isMobile && sidebarCollapsed ? 'collapsed' : ''
+           ]">
+
+      <!-- Logo -->
+      <div class="flex items-center gap-3 px-4 py-5 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <div x-show="!sidebarCollapsed || isMobile" class="transition-all">
+          <span class="font-bold text-slate-900 dark:text-white text-lg leading-none">ERP</span>
+          <span class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 text-lg leading-none"> Pro</span>
+        </div>
+        <button @click="isMobile ? mobileMenuOpen = false : sidebarCollapsed = !sidebarCollapsed"
+                class="ml-auto p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+        <template x-for="item in navItems" :key="item.id">
+          <div>
+            <!-- Group header -->
+            <template x-if="item.type === 'group' && (!sidebarCollapsed || isMobile)">
+              <div class="px-2 py-1.5 mt-3 mb-1">
+                <span class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600" x-text="item.label"></span>
+              </div>
+            </template>
+
+            <!-- Nav item -->
+            <template x-if="item.type === 'link'">
+              <button @click="navigate(item.id)"
+                      :class="['sidebar-item w-full', currentPage === item.id ? 'active' : '']"
+                      :title="sidebarCollapsed && !isMobile ? item.label : ''">
+                <span class="sidebar-icon flex-shrink-0" x-html="item.icon"></span>
+                <span x-show="!sidebarCollapsed || isMobile" class="truncate flex-1 text-left" x-text="item.label"></span>
+                <template x-if="item.badge && (!sidebarCollapsed || isMobile)">
+                  <span class="ml-auto text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-500 px-1.5 py-0.5 rounded-full" x-text="item.badge"></span>
+                </template>
+              </button>
+            </template>
+          </div>
+        </template>
+      </nav>
+
+      <!-- User profile -->
+      <div class="border-t border-slate-100 dark:border-slate-800 p-3 flex-shrink-0">
+        <button @click="navigate('profile')" :class="['sidebar-item w-full', currentPage === 'profile' ? 'active' : '']">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-red-400 to-orange-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0" x-text="userInitials"></div>
+          <div x-show="!sidebarCollapsed || isMobile" class="flex-1 min-w-0 text-left">
+            <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate" x-text="user.first_name + ' ' + user.last_name"></p>
+            <p class="text-xs text-slate-400 truncate" x-text="user.role_name"></p>
+          </div>
+          <button x-show="!sidebarCollapsed || isMobile" @click.stop="ERP.logout()"
+                  class="flex-shrink-0 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+          </button>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ============================================================
+         MAIN CONTENT
+         ============================================================ -->
+    <div class="main-content flex flex-col">
+
+      <!-- Header -->
+      <header class="header">
+        <!-- Mobile menu button -->
+        <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+        <!-- Page title -->
+        <h1 class="text-lg font-semibold text-slate-800 dark:text-white flex-1 truncate" x-text="pageTitle"></h1>
+
+        <!-- Search -->
+        <div class="hidden md:flex search-box flex-1 max-w-xs">
+          <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" placeholder="Rechercher..." class="text-sm" />
+        </div>
+
+        <!-- Header actions -->
+        <div class="flex items-center gap-2 ml-auto">
+          <!-- Theme toggle -->
+          <button @click="ERP.toggleTheme()"
+                  class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors">
+            <svg x-show="!darkMode()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+            <svg x-show="darkMode()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </button>
+
+          <!-- Language -->
+          <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors flex items-center gap-1 text-sm font-medium" x-text="lang.toUpperCase()">
+            </button>
+            <div x-show="open" @click.outside="open = false"
+                 class="absolute right-0 top-full mt-1 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 py-1 min-w-[100px] z-50">
+              <template x-for="l in ['fr','en','ar']">
+                <button @click="lang = l; open = false" class="w-full px-4 py-2 text-sm text-left hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <span class="font-medium" x-text="l.toUpperCase()"></span>
+                  <span class="text-slate-400 text-xs" x-text="l === 'fr' ? 'Français' : l === 'en' ? 'English' : 'العربية'"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open; loadNotifications()"
+                    class="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+              <span x-show="unreadNotifications > 0"
+                    class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center"
+                    x-text="unreadNotifications > 9 ? '9+' : unreadNotifications"></span>
+            </button>
+
+            <div x-show="open" @click.outside="open = false"
+                 class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 z-50 overflow-hidden">
+              <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                <h3 class="font-semibold text-sm text-slate-800 dark:text-white">Notifications</h3>
+                <button @click="markAllRead()" class="text-xs text-red-500 hover:text-red-600 font-medium">Tout lire</button>
+              </div>
+              <div class="max-h-72 overflow-y-auto">
+                <template x-if="notifications.length === 0">
+                  <div class="py-8 text-center text-slate-400 text-sm">Aucune notification</div>
+                </template>
+                <template x-for="n in notifications" :key="n.id">
+                  <div :class="['flex gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors border-b border-slate-50 dark:border-slate-700/50 last:border-b-0', !n.is_read ? 'bg-red-50/50 dark:bg-red-900/10' : '']"
+                       @click="markNotifRead(n.id)">
+                    <div :class="['w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs', 'bg-' + (n.color || 'blue') + '-500']">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate" x-text="n.title"></p>
+                      <p class="text-xs text-slate-400 truncate" x-text="n.body"></p>
+                      <p class="text-xs text-slate-300 dark:text-slate-600 mt-0.5" x-text="ERP.timeAgo(n.created_at)"></p>
+                    </div>
+                    <div x-show="!n.is_read" class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-1.5"></div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ============================================================
+           PAGE CONTENT
+           ============================================================ -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- DASHBOARD -->
+        <div x-show="currentPage === 'dashboard'" class="page-content">
+          <div x-html="pages.dashboard" x-init="$watch('currentPage', v => { if(v === 'dashboard') setTimeout(renderDashboard, 100); })"></div>
+        </div>
+
+        <!-- PRODUCTS -->
+        <div x-show="currentPage === 'products'" class="page-content" x-html="pages.products"></div>
+
+        <!-- STOCK -->
+        <div x-show="currentPage === 'stock'" class="page-content" x-html="pages.stock"></div>
+
+        <!-- TRANSFERS -->
+        <div x-show="currentPage === 'transfers'" class="page-content" x-html="pages.transfers"></div>
+
+        <!-- POS -->
+        <div x-show="currentPage === 'pos'" class="p-0" x-html="pages.pos"></div>
+
+        <!-- ORDERS -->
+        <div x-show="currentPage === 'orders'" class="page-content" x-html="pages.orders"></div>
+
+        <!-- TICKETS -->
+        <div x-show="currentPage === 'tickets'" class="page-content" x-html="pages.tickets"></div>
+
+        <!-- EMPLOYEES -->
+        <div x-show="currentPage === 'employees'" class="page-content" x-html="pages.employees"></div>
+
+        <!-- DELIVERIES -->
+        <div x-show="currentPage === 'deliveries'" class="page-content" x-html="pages.deliveries"></div>
+
+        <!-- CUSTOMERS -->
+        <div x-show="currentPage === 'customers'" class="page-content" x-html="pages.customers"></div>
+
+        <!-- WOO -->
+        <div x-show="currentPage === 'woo'" class="page-content" x-html="pages.woo"></div>
+
+        <!-- ANALYTICS -->
+        <div x-show="currentPage === 'analytics'" class="page-content" x-html="pages.analytics"></div>
+
+        <!-- ACCOUNTING -->
+        <div x-show="currentPage === 'accounting'" class="page-content" x-html="pages.accounting"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PAGE TEMPLATES (loaded dynamically)
+       ============================================================ -->
+  <script src="/erp/public/assets/js/pages/dashboard.js"></script>
+  <script src="/erp/public/assets/js/pages/products.js"></script>
+  <script src="/erp/public/assets/js/pages/stock.js"></script>
+  <script src="/erp/public/assets/js/pages/pos.js"></script>
+  <script src="/erp/public/assets/js/pages/orders.js"></script>
+  <script src="/erp/public/assets/js/pages/tickets.js"></script>
+  <script src="/erp/public/assets/js/pages/employees.js"></script>
+  <script src="/erp/public/assets/js/pages/customers.js"></script>
+  <script src="/erp/public/assets/js/pages/deliveries.js"></script>
+  <script src="/erp/public/assets/js/pages/woo.js"></script>
+  <script src="/erp/public/assets/js/pages/analytics.js"></script>
+
+  <script>
+    function erpApp() {
+      return {
+        currentPage: 'dashboard',
+        pageTitle: 'Tableau de bord',
+        sidebarCollapsed: false,
+        mobileMenuOpen: false,
+        isMobile: window.innerWidth < 1024,
+        user: ERP.getUser(),
+        lang: 'fr',
+        notifications: [],
+        unreadNotifications: 0,
+        pages: {
+          dashboard: '', products: '', stock: '', transfers: '',
+          pos: '', orders: '', tickets: '', employees: '',
+          deliveries: '', customers: '', woo: '', analytics: '', accounting: ''
+        },
+
+        get userInitials() {
+          const u = this.user;
+          return ((u.first_name || '?')[0] + (u.last_name || '?')[0]).toUpperCase();
+        },
+
+        navItems: [
+          { type: 'link', id: 'dashboard',  label: 'Tableau de bord', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>' },
+          { type: 'group', label: 'Commerce' },
+          { type: 'link', id: 'pos',        label: 'Caisse POS',       icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>' },
+          { type: 'link', id: 'orders',     label: 'Commandes',        icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>' },
+          { type: 'link', id: 'customers',  label: 'Clients CRM',      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' },
+          { type: 'link', id: 'deliveries', label: 'Livraisons',       icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>' },
+          { type: 'link', id: 'tickets',    label: 'Tickets SAV',      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>' },
+          { type: 'group', label: 'Inventaire' },
+          { type: 'link', id: 'products',   label: 'Produits',         icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>' },
+          { type: 'link', id: 'stock',      label: 'Stock',            icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>' },
+          { type: 'link', id: 'transfers',  label: 'Transferts',       icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>' },
+          { type: 'group', label: 'Gestion' },
+          { type: 'link', id: 'employees',  label: 'Ressources Humaines', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>' },
+          { type: 'link', id: 'accounting', label: 'Comptabilité',     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>' },
+          { type: 'link', id: 'woo',        label: 'WooCommerce',      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>' },
+          { type: 'link', id: 'analytics',  label: 'Statistiques',     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>' },
+        ],
+
+        async init() {
+          if (!ERP.getToken()) { ERP.logout(); return; }
+          window.addEventListener('resize', () => { this.isMobile = window.innerWidth < 1024; });
+
+          // Load user permissions
+          try {
+            const me = await ERP.get('auth/me');
+            if (me && me.user) {
+              localStorage.setItem('erp_user', JSON.stringify(me.user));
+              localStorage.setItem('erp_permissions', JSON.stringify(me.permissions || []));
+              this.user = me.user;
+            }
+          } catch {}
+
+          // Start notification polling
+          this.loadNotifications();
+          setInterval(() => this.loadNotifications(), 30000);
+
+          // Load initial page
+          this.navigate('dashboard');
+        },
+
+        navigate(page) {
+          this.currentPage = page;
+          const pageTitles = {
+            dashboard: 'Tableau de bord', pos: 'Caisse POS', orders: 'Commandes',
+            customers: 'Clients CRM', deliveries: 'Livraisons', tickets: 'Tickets SAV',
+            products: 'Produits', stock: 'Stock', transfers: 'Transferts',
+            employees: 'Ressources Humaines', accounting: 'Comptabilité',
+            woo: 'WooCommerce', analytics: 'Statistiques & Analytics',
+          };
+          this.pageTitle = pageTitles[page] || page;
+          if (this.isMobile) this.mobileMenuOpen = false;
+
+          // Load page content
+          if (typeof window[`load_${page}`] === 'function') {
+            setTimeout(() => window[`load_${page}`](), 50);
+          }
+        },
+
+        darkMode() {
+          return document.documentElement.classList.contains('dark');
+        },
+
+        async loadNotifications() {
+          try {
+            const data = await ERP.get('notifications');
+            if (data) {
+              this.notifications     = data.notifications || [];
+              this.unreadNotifications = data.unread || 0;
+            }
+          } catch {}
+        },
+
+        async markNotifRead(id) {
+          try {
+            await ERP.patch(`notifications/${id}/read`);
+            const n = this.notifications.find(n => n.id === id);
+            if (n) { n.is_read = 1; this.unreadNotifications = Math.max(0, this.unreadNotifications - 1); }
+          } catch {}
+        },
+
+        async markAllRead() {
+          try {
+            await ERP.post('notifications/read-all');
+            this.notifications.forEach(n => n.is_read = 1);
+            this.unreadNotifications = 0;
+          } catch {}
+        },
+
+        renderDashboard() {
+          if (typeof window.initDashboardCharts === 'function') window.initDashboardCharts();
+        }
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "ERP Pro",
+  "short_name": "ERP Pro",
+  "description": "Système ERP complet pour la gestion d'entreprise",
+  "start_url": "/erp/public/index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0F172A",
+  "theme_color": "#EF4444",
+  "icons": [
+    { "src": "/erp/public/assets/images/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/erp/public/assets/images/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Caisse POS",
+      "short_name": "POS",
+      "url": "/erp/public/index.html?page=pos",
+      "icons": [{ "src": "/erp/public/assets/images/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tickets SAV",
+      "short_name": "SAV",
+      "url": "/erp/public/index.html?page=tickets",
+      "icons": [{ "src": "/erp/public/assets/images/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "fr"
+}

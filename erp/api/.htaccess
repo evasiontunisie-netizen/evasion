@@ -1,0 +1,23 @@
+Options -Indexes
+RewriteEngine On
+
+# Remove trailing slash
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)/$ /$1 [R=301,L]
+
+# Route all requests to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Security
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Content-Security-Policy "default-src 'none'"
+</IfModule>
+
+# Prevent access to PHP files other than index.php
+<FilesMatch "^(?!index\.php).*\.php$">
+    Require all denied
+</FilesMatch>

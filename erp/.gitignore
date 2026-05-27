@@ -1,0 +1,12 @@
+.env
+storage/logs/*.log
+storage/cache/*.rate
+storage/cache/*.json
+storage/uploads/*
+!storage/uploads/.gitkeep
+storage/exports/*
+!storage/exports/.gitkeep
+storage/pdfs/*
+!storage/pdfs/.gitkeep
+*.DS_Store
+node_modules/
