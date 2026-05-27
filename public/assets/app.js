@@ -7,6 +7,15 @@ function erpApp() {
     darkMode: localStorage.getItem('theme') === 'dark',
     locale: localStorage.getItem('locale') || 'fr',
     token: localStorage.getItem('token') || '',
+    previewMode: localStorage.getItem('previewMode') === 'true',
+    authMode: 'login',
+    authLoading: false,
+    authForm: {
+      name: '',
+      email: '',
+      password: '',
+      otp: ''
+    },
     analytics: null,
     salesChart: null,
     channelChart: null,
@@ -36,6 +45,9 @@ function erpApp() {
     get title() {
       return this.titles[this.module] || this.module;
     },
+    get isAuthenticated() {
+      return Boolean(this.token || this.previewMode);
+    },
     get kpiCards() {
       const k = this.analytics?.kpis || {};
       return [
@@ -54,7 +66,9 @@ function erpApp() {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
       }
-      this.load();
+      if (this.isAuthenticated) {
+        this.load();
+      }
       this.ensureTokenNotice();
     },
     persistTheme() {
@@ -78,7 +92,68 @@ function erpApp() {
       if (!response.ok) throw new Error(payload.error || 'Erreur API');
       return payload.data || payload;
     },
+    async login() {
+      this.authLoading = true;
+      try {
+        const data = await this.api('/api/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: this.authForm.email,
+            password: this.authForm.password,
+            otp: this.authForm.otp
+          })
+        });
+        if (data.requires_2fa) {
+          Swal.fire('Code 2FA requis', 'Saisis ton code OTP puis reconnecte-toi.', 'info');
+          return;
+        }
+        this.token = data.token;
+        this.previewMode = false;
+        localStorage.setItem('token', data.token);
+        localStorage.removeItem('previewMode');
+        await this.load();
+        Swal.fire('Connecté', 'Bienvenue dans Evasion ERP.', 'success');
+      } catch (error) {
+        Swal.fire('Connexion impossible', error.message || 'Vérifie la base MySQL et tes identifiants.', 'error');
+      } finally {
+        this.authLoading = false;
+      }
+    },
+    async registerAdmin() {
+      this.authLoading = true;
+      try {
+        await this.api('/api/auth/register-admin', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: this.authForm.name,
+            email: this.authForm.email,
+            password: this.authForm.password
+          })
+        });
+        this.authMode = 'login';
+        Swal.fire('Admin créé', 'Tu peux maintenant te connecter avec ce compte.', 'success');
+      } catch (error) {
+        Swal.fire('Création impossible', error.message || 'Importe le schéma SQL ou vérifie qu’aucun admin n’existe déjà.', 'error');
+      } finally {
+        this.authLoading = false;
+      }
+    },
+    enterPreview() {
+      this.previewMode = true;
+      localStorage.setItem('previewMode', 'true');
+      this.load();
+    },
+    logout() {
+      this.token = '';
+      this.previewMode = false;
+      localStorage.removeItem('token');
+      localStorage.removeItem('previewMode');
+      this.rows = [];
+      this.analytics = null;
+      this.module = 'dashboard';
+    },
     async load() {
+      if (!this.isAuthenticated) return;
       if (this.module === 'dashboard') {
         await this.loadAnalytics();
         return;

@@ -30,7 +30,67 @@ final class ViewController
     <link rel="stylesheet" href="/assets/app.css">
 </head>
 <body class="bg-[#f6f6f3] text-ink antialiased transition dark:bg-black dark:text-white">
-    <div class="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
+    <section x-cloak x-show="!isAuthenticated" class="min-h-screen overflow-hidden p-4 sm:p-6">
+        <div class="mx-auto grid min-h-[calc(100vh-2rem)] max-w-7xl overflow-hidden rounded-[2rem] border border-black/10 bg-white shadow-soft dark:border-white/10 dark:bg-zinc-950 lg:grid-cols-[1.05fr_.95fr]">
+            <div class="relative hidden bg-ink p-10 text-white dark:bg-black lg:block">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,77,25,.45),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,.18),transparent_22%)]"></div>
+                <div class="relative z-10 flex h-full flex-col justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="grid h-12 w-12 place-items-center rounded-2xl bg-white text-xl font-black text-ink">E</div>
+                        <div>
+                            <p class="text-sm text-white/60">Premium ERP Suite</p>
+                            <h1 class="text-xl font-semibold">Evasion ERP</h1>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="mb-4 inline-flex rounded-full bg-white/10 px-4 py-2 text-sm text-white/80">Multi-showrooms + WooCommerce + POS</p>
+                        <h2 class="max-w-xl text-5xl font-semibold tracking-tight">Pilote toute ton entreprise depuis un cockpit moderne.</h2>
+                        <p class="mt-5 max-w-lg text-white/65">Stocks, ventes, caisse, SAV, RH, livraison, marketing, comptabilité et analytics dans une interface rapide et responsive.</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-sm text-white/70">
+                        <div class="rounded-3xl bg-white/10 p-4"><strong class="block text-2xl text-white">JWT</strong>Sécurité</div>
+                        <div class="rounded-3xl bg-white/10 p-4"><strong class="block text-2xl text-white">PWA</strong>Mobile</div>
+                        <div class="rounded-3xl bg-white/10 p-4"><strong class="block text-2xl text-white">Live</strong>Alertes</div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-center p-5 sm:p-10">
+                <div class="w-full max-w-md">
+                    <div class="mb-8 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase tracking-[.32em] text-accent">Connexion sécurisée</p>
+                            <h2 class="mt-2 text-3xl font-semibold tracking-tight" x-text="authMode === 'login' ? 'Bienvenue' : 'Créer Super Admin'"></h2>
+                        </div>
+                        <button @click="darkMode = !darkMode; persistTheme()" class="btn-secondary" x-text="darkMode ? 'Light' : 'Dark'"></button>
+                    </div>
+
+                    <div class="mb-5 grid grid-cols-2 rounded-full bg-zinc-100 p-1 dark:bg-white/10">
+                        <button @click="authMode = 'login'" class="rounded-full px-4 py-3 text-sm font-semibold" :class="authMode === 'login' ? 'bg-white shadow dark:bg-black' : 'text-zinc-500'">Login</button>
+                        <button @click="authMode = 'register'" class="rounded-full px-4 py-3 text-sm font-semibold" :class="authMode === 'register' ? 'bg-white shadow dark:bg-black' : 'text-zinc-500'">Premier admin</button>
+                    </div>
+
+                    <form @submit.prevent="authMode === 'login' ? login() : registerAdmin()" class="space-y-4">
+                        <template x-if="authMode === 'register'">
+                            <input x-model="authForm.name" class="input w-full" placeholder="Nom complet">
+                        </template>
+                        <input x-model="authForm.email" class="input w-full" type="email" placeholder="Email">
+                        <input x-model="authForm.password" class="input w-full" type="password" placeholder="Mot de passe">
+                        <template x-if="authMode === 'login'">
+                            <input x-model="authForm.otp" class="input w-full" placeholder="Code 2FA si activé">
+                        </template>
+                        <button class="btn-primary w-full" :disabled="authLoading">
+                            <span x-text="authLoading ? 'Veuillez patienter...' : (authMode === 'login' ? 'Se connecter' : 'Créer le compte admin')"></span>
+                        </button>
+                    </form>
+
+                    <button @click="enterPreview()" class="btn-secondary mt-4 w-full">Voir l'interface en mode aperçu</button>
+                    <p class="mt-5 text-sm leading-6 text-zinc-500">Pour une vraie connexion, importe `database/schema.sql`, puis `database/seed.sql`, crée le premier admin et connecte-toi. Le mode aperçu affiche seulement l'UI sans déverrouiller les API sécurisées.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div x-cloak x-show="isAuthenticated" class="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
         <aside class="fixed inset-x-0 bottom-0 z-30 border-t border-black/10 bg-white/95 backdrop-blur lg:static lg:h-screen lg:border-r lg:border-t-0 dark:border-white/10 dark:bg-zinc-950/95">
             <div class="hidden px-6 py-6 lg:block">
                 <div class="flex items-center gap-3">
@@ -64,6 +124,7 @@ final class ViewController
                             <option value="en">EN</option>
                         </select>
                         <button @click="darkMode = !darkMode; persistTheme()" class="btn-secondary" x-text="darkMode ? 'Light' : 'Dark'"></button>
+                        <button @click="logout()" class="btn-secondary">Déconnexion</button>
                         <button @click="openCreate()" class="btn-primary">Créer</button>
                     </div>
                 </div>
