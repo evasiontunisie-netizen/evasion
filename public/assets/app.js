@@ -10,7 +10,7 @@ function erpApp() {
     currentUser: JSON.parse(localStorage.getItem('currentUser') || 'null'),
     permissions: JSON.parse(localStorage.getItem('permissions') || '[]'),
     previewMode: localStorage.getItem('previewMode') === 'true',
-    menuOpen: localStorage.getItem('menuOpen') !== 'false',
+    menuOpen: localStorage.getItem('menuOpen') === 'true',
     authMode: 'login',
     authLoading: false,
     authForm: {
