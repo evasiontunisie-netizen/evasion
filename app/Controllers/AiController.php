@@ -24,6 +24,9 @@ final class AiController extends Controller
         $revenue = (float) $pdo->query("SELECT COALESCE(SUM(grand_total),0) FROM orders WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)")->fetchColumn();
         $expenses = (float) $pdo->query("SELECT COALESCE(SUM(amount),0) FROM expenses WHERE expense_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)")->fetchColumn();
         $topProduct = $pdo->query('SELECT name, SUM(quantity) AS units FROM order_items GROUP BY name ORDER BY units DESC LIMIT 1')->fetch();
+        $posToday = (float) $pdo->query("SELECT COALESCE(SUM(grand_total),0) FROM orders WHERE channel = 'pos' AND DATE(created_at) = CURDATE()")->fetchColumn();
+        $unpaidInvoices = (int) $pdo->query("SELECT COUNT(*) FROM invoices WHERE status IN ('draft','sent')")->fetchColumn();
+        $bestCashier = $pdo->query("SELECT u.name, COALESCE(SUM(o.grand_total),0) AS revenue FROM orders o JOIN users u ON u.id = o.user_id WHERE o.channel = 'pos' AND o.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY u.id, u.name ORDER BY revenue DESC LIMIT 1")->fetch();
 
         $actions = [];
         if ($lowStock > 0) {
@@ -38,19 +41,30 @@ final class AiController extends Controller
         if ($topProduct) {
             $actions[] = 'Mettre en avant le top produit: ' . $topProduct['name'] . ' (' . $topProduct['units'] . ' ventes).';
         }
+        if ($posToday > 0) {
+            $actions[] = 'Caisse du jour: ' . number_format($posToday, 3, ',', ' ') . ' TND encaisses au POS.';
+        }
+        if ($unpaidInvoices > 0) {
+            $actions[] = "Relancer {$unpaidInvoices} facture(s) non payees.";
+        }
+        if ($bestCashier) {
+            $actions[] = 'Meilleur caissier 30j: ' . $bestCashier['name'] . ' avec ' . number_format((float) $bestCashier['revenue'], 3, ',', ' ') . ' TND.';
+        }
         if ($actions === []) {
             $actions[] = 'Operation stable: continuer le suivi des ventes, stocks et tickets.';
         }
 
         $this->ok([
             'score' => max(42, min(98, 92 - ($lowStock * 2) - $openTickets)),
-            'summary' => 'Assistant IA ERP: analyse rapide des ventes, stocks, SAV et comptabilite.',
+            'summary' => 'Assistant IA Mon POS: ventes, caisse, stock, SAV et relances.',
             'actions' => array_slice($actions, 0, 5),
             'metrics' => [
                 'low_stock' => $lowStock,
                 'open_tickets' => $openTickets,
                 'revenue_30d' => $revenue,
                 'expenses_30d' => $expenses,
+                'pos_today' => $posToday,
+                'unpaid_invoices' => $unpaidInvoices,
             ],
         ]);
     }
@@ -63,9 +77,13 @@ final class AiController extends Controller
         }
 
         $question = strtolower((string) $request->input('question', ''));
-        $answer = 'Je recommande de commencer par dashboard, stock faible, tickets urgents et ventes du jour.';
+        $answer = 'Je recommande de commencer par la caisse du jour, stock faible, tickets urgents et ventes du jour.';
         if (str_contains($question, 'stock')) {
             $answer = 'Action stock: filtre les produits sous minimum, cree un transfert depot -> showroom, puis verifie les reservations web.';
+        } elseif (str_contains($question, 'caisse') || str_contains($question, 'pos')) {
+            $answer = 'Action caisse: ouvre Historique caisse, filtre par date/caissier, compare paiements cash/carte et telecharge tickets PDF si besoin.';
+        } elseif (str_contains($question, 'filtre') || str_contains($question, 'recherche')) {
+            $answer = 'Action filtres: utilise recherche + statut + dates + tri pour isoler les lignes, puis exporte CSV/PDF.';
         } elseif (str_contains($question, 'vente') || str_contains($question, 'ca')) {
             $answer = 'Action ventes: compare les canaux POS/WooCommerce, pousse les top produits et controle les remises.';
         } elseif (str_contains($question, 'ticket') || str_contains($question, 'sav')) {

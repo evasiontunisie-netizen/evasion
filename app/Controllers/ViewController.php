@@ -103,6 +103,7 @@ final class ViewController
                             <option value="en">EN</option>
                         </select>
                         <span class="hidden rounded-full px-3 py-2 text-xs font-semibold sm:inline-flex" :class="wsConnected ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500'" x-text="wsConnected ? 'Live' : 'Offline'"></span>
+                        <button @click="openGuide()" class="btn-secondary">Guide</button>
                         <button @click="openAi()" class="btn-secondary">IA</button>
                         <button @click="open2fa()" class="btn-secondary">2FA</button>
                         <button @click="darkMode = !darkMode; persistTheme()" class="btn-secondary" x-text="darkMode ? 'Light' : 'Dark'"></button>
@@ -117,8 +118,21 @@ final class ViewController
                 </div>
                 <div class="mt-4 flex flex-col gap-3 md:flex-row">
                     <input x-model.debounce.300ms="query" @input="load()" class="input flex-1" placeholder="Recherche instantanée: produit, ticket, client, commande...">
+                    <button x-show="module !== 'dashboard' && module !== 'pos'" @click="advancedFiltersOpen = !advancedFiltersOpen" class="btn-secondary">Filtres</button>
+                    <button x-show="module === 'pos'" @click="openPosHistory()" class="btn-secondary">Historique</button>
                     <button x-show="canReadCurrent()" @click="exportData('csv')" class="btn-secondary">CSV</button>
                     <button x-show="canReadCurrent()" @click="exportData('pdf')" class="btn-secondary">PDF</button>
+                </div>
+                <div x-show="advancedFiltersOpen && module !== 'dashboard' && module !== 'pos'" x-transition class="mt-3 grid gap-3 rounded-[1.5rem] border border-black/10 bg-white/60 p-3 dark:border-white/10 dark:bg-white/5 md:grid-cols-6">
+                    <input x-model="filters.status" @change="load()" class="input" placeholder="Statut">
+                    <input x-model="filters.payment_status" @change="load()" class="input" placeholder="Paiement">
+                    <input x-model="filters.date_from" @change="load()" class="input" type="date">
+                    <input x-model="filters.date_to" @change="load()" class="input" type="date">
+                    <select x-model="filters.sort_dir" @change="load()" class="input">
+                        <option value="desc">Plus récent</option>
+                        <option value="asc">Plus ancien</option>
+                    </select>
+                    <button @click="resetFilters()" class="btn-secondary">Reset</button>
                 </div>
             </header>
 

@@ -2,6 +2,16 @@ function erpApp() {
   return {
     module: 'dashboard',
     query: '',
+    advancedFiltersOpen: false,
+    filters: {
+      status: '',
+      payment_status: '',
+      date_from: '',
+      date_to: '',
+      sort_by: 'id',
+      sort_dir: 'desc',
+      per_page: 20
+    },
     rows: [],
     columns: ['id', 'name', 'status', 'created_at'],
     darkMode: localStorage.getItem('theme') === 'dark',
@@ -52,6 +62,7 @@ function erpApp() {
       ['gift_card', 'Bon cadeau']
     ],
     cart: [],
+    posHistory: [],
     titles: {
       dashboard: 'Dashboard principal',
       products: 'Gestion produits',
@@ -274,6 +285,7 @@ function erpApp() {
     setModule(key) {
       this.module = key;
       this.query = '';
+      this.rows = [];
       this.menuOpen = false;
       this.persistMenu();
       this.load();
@@ -370,7 +382,7 @@ function erpApp() {
         return;
       }
       try {
-        const data = await this.api(`/api/${this.module}?q=${encodeURIComponent(this.query)}`);
+        const data = await this.api(`/api/${this.module}?${this.queryString()}`);
         this.rows = data.items || [];
         this.columns = this.rows[0] ? Object.keys(this.rows[0]).slice(0, 6) : ['id', 'name', 'status', 'created_at'];
         if (this.module === 'invoices') {
@@ -391,6 +403,21 @@ function erpApp() {
       } finally {
         this.posLoading = false;
       }
+    },
+    queryString() {
+      const params = new URLSearchParams({ q: this.query });
+      for (const [key, value] of Object.entries(this.filters)) {
+        if (value !== '' && value !== null && value !== undefined) {
+          params.set(key, value);
+        }
+      }
+
+      return params.toString();
+    },
+    resetFilters() {
+      this.query = '';
+      this.filters = { status: '', payment_status: '', date_from: '', date_to: '', sort_by: 'id', sort_dir: 'desc', per_page: 20 };
+      this.load();
     },
     async refreshMe() {
       if (!this.token) return;
@@ -573,6 +600,47 @@ function erpApp() {
         Swal.fire('Réponse IA', data.answer, 'success');
       }
     },
+    async openGuide() {
+      const steps = [
+        ['1. Recherche', 'Tape un mot, un SKU, un client ou un statut dans la barre de recherche.'],
+        ['2. Filtres', 'Ouvre Filtres pour choisir statut, dates, tri et nombre de lignes.'],
+        ['3. CRUD', 'Utilise Créer pour ajouter une ligne, clique Export CSV/PDF pour sortir les données.'],
+        ['4. Caisse', 'Dans POS Caisse: produit -> panier -> clavier -> paiements -> Encaisser.'],
+        ['5. Sécurité', 'Active 2FA; chaque utilisateur reçoit ses propres codes de secours.']
+      ];
+      for (const [title, text] of steps) {
+        const result = await Swal.fire({ title, text, icon: 'info', confirmButtonText: 'Suivant', showCancelButton: true, cancelButtonText: 'Fermer', confirmButtonColor: '#ff4d19' });
+        if (!result.isConfirmed) break;
+      }
+    },
+    async openPosHistory() {
+      try {
+        const params = new URLSearchParams({
+          date_from: this.filters.date_from || '',
+          date_to: this.filters.date_to || '',
+          payment_status: this.filters.payment_status || ''
+        });
+        const data = await this.api(`/api/pos/history?${params.toString()}`);
+        this.posHistory = data.items || [];
+        const rows = this.posHistory.map(order => `
+          <tr>
+            <td>${this.escapeHtml(order.order_number)}</td>
+            <td>${this.escapeHtml(order.cashier_name || '-')}</td>
+            <td>${this.escapeHtml(order.payment_methods || '-')}</td>
+            <td>${this.money(order.grand_total || 0)}</td>
+            <td>${this.escapeHtml(order.payment_status)}</td>
+          </tr>`).join('');
+        Swal.fire({
+          title: 'Historique caisse',
+          width: 900,
+          html: `<div class="overflow-x-auto"><table class="modern-table"><thead><tr><th>Commande</th><th>Caissier</th><th>Paiement</th><th>Total</th><th>Statut</th></tr></thead><tbody>${rows || '<tr><td colspan="5">Aucune vente</td></tr>'}</tbody></table></div>`,
+          confirmButtonText: 'Fermer',
+          confirmButtonColor: '#ff4d19'
+        });
+      } catch (error) {
+        Swal.fire('Historique indisponible', error.message || 'Réessaie après connexion.', 'error');
+      }
+    },
     async open2fa() {
       if (!this.token) {
         Swal.fire('Connexion requise', 'Connecte-toi avant d’activer le 2FA.', 'info');
@@ -580,8 +648,11 @@ function erpApp() {
       }
       await this.refreshMe();
       if (Number(this.currentUser?.two_factor_enabled || 0) === 1 || this.currentUser?.two_factor_enabled === true) {
-        const result = await Swal.fire({ title: '2FA actif', text: 'Voulez-vous désactiver la double authentification ?', icon: 'question', showCancelButton: true, confirmButtonText: 'Désactiver', cancelButtonText: 'Garder', confirmButtonColor: '#ff4d19' });
+        const result = await Swal.fire({ title: '2FA actif', text: 'Générer nouveaux codes de secours ou désactiver ?', icon: 'question', showDenyButton: true, showCancelButton: true, confirmButtonText: 'Codes secours', denyButtonText: 'Désactiver', cancelButtonText: 'Fermer', confirmButtonColor: '#ff4d19' });
         if (result.isConfirmed) {
+          const data = await this.api('/api/auth/2fa/recovery-codes', { method: 'POST', body: '{}' });
+          Swal.fire('Codes de secours', `<div class="grid gap-2">${data.recovery_codes.map(code => `<code class="rounded-xl bg-zinc-100 p-2">${this.escapeHtml(code)}</code>`).join('')}</div>`, 'success');
+        } else if (result.isDenied) {
           await this.api('/api/auth/2fa/disable', { method: 'POST', body: '{}' });
           await this.refreshMe();
           Swal.fire('2FA désactivé', 'La connexion ne demandera plus OTP.', 'success');
@@ -592,8 +663,9 @@ function erpApp() {
       const html = `
         <div class="space-y-3">
           <img src="${setup.qr_url}" class="mx-auto rounded-2xl" alt="QR 2FA">
-          <p class="text-sm">Scanne avec Google Authenticator puis saisis le code.</p>
+          <p class="text-sm">Scanne avec Google Authenticator puis garde les codes de secours.</p>
           <code class="block rounded-xl bg-zinc-100 p-3 text-xs">${this.escapeHtml(setup.secret)}</code>
+          <div class="grid grid-cols-2 gap-2">${(setup.recovery_codes || []).map(code => `<code class="rounded-xl bg-zinc-100 p-2 text-xs">${this.escapeHtml(code)}</code>`).join('')}</div>
           <input id="otp-code" class="swal2-input" placeholder="Code 6 chiffres">
         </div>`;
       const result = await Swal.fire({ title: 'Activer 2FA', html, showCancelButton: true, confirmButtonText: 'Activer', cancelButtonText: 'Annuler', confirmButtonColor: '#ff4d19', preConfirm: () => document.getElementById('otp-code').value });
@@ -659,7 +731,7 @@ function erpApp() {
     },
     exportData(format) {
       if (['dashboard', 'pos'].includes(this.module)) return;
-      window.open(`/api/${this.module}/export?format=${format}&q=${encodeURIComponent(this.query)}`, '_blank');
+      window.open(`/api/${this.module}/export?format=${format}&${this.queryString()}`, '_blank');
     },
     addToCart(product) {
       const existing = this.cart.find(item => item.sku === product.sku);
