@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Auth\AuthGuard;
+use App\Core\Cache;
 use App\Core\Database;
 use App\Core\Export\Exporter;
 use App\Core\Logger;
@@ -153,6 +154,8 @@ final class ModuleController extends Controller
             return;
         }
 
+        $cacheKey = 'pos_catalog:' . sha1(json_encode($request->query, JSON_UNESCAPED_SLASHES) ?: '');
+        $items = Cache::remember($cacheKey, 20, function () use ($request): array {
         $q = trim((string) $request->input('q', ''));
         $params = ['warehouse_id' => (int) $request->input('warehouse_id', 1)];
         $where = 'p.status = "active"';
@@ -174,7 +177,7 @@ final class ModuleController extends Controller
         $statement = Database::pdo()->prepare($sql);
         $statement->execute($params);
 
-        $this->ok(['items' => array_map(static function (array $row): array {
+        return array_map(static function (array $row): array {
             $row['product_id'] = (int) $row['product_id'];
             $row['price'] = (float) $row['price'];
             $row['sale_price'] = (float) $row['sale_price'];
@@ -184,7 +187,10 @@ final class ModuleController extends Controller
             $row['image_url'] = $row['image_url'] ?: '/assets/icon-192.svg';
 
             return $row;
-        }, $statement->fetchAll())]);
+        }, $statement->fetchAll());
+        });
+
+        $this->ok(['items' => $items]);
     }
 
     public function posHistory(Request $request): void
@@ -194,6 +200,8 @@ final class ModuleController extends Controller
             return;
         }
 
+        $cacheKey = 'pos_history:' . sha1(json_encode($request->query, JSON_UNESCAPED_SLASHES) ?: '');
+        $items = Cache::remember($cacheKey, 20, function () use ($request): array {
         $where = ['o.channel = "pos"'];
         $params = [];
         foreach (['payment_status', 'status', 'warehouse_id', 'user_id'] as $filter) {
@@ -228,7 +236,10 @@ final class ModuleController extends Controller
         $statement = Database::pdo()->prepare($sql);
         $statement->execute($params);
 
-        $this->ok(['items' => $statement->fetchAll()]);
+        return $statement->fetchAll();
+        });
+
+        $this->ok(['items' => $items]);
     }
 
     public function posCheckout(Request $request): void

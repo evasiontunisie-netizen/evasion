@@ -38,6 +38,7 @@ function erpApp() {
     accounting: null,
     ai: { score: 0, summary: '', actions: [] },
     aiQuestion: '',
+    apiCache: {},
     ws: null,
     wsConnected: false,
     salesChart: null,
@@ -303,6 +304,21 @@ function erpApp() {
       if (!response.ok) throw new Error(payload.error || 'Erreur API');
       return payload.data || payload;
     },
+    async cachedApi(path, seconds = 30) {
+      const key = path;
+      const cached = this.apiCache[key];
+      if (cached && cached.expiresAt > Date.now()) {
+        return cached.value;
+      }
+      const value = await this.api(path);
+      this.apiCache[key] = { value, expiresAt: Date.now() + seconds * 1000 };
+      return value;
+    },
+    clearApiCache(prefix = '') {
+      for (const key of Object.keys(this.apiCache)) {
+        if (!prefix || key.startsWith(prefix)) delete this.apiCache[key];
+      }
+    },
     fillDemoAccount(account) {
       this.authForm.email = account.email;
       this.authForm.password = 'ChangeMeSecure123!';
@@ -382,7 +398,7 @@ function erpApp() {
         return;
       }
       try {
-        const data = await this.api(`/api/${this.module}?${this.queryString()}`);
+        const data = await this.cachedApi(`/api/${this.module}?${this.queryString()}`, 20);
         this.rows = data.items || [];
         this.columns = this.rows[0] ? Object.keys(this.rows[0]).slice(0, 6) : ['id', 'name', 'status', 'created_at'];
         if (this.module === 'invoices') {
@@ -396,7 +412,7 @@ function erpApp() {
       if (!this.token) return;
       this.posLoading = true;
       try {
-        const data = await this.api(`/api/pos/catalog?q=${encodeURIComponent(this.posSearch)}&warehouse_id=${this.posWarehouseId}`);
+        const data = await this.cachedApi(`/api/pos/catalog?q=${encodeURIComponent(this.posSearch)}&warehouse_id=${this.posWarehouseId}`, 20);
         this.posProducts = data.items || [];
       } catch (error) {
         this.posProducts = [];
@@ -445,7 +461,7 @@ function erpApp() {
     },
     async loadAnalytics() {
       try {
-        this.analytics = await this.api('/api/analytics/dashboard');
+        this.analytics = await this.cachedApi('/api/analytics/dashboard', 60);
         await this.loadAi();
       } catch (error) {
         this.analytics = { kpis: {}, sales_series: [], sales_by_channel: [] };
@@ -454,7 +470,7 @@ function erpApp() {
     },
     async loadAccounting() {
       try {
-        this.accounting = await this.api('/api/analytics/accounting');
+        this.accounting = await this.cachedApi('/api/analytics/accounting', 60);
       } catch (error) {
         this.accounting = null;
       }
@@ -462,7 +478,7 @@ function erpApp() {
     async loadAi() {
       if (!this.token) return;
       try {
-        this.ai = await this.api('/api/ai/insights');
+        this.ai = await this.cachedApi('/api/ai/insights', 60);
       } catch (error) {
         this.ai = { score: 0, summary: 'IA indisponible', actions: [] };
       }
@@ -481,6 +497,7 @@ function erpApp() {
         try {
           const message = JSON.parse(event.data);
           if (message.event || message.payload?.event) {
+            this.clearApiCache();
             this.load();
           }
         } catch (_) {}
@@ -540,6 +557,7 @@ function erpApp() {
         });
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || 'Import impossible');
+        this.clearApiCache(`/api/${this.module}`);
         await this.load();
         Swal.fire('Import terminé', `${payload.data.imported} produits et ${payload.data.images} images importés depuis le CSV WooCommerce.`, 'success');
       } catch (error) {
@@ -573,6 +591,7 @@ function erpApp() {
 
       try {
         await this.api(`/api/${this.module}`, { method: 'POST', body: JSON.stringify(result.value) });
+        this.clearApiCache(`/api/${this.module}`);
         await this.load();
         Swal.fire('Créé', `${this.title} enregistré avec succès.`, 'success');
       } catch (error) {
@@ -620,7 +639,7 @@ function erpApp() {
           date_to: this.filters.date_to || '',
           payment_status: this.filters.payment_status || ''
         });
-        const data = await this.api(`/api/pos/history?${params.toString()}`);
+        const data = await this.cachedApi(`/api/pos/history?${params.toString()}`, 20);
         this.posHistory = data.items || [];
         const rows = this.posHistory.map(order => `
           <tr>
@@ -811,6 +830,9 @@ function erpApp() {
           })
         });
         this.lastPosSale = sale;
+        this.clearApiCache('/api/pos/');
+        this.clearApiCache('/api/analytics/');
+        this.clearApiCache('/api/ai/');
         this.cart = [];
         this.selectedCartSku = '';
         this.posDiscount = 0;

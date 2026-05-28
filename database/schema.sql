@@ -40,7 +40,8 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id),
-    INDEX idx_users_status_role (status, role_id)
+    INDEX idx_users_status_role (status, role_id),
+    INDEX idx_users_email_status (email, status)
 ) ENGINE=InnoDB;
 
 CREATE TABLE password_resets (
@@ -61,7 +62,7 @@ CREATE TABLE user_recovery_codes (
     used_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_recovery_codes_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_user_recovery_codes_lookup (user_id, used_at)
+    INDEX idx_user_recovery_codes_lookup (user_id, code_hash, used_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE categories (
@@ -118,7 +119,9 @@ CREATE TABLE products (
     CONSTRAINT fk_products_brand FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE SET NULL,
     CONSTRAINT fk_products_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE SET NULL,
     FULLTEXT KEY ft_products_search (name, description, sku),
-    INDEX idx_products_category_status (category_id, status)
+    INDEX idx_products_category_status (category_id, status),
+    INDEX idx_products_status_name (status, name),
+    INDEX idx_products_status_sku (status, sku)
 ) ENGINE=InnoDB;
 
 CREATE TABLE product_variants (
@@ -275,7 +278,8 @@ CREATE TABLE orders (
     CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT fk_orders_site FOREIGN KEY (source_site_id) REFERENCES woocommerce_sites(id) ON DELETE SET NULL,
     INDEX idx_orders_channel_date (channel, created_at),
-    INDEX idx_orders_status_payment (status, payment_status)
+    INDEX idx_orders_status_payment (status, payment_status),
+    INDEX idx_orders_pos_history (channel, payment_status, warehouse_id, user_id, created_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE order_items (
@@ -314,7 +318,8 @@ CREATE TABLE payments (
     amount DECIMAL(12,3) NOT NULL,
     reference VARCHAR(180) NULL,
     paid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+    CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    INDEX idx_payments_order_method (order_id, method)
 ) ENGINE=InnoDB;
 
 CREATE TABLE tickets (

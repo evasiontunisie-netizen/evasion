@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Auth\AuthGuard;
+use App\Core\Cache;
 use App\Core\Database;
 use App\Core\Request;
 
@@ -18,6 +19,7 @@ final class AiController extends Controller
             return;
         }
 
+        $data = Cache::remember('ai_insights:' . date('Y-m-d-H-i'), 60, static function (): array {
         $pdo = Database::pdo();
         $lowStock = (int) $pdo->query('SELECT COUNT(*) FROM stock s JOIN products p ON p.id = s.product_id WHERE s.quantity <= p.minimum_stock')->fetchColumn();
         $openTickets = (int) $pdo->query("SELECT COUNT(*) FROM tickets WHERE status IN ('open','in_progress')")->fetchColumn();
@@ -54,7 +56,7 @@ final class AiController extends Controller
             $actions[] = 'Operation stable: continuer le suivi des ventes, stocks et tickets.';
         }
 
-        $this->ok([
+        return [
             'score' => max(42, min(98, 92 - ($lowStock * 2) - $openTickets)),
             'summary' => 'Assistant IA Mon POS: ventes, caisse, stock, SAV et relances.',
             'actions' => array_slice($actions, 0, 5),
@@ -66,7 +68,10 @@ final class AiController extends Controller
                 'pos_today' => $posToday,
                 'unpaid_invoices' => $unpaidInvoices,
             ],
-        ]);
+        ];
+        });
+
+        $this->ok($data);
     }
 
     public function ask(Request $request): void
