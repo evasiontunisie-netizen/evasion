@@ -36,7 +36,7 @@ final class ViewController
                 <div class="flex items-center gap-3">
                     <div class="login-logo">E</div>
                     <div>
-                        <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Evasion ERP</p>
+                        <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Evasion</p>
                         <h1 class="text-2xl font-semibold tracking-tight">Connexion</h1>
                     </div>
                 </div>
@@ -73,7 +73,7 @@ final class ViewController
                 <div class="flex items-center gap-3">
                     <div class="grid h-11 w-11 place-items-center rounded-2xl bg-black text-white dark:bg-white dark:text-black">E</div>
                     <div>
-                        <p class="text-sm text-zinc-500">Menu</p>
+                        <p class="text-sm text-zinc-500">ERP</p>
                         <h1 class="font-semibold tracking-tight">Evasion ERP</h1>
                     </div>
                 </div>
@@ -94,7 +94,7 @@ final class ViewController
                     <div class="flex items-center gap-3">
                         <button @click="menuOpen = !menuOpen; persistMenu()" class="btn-secondary px-4" x-text="menuOpen ? 'Masquer menu' : 'Menu'"></button>
                         <div>
-                            <p class="text-xs uppercase tracking-[.35em] text-accent">Multi-showroom + WooCommerce</p>
+                            <p class="text-xs uppercase tracking-[.35em] text-accent">Evasion ERP</p>
                             <h2 class="mt-1 text-2xl font-semibold tracking-tight" x-text="title"></h2>
                         </div>
                     </div>
@@ -183,13 +183,13 @@ final class ViewController
                         <article class="card">
                             <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
                                 <div>
-                                    <h3 class="section-title">Caisse avancée</h3>
-                                    <p class="text-sm text-zinc-500">Produits, images, clavier, paiement et documents PDF.</p>
+                                    <h3 class="section-title">Caisse</h3>
+                                    <p class="text-sm text-zinc-500">Vente rapide.</p>
                                 </div>
                                 <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-accent dark:bg-orange-500/10" x-text="posProducts.length + ' produits'"></span>
                             </div>
                             <div class="mb-4 grid gap-3 md:grid-cols-[1fr_120px]">
-                                <input x-model.debounce.250ms="posSearch" @input="loadPosCatalog()" class="input" placeholder="Scanner barcode / QR ou rechercher">
+                                <input x-model.debounce.250ms="posSearch" @input="loadPosCatalog()" class="input" placeholder="Scanner ou rechercher">
                                 <input x-model.number="posWarehouseId" @change="loadPosCatalog()" class="input" type="number" min="1" placeholder="Stock">
                             </div>
                             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
