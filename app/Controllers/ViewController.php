@@ -37,28 +37,27 @@ final class ViewController
                     <div class="login-logo">E</div>
                     <div>
                         <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Evasion ERP</p>
-                        <h1 class="text-2xl font-semibold tracking-tight" x-text="authMode === 'login' ? 'Connexion' : 'Premier admin'"></h1>
+                        <h1 class="text-2xl font-semibold tracking-tight">Connexion</h1>
                     </div>
                 </div>
                 <button @click="darkMode = !darkMode; persistTheme()" class="btn-secondary px-4" x-text="darkMode ? 'Light' : 'Dark'"></button>
             </div>
 
-            <div class="mb-5 grid grid-cols-2 rounded-full bg-zinc-100 p-1 dark:bg-white/10">
-                <button @click="authMode = 'login'" class="rounded-full px-4 py-3 text-sm font-semibold" :class="authMode === 'login' ? 'bg-white shadow dark:bg-black' : 'text-zinc-500'">Login</button>
-                <button @click="authMode = 'register'" class="rounded-full px-4 py-3 text-sm font-semibold" :class="authMode === 'register' ? 'bg-white shadow dark:bg-black' : 'text-zinc-500'">Admin</button>
+            <div class="mb-5 grid gap-2 sm:grid-cols-2">
+                <template x-for="account in demoAccounts" :key="account.email">
+                    <button type="button" @click="fillDemoAccount(account)" class="demo-account" :class="authForm.email === account.email && 'active'">
+                        <span x-text="account.label"></span>
+                        <small x-text="account.role"></small>
+                    </button>
+                </template>
             </div>
 
-            <form @submit.prevent="authMode === 'login' ? login() : registerAdmin()" class="space-y-4">
-                <template x-if="authMode === 'register'">
-                    <input x-model="authForm.name" class="input w-full" placeholder="Nom complet">
-                </template>
+            <form @submit.prevent="login()" class="space-y-4">
                 <input x-model="authForm.email" class="input w-full" type="email" placeholder="Email">
                 <input x-model="authForm.password" class="input w-full" type="password" placeholder="Mot de passe">
-                <template x-if="authMode === 'login'">
-                    <input x-model="authForm.otp" class="input w-full" placeholder="Code 2FA">
-                </template>
+                <input x-model="authForm.otp" class="input w-full" placeholder="Code 2FA">
                 <button class="btn-primary w-full" :disabled="authLoading">
-                    <span x-text="authLoading ? 'Patientez...' : (authMode === 'login' ? 'Se connecter' : 'Créer le compte')"></span>
+                    <span x-text="authLoading ? 'Patientez...' : 'Se connecter'"></span>
                 </button>
             </form>
 
@@ -66,18 +65,21 @@ final class ViewController
         </div>
     </section>
 
-    <div x-cloak x-show="isAuthenticated" class="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
-        <aside class="fixed inset-x-0 bottom-0 z-30 border-t border-black/10 bg-white/95 backdrop-blur lg:static lg:h-screen lg:border-r lg:border-t-0 dark:border-white/10 dark:bg-zinc-950/95">
-            <div class="hidden px-6 py-6 lg:block">
+    <div x-cloak x-show="isAuthenticated" class="app-shell min-h-screen">
+        <button x-show="menuOpen" x-transition.opacity @click="menuOpen = false; persistMenu()" class="menu-backdrop lg:hidden" aria-label="Fermer le menu"></button>
+
+        <aside x-show="menuOpen" x-transition class="menu-panel">
+            <div class="flex items-center justify-between px-5 py-5">
                 <div class="flex items-center gap-3">
                     <div class="grid h-11 w-11 place-items-center rounded-2xl bg-black text-white dark:bg-white dark:text-black">E</div>
                     <div>
-                        <p class="text-sm text-zinc-500">Premium Suite</p>
+                        <p class="text-sm text-zinc-500">Menu</p>
                         <h1 class="font-semibold tracking-tight">Evasion ERP</h1>
                     </div>
                 </div>
+                <button @click="menuOpen = false; persistMenu()" class="btn-secondary px-4">Fermer</button>
             </div>
-            <nav class="flex gap-1 overflow-x-auto px-3 py-2 lg:block lg:space-y-1 lg:px-4">
+            <nav class="space-y-1 px-4 pb-5">
                 <?php foreach ($nav as $item): ?>
                     <button x-show="can('<?= Security::e($item['permission']) ?>')" @click="setModule('<?= Security::e($item['key']) ?>')" class="nav-item" :class="module === '<?= Security::e($item['key']) ?>' && 'active'">
                         <span><?= Security::e($item['label']) ?></span>
@@ -86,12 +88,15 @@ final class ViewController
             </nav>
         </aside>
 
-        <main class="pb-24 lg:pb-0">
+        <main class="pb-24 transition-all duration-300 lg:pb-0" :class="menuOpen ? 'lg:pl-[300px]' : ''">
             <header class="sticky top-0 z-20 border-b border-black/10 bg-[#f6f6f3]/85 px-4 py-4 backdrop-blur-xl dark:border-white/10 dark:bg-black/80 sm:px-6">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs uppercase tracking-[.35em] text-accent">Multi-showroom + WooCommerce</p>
-                        <h2 class="mt-1 text-2xl font-semibold tracking-tight" x-text="title"></h2>
+                    <div class="flex items-center gap-3">
+                        <button @click="menuOpen = !menuOpen; persistMenu()" class="btn-secondary px-4" x-text="menuOpen ? 'Masquer menu' : 'Menu'"></button>
+                        <div>
+                            <p class="text-xs uppercase tracking-[.35em] text-accent">Multi-showroom + WooCommerce</p>
+                            <h2 class="mt-1 text-2xl font-semibold tracking-tight" x-text="title"></h2>
+                        </div>
                     </div>
                     <div class="flex items-center gap-2">
                         <select x-model="locale" class="input w-24">

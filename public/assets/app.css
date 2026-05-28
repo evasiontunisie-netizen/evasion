@@ -47,6 +47,67 @@ html {
   width: 48px;
 }
 
+.demo-account {
+  border: 1px solid rgba(17, 17, 17, .08);
+  border-radius: 18px;
+  background: rgba(250, 250, 250, .92);
+  display: grid;
+  gap: .15rem;
+  padding: .85rem 1rem;
+  text-align: left;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.demo-account span {
+  font-size: .92rem;
+  font-weight: 800;
+}
+
+.demo-account small {
+  color: rgb(113 113 122);
+  font-size: .72rem;
+}
+
+.demo-account:hover,
+.demo-account.active {
+  border-color: rgba(255, 77, 25, .55);
+  box-shadow: 0 10px 24px rgba(255, 77, 25, .12);
+  transform: translateY(-1px);
+}
+
+.dark .demo-account {
+  border-color: rgba(255, 255, 255, .10);
+  background: rgba(255, 255, 255, .06);
+}
+
+.menu-panel {
+  background: rgba(255, 255, 255, .94);
+  border: 1px solid rgba(17, 17, 17, .08);
+  border-radius: 28px;
+  bottom: 1rem;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, .18);
+  left: 1rem;
+  overflow-y: auto;
+  position: fixed;
+  top: 1rem;
+  width: min(280px, calc(100vw - 2rem));
+  z-index: 40;
+}
+
+.menu-backdrop {
+  background: rgba(0, 0, 0, .28);
+  border: 0;
+  inset: 0;
+  position: fixed;
+  z-index: 35;
+}
+
+.dark .menu-panel {
+  background: rgba(24, 24, 27, .94);
+  border-color: rgba(255, 255, 255, .10);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+}
+
 .card {
   border: 1px solid rgba(17, 17, 17, .08);
   border-radius: 28px;
@@ -115,8 +176,8 @@ html {
 }
 
 .nav-item {
-  display: inline-flex;
-  min-width: max-content;
+  display: flex;
+  width: 100%;
   align-items: center;
   gap: .75rem;
   border-radius: 18px;
@@ -224,9 +285,3 @@ html {
   border-color: rgba(255, 255, 255, .08);
 }
 
-@media (min-width: 1024px) {
-  .nav-item {
-    display: flex;
-    width: 100%;
-  }
-}

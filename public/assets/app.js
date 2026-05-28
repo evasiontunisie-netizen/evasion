@@ -10,6 +10,7 @@ function erpApp() {
     currentUser: JSON.parse(localStorage.getItem('currentUser') || 'null'),
     permissions: JSON.parse(localStorage.getItem('permissions') || '[]'),
     previewMode: localStorage.getItem('previewMode') === 'true',
+    menuOpen: localStorage.getItem('menuOpen') !== 'false',
     authMode: 'login',
     authLoading: false,
     authForm: {
@@ -18,6 +19,12 @@ function erpApp() {
       password: '',
       otp: ''
     },
+    demoAccounts: [
+      { label: 'Admin', role: 'Super admin', email: 'admin@example.com' },
+      { label: 'Manager', role: 'Stocks + ventes', email: 'manager@example.com' },
+      { label: 'Caisse', role: 'POS', email: 'cashier@example.com' },
+      { label: 'Support', role: 'SAV clients', email: 'support@example.com' }
+    ],
     analytics: null,
     accounting: null,
     ai: { score: 0, summary: '', actions: [] },
@@ -233,9 +240,16 @@ function erpApp() {
     persistTheme() {
       localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
     },
+    persistMenu() {
+      localStorage.setItem('menuOpen', this.menuOpen ? 'true' : 'false');
+    },
     setModule(key) {
       this.module = key;
       this.query = '';
+      if (window.innerWidth < 1024) {
+        this.menuOpen = false;
+        this.persistMenu();
+      }
       this.load();
     },
     headers() {
@@ -250,6 +264,11 @@ function erpApp() {
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || 'Erreur API');
       return payload.data || payload;
+    },
+    fillDemoAccount(account) {
+      this.authForm.email = account.email;
+      this.authForm.password = 'ChangeMeSecure123!';
+      this.authForm.otp = '';
     },
     async login() {
       this.authLoading = true;

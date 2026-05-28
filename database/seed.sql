@@ -66,6 +66,30 @@ INSERT IGNORE INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r JOIN permissions p ON p.slug IN ('marketing.manage','customers.manage','analytics.view')
 WHERE r.slug = 'marketing';
 
+INSERT INTO users (role_id, name, email, password_hash, status)
+SELECT r.id, 'Super Admin', 'admin@example.com', '$2y$10$T6TbaUC8EVByUh2HhDtHoeKWdZRQoMlcHqK6xCV6TsVeD8xQ.3PEm', 'active'
+FROM roles r
+WHERE r.slug = 'super-admin'
+ON DUPLICATE KEY UPDATE role_id = VALUES(role_id), name = VALUES(name), password_hash = VALUES(password_hash), status = VALUES(status);
+
+INSERT INTO users (role_id, name, email, password_hash, status)
+SELECT r.id, 'Manager Demo', 'manager@example.com', '$2y$10$T6TbaUC8EVByUh2HhDtHoeKWdZRQoMlcHqK6xCV6TsVeD8xQ.3PEm', 'active'
+FROM roles r
+WHERE r.slug = 'manager'
+ON DUPLICATE KEY UPDATE role_id = VALUES(role_id), name = VALUES(name), password_hash = VALUES(password_hash), status = VALUES(status);
+
+INSERT INTO users (role_id, name, email, password_hash, status)
+SELECT r.id, 'Caisse Demo', 'cashier@example.com', '$2y$10$T6TbaUC8EVByUh2HhDtHoeKWdZRQoMlcHqK6xCV6TsVeD8xQ.3PEm', 'active'
+FROM roles r
+WHERE r.slug = 'caissier'
+ON DUPLICATE KEY UPDATE role_id = VALUES(role_id), name = VALUES(name), password_hash = VALUES(password_hash), status = VALUES(status);
+
+INSERT INTO users (role_id, name, email, password_hash, status)
+SELECT r.id, 'Support Demo', 'support@example.com', '$2y$10$T6TbaUC8EVByUh2HhDtHoeKWdZRQoMlcHqK6xCV6TsVeD8xQ.3PEm', 'active'
+FROM roles r
+WHERE r.slug = 'support-client'
+ON DUPLICATE KEY UPDATE role_id = VALUES(role_id), name = VALUES(name), password_hash = VALUES(password_hash), status = VALUES(status);
+
 INSERT INTO warehouses (name, code, type, city, status) VALUES
 ('Stock principal', 'MAIN', 'main', 'Tunis', 'active'),
 ('Showroom 1', 'SHOW-01', 'showroom', 'Tunis', 'active'),
