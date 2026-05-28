@@ -122,6 +122,16 @@ FROM categories c, brands b, suppliers s
 WHERE c.slug = 'accessoires' AND b.name = 'Evasion Signature' AND s.name = 'Fournisseur Premium'
 ON DUPLICATE KEY UPDATE name = VALUES(name), sale_price = VALUES(sale_price);
 
+INSERT INTO product_images (product_id, path, alt_text, sort_order)
+SELECT p.id, '/assets/product-shoe.svg', 'Sneakers Performance', 0
+FROM products p
+WHERE p.sku = 'EV-SHOE-001' AND NOT EXISTS (SELECT 1 FROM product_images pi WHERE pi.product_id = p.id AND pi.path = '/assets/product-shoe.svg');
+
+INSERT INTO product_images (product_id, path, alt_text, sort_order)
+SELECT p.id, '/assets/product-bag.svg', 'Sac Sport Premium', 0
+FROM products p
+WHERE p.sku = 'EV-BAG-002' AND NOT EXISTS (SELECT 1 FROM product_images pi WHERE pi.product_id = p.id AND pi.path = '/assets/product-bag.svg');
+
 INSERT IGNORE INTO stock (product_id, warehouse_id, quantity, reserved_quantity, sku_snapshot)
 SELECT p.id, w.id, 25, 0, p.sku FROM products p JOIN warehouses w WHERE w.code IN ('MAIN','SHOW-01','WEB');
 

@@ -204,6 +204,75 @@ html {
   color: #111;
 }
 
+.pos-product-card {
+  border: 1px solid rgba(17, 17, 17, .08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, .9);
+  overflow: hidden;
+  text-align: left;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.pos-product-card:hover {
+  border-color: rgba(255, 77, 25, .5);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, .12);
+  transform: translateY(-2px);
+}
+
+.pos-product-card img {
+  background: linear-gradient(135deg, #fff7ed, #f4f4f5);
+  height: 150px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.dark .pos-product-card {
+  border-color: rgba(255, 255, 255, .10);
+  background: rgba(255, 255, 255, .055);
+}
+
+.cart-line {
+  align-items: center;
+  border-bottom: 1px solid rgba(17, 17, 17, .06);
+  display: flex;
+  justify-content: space-between;
+  padding: .85rem 0;
+  text-align: left;
+  width: 100%;
+}
+
+.cart-line.active {
+  color: #ff4d19;
+}
+
+.dark .cart-line {
+  border-color: rgba(255, 255, 255, .10);
+}
+
+.keypad-btn {
+  border-radius: 18px;
+  background: rgba(17, 17, 17, .06);
+  font-size: 1.05rem;
+  font-weight: 900;
+  min-height: 48px;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+
+.keypad-btn:hover {
+  background: rgba(255, 77, 25, .14);
+  color: #ff4d19;
+  transform: translateY(-1px);
+}
+
+.keypad-btn.primary {
+  background: linear-gradient(135deg, #111 0%, #ff4d19 120%);
+  color: #fff;
+}
+
+.dark .keypad-btn {
+  background: rgba(255, 255, 255, .09);
+}
+
 .section-title {
   font-size: 1.05rem;
   font-weight: 800;

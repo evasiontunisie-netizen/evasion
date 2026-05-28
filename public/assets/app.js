@@ -35,13 +35,24 @@ function erpApp() {
     channelChart: null,
     productChart: null,
     posSearch: '',
-    cart: [],
-    demoProducts: [
-      { product_id: 1, sku: 'EV-SHOE-001', name: 'Sneakers Performance', price: 249 },
-      { product_id: 2, sku: 'EV-BAG-002', name: 'Sac Sport Premium', price: 189 },
-      { product_id: 3, sku: 'EV-CAP-003', name: 'Casquette Signature', price: 59 },
-      { product_id: 4, sku: 'EV-TEE-004', name: 'T-shirt Training', price: 79 }
+    posProducts: [],
+    posLoading: false,
+    posWarehouseId: 1,
+    posCustomerId: '',
+    posDiscount: 0,
+    selectedCartSku: '',
+    keypadValue: '',
+    lastPosSale: null,
+    posPayments: [{ method: 'cash', amount: 0, reference: '' }],
+    paymentMethods: [
+      ['cash', 'Espèces'],
+      ['card', 'Carte'],
+      ['transfer', 'Virement'],
+      ['mobile', 'Mobile'],
+      ['cheque', 'Chèque'],
+      ['gift_card', 'Bon cadeau']
     ],
+    cart: [],
     titles: {
       dashboard: 'Dashboard principal',
       products: 'Gestion produits',
@@ -214,8 +225,26 @@ function erpApp() {
         { label: 'Livraisons', value: k.pending_deliveries || 0 }
       ];
     },
-    get cartTotal() {
+    get cartSubtotal() {
       return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    },
+    get posTaxTotal() {
+      return this.cart.reduce((sum, item) => sum + (item.price * item.quantity * (Number(item.tax_rate || 0) / 100)), 0);
+    },
+    get cartTotal() {
+      return Math.max(0, this.cartSubtotal - Number(this.posDiscount || 0) + this.posTaxTotal);
+    },
+    get posPaidTotal() {
+      return this.posPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+    },
+    get posRemaining() {
+      return Math.max(0, this.cartTotal - this.posPaidTotal);
+    },
+    get posChangeDue() {
+      return Math.max(0, this.posPaidTotal - this.cartTotal);
+    },
+    get selectedCartItem() {
+      return this.cart.find(item => item.sku === this.selectedCartSku) || this.cart[this.cart.length - 1] || null;
     },
     get accountingCards() {
       const a = this.accounting || {};
@@ -348,7 +377,10 @@ function erpApp() {
         await this.loadAnalytics();
         return;
       }
-      if (this.module === 'pos') return;
+      if (this.module === 'pos') {
+        await this.loadPosCatalog();
+        return;
+      }
       try {
         const data = await this.api(`/api/${this.module}?q=${encodeURIComponent(this.query)}`);
         this.rows = data.items || [];
@@ -358,6 +390,18 @@ function erpApp() {
         }
       } catch (error) {
         this.rows = [];
+      }
+    },
+    async loadPosCatalog() {
+      if (!this.token) return;
+      this.posLoading = true;
+      try {
+        const data = await this.api(`/api/pos/catalog?q=${encodeURIComponent(this.posSearch)}&warehouse_id=${this.posWarehouseId}`);
+        this.posProducts = data.items || [];
+      } catch (error) {
+        this.posProducts = [];
+      } finally {
+        this.posLoading = false;
       }
     },
     async refreshMe() {
@@ -579,7 +623,7 @@ function erpApp() {
       const id = this.rows[0]?.id;
       const result = await Swal.fire({ title: 'Facture PDF', input: 'number', inputLabel: 'ID facture', inputValue: id || '', showCancelButton: true, confirmButtonText: 'Télécharger', confirmButtonColor: '#ff4d19' });
       if (result.isConfirmed && result.value) {
-        window.open(`/api/invoices/${result.value}/pdf`, '_blank');
+        await this.downloadPdf(`/api/invoices/${result.value}/pdf`, `facture-${result.value}.pdf`);
       }
     },
     formFieldHtml(field) {
@@ -637,15 +681,103 @@ function erpApp() {
       const existing = this.cart.find(item => item.sku === product.sku);
       if (existing) existing.quantity += 1;
       else this.cart.push({ ...product, quantity: 1 });
+      this.selectedCartSku = product.sku;
+      this.setPaymentToRemaining(0);
+    },
+    selectCartItem(item) {
+      this.selectedCartSku = item.sku;
+      this.keypadValue = String(item.quantity || 1);
+    },
+    removeCartItem(item) {
+      this.cart = this.cart.filter(row => row.sku !== item.sku);
+      if (this.selectedCartSku === item.sku) {
+        this.selectedCartSku = this.cart[0]?.sku || '';
+      }
+      this.setPaymentToRemaining(0);
+    },
+    pressKeypad(value) {
+      if (value === 'back') {
+        this.keypadValue = this.keypadValue.slice(0, -1);
+        return;
+      }
+      if (value === 'clear') {
+        this.keypadValue = '';
+        return;
+      }
+      if (value === '.' && this.keypadValue.includes('.')) return;
+      this.keypadValue = `${this.keypadValue}${value}`;
+    },
+    applyKeypadQuantity() {
+      const item = this.selectedCartItem;
+      if (!item) return;
+      item.quantity = Math.max(1, parseInt(this.keypadValue || '1', 10));
+      this.keypadValue = '';
+      this.setPaymentToRemaining(0);
+    },
+    applyKeypadDiscount() {
+      this.posDiscount = Math.max(0, Number(this.keypadValue || 0));
+      this.keypadValue = '';
+      this.setPaymentToRemaining(0);
+    },
+    addPaymentRow() {
+      this.posPayments.push({ method: 'card', amount: this.posRemaining, reference: '' });
+    },
+    removePaymentRow(index) {
+      this.posPayments.splice(index, 1);
+      if (!this.posPayments.length) {
+        this.posPayments.push({ method: 'cash', amount: 0, reference: '' });
+      }
+    },
+    setPaymentToRemaining(index) {
+      if (!this.posPayments[index]) return;
+      const otherPayments = this.posPayments.reduce((sum, payment, paymentIndex) => paymentIndex === index ? sum : sum + Number(payment.amount || 0), 0);
+      this.posPayments[index].amount = Math.max(0, this.cartTotal - otherPayments).toFixed(3);
     },
     async checkout() {
-      if (!this.cart.length) return;
+      if (!this.cart.length) {
+        Swal.fire('Panier vide', 'Ajoute au moins un produit.', 'info');
+        return;
+      }
+      this.setPaymentToRemaining(0);
       try {
-        await this.api('/api/pos/checkout', { method: 'POST', body: JSON.stringify({ warehouse_id: 1, items: this.cart }) });
+        const sale = await this.api('/api/pos/checkout', {
+          method: 'POST',
+          body: JSON.stringify({
+            warehouse_id: this.posWarehouseId,
+            customer_id: this.posCustomerId || null,
+            discount_total: Number(this.posDiscount || 0),
+            items: this.cart,
+            payments: this.posPayments.map(payment => ({
+              method: payment.method,
+              amount: Number(payment.amount || 0),
+              reference: payment.reference || null
+            }))
+          })
+        });
+        this.lastPosSale = sale;
         this.cart = [];
-        Swal.fire('Vente enregistrée', 'Ticket et stock mis à jour.', 'success');
+        this.selectedCartSku = '';
+        this.posDiscount = 0;
+        this.posPayments = [{ method: 'cash', amount: 0, reference: '' }];
+        await this.loadPosCatalog();
+        Swal.fire('Vente enregistrée', `Ticket ${sale.order.order_number} prêt.`, 'success');
       } catch (error) {
-        Swal.fire('Mode démonstration', 'Connectez vous avec un JWT pour encaisser via API.', 'info');
+        Swal.fire('Encaissement impossible', error.message || 'Vérifie le panier et les paiements.', 'error');
+      }
+    },
+    async downloadPdf(path, filename) {
+      try {
+        const response = await fetch(path, { headers: { 'Authorization': `Bearer ${this.token}` } });
+        if (!response.ok) throw new Error('PDF indisponible');
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        Swal.fire('Téléchargement impossible', error.message || 'Réessaie après connexion.', 'error');
       }
     },
     money(value) {

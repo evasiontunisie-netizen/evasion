@@ -179,36 +179,114 @@ final class ViewController
                 </template>
 
                 <template x-if="module === 'pos'">
-                    <div class="grid gap-4 xl:grid-cols-[1.7fr_1fr]">
+                    <div class="grid gap-4 2xl:grid-cols-[1.45fr_.95fr]">
                         <article class="card">
-                            <h3 class="section-title mb-4">Caisse POS rapide</h3>
-                            <input x-model="posSearch" class="input mb-4" placeholder="Scanner barcode / QR ou rechercher produit">
-                            <div class="grid gap-3 sm:grid-cols-2">
-                                <template x-for="product in demoProducts" :key="product.sku">
-                                    <button @click="addToCart(product)" class="rounded-3xl border border-black/10 p-4 text-left transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10">
-                                        <p class="font-semibold" x-text="product.name"></p>
-                                        <p class="text-sm text-zinc-500" x-text="product.sku"></p>
-                                        <p class="mt-3 text-lg font-bold" x-text="money(product.price)"></p>
+                            <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                    <h3 class="section-title">Caisse avancée</h3>
+                                    <p class="text-sm text-zinc-500">Produits, images, clavier, paiement et documents PDF.</p>
+                                </div>
+                                <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-accent dark:bg-orange-500/10" x-text="posProducts.length + ' produits'"></span>
+                            </div>
+                            <div class="mb-4 grid gap-3 md:grid-cols-[1fr_120px]">
+                                <input x-model.debounce.250ms="posSearch" @input="loadPosCatalog()" class="input" placeholder="Scanner barcode / QR ou rechercher">
+                                <input x-model.number="posWarehouseId" @change="loadPosCatalog()" class="input" type="number" min="1" placeholder="Stock">
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                                <template x-for="product in posProducts" :key="product.sku">
+                                    <button @click="addToCart(product)" class="pos-product-card">
+                                        <img :src="product.image_url || '/assets/icon-192.svg'" :alt="product.name" loading="lazy">
+                                        <div class="p-4">
+                                            <p class="line-clamp-2 font-bold" x-text="product.name"></p>
+                                            <p class="mt-1 text-xs text-zinc-500" x-text="product.sku"></p>
+                                            <div class="mt-3 flex items-center justify-between">
+                                                <strong class="text-accent" x-text="money(product.price)"></strong>
+                                                <span class="rounded-full bg-zinc-100 px-2 py-1 text-xs dark:bg-white/10" x-text="'Stock ' + product.stock"></span>
+                                            </div>
+                                        </div>
                                     </button>
                                 </template>
                             </div>
                         </article>
-                        <article class="card">
-                            <h3 class="section-title mb-4">Panier</h3>
-                            <template x-for="item in cart" :key="item.sku">
-                                <div class="flex items-center justify-between border-b border-black/5 py-3 dark:border-white/10">
-                                    <div>
-                                        <p class="font-medium" x-text="item.name"></p>
-                                        <p class="text-sm text-zinc-500" x-text="'x' + item.quantity"></p>
-                                    </div>
-                                    <strong x-text="money(item.price * item.quantity)"></strong>
+                        <div class="space-y-4">
+                            <article class="card">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <h3 class="section-title">Panier</h3>
+                                    <input x-model="posCustomerId" class="input w-28" placeholder="Client ID">
                                 </div>
-                            </template>
-                            <div class="mt-5 flex items-center justify-between text-xl font-bold">
-                                <span>Total</span><span x-text="money(cartTotal)"></span>
-                            </div>
-                            <button @click="checkout()" class="btn-primary mt-5 w-full">Encaisser</button>
-                        </article>
+                                <template x-for="item in cart" :key="item.sku">
+                                    <button @click="selectCartItem(item)" class="cart-line" :class="selectedCartSku === item.sku && 'active'">
+                                        <div>
+                                            <p class="font-medium" x-text="item.name"></p>
+                                            <p class="text-sm text-zinc-500" x-text="'x' + item.quantity + ' - ' + item.sku"></p>
+                                        </div>
+                                        <div class="text-right">
+                                            <strong x-text="money(item.price * item.quantity)"></strong>
+                                            <span @click.stop="removeCartItem(item)" class="mt-1 block text-xs font-bold text-red-500">Retirer</span>
+                                        </div>
+                                    </button>
+                                </template>
+                                <div class="mt-4 space-y-2 rounded-3xl bg-zinc-50 p-4 text-sm dark:bg-white/5">
+                                    <div class="flex justify-between"><span>Sous-total</span><strong x-text="money(cartSubtotal)"></strong></div>
+                                    <div class="flex justify-between"><span>Remise</span><strong x-text="money(posDiscount || 0)"></strong></div>
+                                    <div class="flex justify-between"><span>TVA</span><strong x-text="money(posTaxTotal)"></strong></div>
+                                    <div class="flex justify-between text-xl font-black"><span>Total</span><strong x-text="money(cartTotal)"></strong></div>
+                                </div>
+                            </article>
+
+                            <article class="card">
+                                <h3 class="section-title mb-4">Clavier</h3>
+                                <div class="mb-3 rounded-2xl bg-black px-4 py-3 text-right text-2xl font-black text-white" x-text="keypadValue || '0'"></div>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <template x-for="key in ['1','2','3','4','5','6','7','8','9','0','00','.']" :key="key">
+                                        <button @click="pressKeypad(key)" class="keypad-btn" x-text="key"></button>
+                                    </template>
+                                    <button @click="pressKeypad('back')" class="keypad-btn">⌫</button>
+                                    <button @click="pressKeypad('clear')" class="keypad-btn">C</button>
+                                    <button @click="applyKeypadQuantity()" class="keypad-btn primary">Qté</button>
+                                </div>
+                                <button @click="applyKeypadDiscount()" class="btn-secondary mt-3 w-full">Appliquer remise</button>
+                            </article>
+
+                            <article class="card">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <h3 class="section-title">Paiements</h3>
+                                    <button @click="addPaymentRow()" class="btn-secondary px-4">+</button>
+                                </div>
+                                <div class="space-y-3">
+                                    <template x-for="(payment, index) in posPayments" :key="index">
+                                        <div class="grid gap-2 rounded-2xl border border-black/10 p-3 dark:border-white/10">
+                                            <select x-model="payment.method" class="input w-full">
+                                                <template x-for="method in paymentMethods" :key="method[0]">
+                                                    <option :value="method[0]" x-text="method[1]"></option>
+                                                </template>
+                                            </select>
+                                            <div class="grid grid-cols-[1fr_auto] gap-2">
+                                                <input x-model.number="payment.amount" class="input" type="number" step="0.001" placeholder="Montant">
+                                                <button @click="setPaymentToRemaining(index)" class="btn-secondary px-4">Reste</button>
+                                            </div>
+                                            <input x-model="payment.reference" class="input w-full" placeholder="Référence">
+                                            <button x-show="posPayments.length > 1" @click="removePaymentRow(index)" class="text-sm font-bold text-red-500">Supprimer</button>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+                                    <div class="rounded-2xl bg-zinc-100 p-3 dark:bg-white/10"><span class="block text-zinc-500">Payé</span><strong x-text="money(posPaidTotal)"></strong></div>
+                                    <div class="rounded-2xl bg-zinc-100 p-3 dark:bg-white/10"><span class="block text-zinc-500">Reste</span><strong x-text="money(posRemaining)"></strong></div>
+                                    <div class="rounded-2xl bg-zinc-100 p-3 dark:bg-white/10"><span class="block text-zinc-500">Rendu</span><strong x-text="money(posChangeDue)"></strong></div>
+                                </div>
+                                <button @click="checkout()" class="btn-primary mt-5 w-full">Encaisser</button>
+                            </article>
+
+                            <article x-show="lastPosSale" class="card">
+                                <h3 class="section-title mb-4">Documents</h3>
+                                <div class="grid gap-2 sm:grid-cols-2">
+                                    <button @click="downloadPdf(lastPosSale.ticket_pdf_url, 'ticket-pos.pdf')" class="btn-secondary">Ticket PDF</button>
+                                    <button @click="downloadPdf(lastPosSale.invoice_pdf_url, 'facture-pos.pdf')" class="btn-secondary">Facture PDF</button>
+                                </div>
+                                <p class="mt-3 text-sm text-zinc-500" x-text="lastPosSale.order ? lastPosSale.order.order_number : ''"></p>
+                            </article>
+                        </div>
                     </div>
                 </template>
 

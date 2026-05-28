@@ -137,7 +137,9 @@ Chaque ressource supporte:
 
 Endpoints spécialisés:
 
+- `GET /api/pos/catalog`
 - `POST /api/pos/checkout`
+- `GET /api/pos/orders/{id}/ticket-pdf`
 - `POST /api/transfers/{id}/receive`
 - `GET /api/invoices/{id}/pdf`
 - `GET /api/analytics/dashboard`

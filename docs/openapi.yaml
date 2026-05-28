@@ -106,12 +106,71 @@ paths:
       responses:
         '200':
           description: Accounting totals
+  /pos/catalog:
+    get:
+      summary: Catalogue POS avec image, prix et stock disponible
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: warehouse_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Produits actifs prêts pour la caisse
   /pos/checkout:
     post:
-      summary: Encaissement POS avec lignes, paiement et décrément stock
+      summary: Encaissement POS avancé avec lignes, paiements multiples, facture et ticket PDF
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [warehouse_id, items]
+              properties:
+                warehouse_id:
+                  type: integer
+                customer_id:
+                  type: integer
+                  nullable: true
+                discount_total:
+                  type: number
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required: [product_id, sku, name, quantity, price]
+                payments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      method:
+                        type: string
+                        enum: [cash, card, transfer, mobile, cheque, gift_card, mixed]
+                      amount:
+                        type: number
+                      reference:
+                        type: string
       responses:
         '201':
-          description: POS order created
+          description: POS order created with invoice_pdf_url and ticket_pdf_url
+  /pos/orders/{id}/ticket-pdf:
+    get:
+      summary: Téléchargement du ticket POS PDF
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: POS ticket PDF
   /transfers/{id}/receive:
     post:
       summary: Validation de réception transfert avec signature
