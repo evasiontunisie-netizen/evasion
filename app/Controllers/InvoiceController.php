@@ -48,8 +48,8 @@ final class InvoiceController extends Controller
 
         $pdf = DocumentPdf::make('Facture ' . $invoice['invoice_number'], [
             'Entreprise' => [
-                'Evasion ERP',
-                'Showrooms physiques + WooCommerce',
+                'Mon POS',
+                'Caisse et gestion commerciale',
                 'Document genere automatiquement',
             ],
             'Client' => [
@@ -73,7 +73,7 @@ final class InvoiceController extends Controller
             ],
             'Conditions' => [
                 'Merci pour votre confiance.',
-                'Cette facture est generee par Evasion ERP.',
+                'Cette facture est generee par Mon POS.',
             ],
         ]);
 

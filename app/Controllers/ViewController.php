@@ -23,7 +23,7 @@ final class ViewController
     <meta name="theme-color" content="#111111">
     <meta name="csrf-token" content="<?= Security::e(Security::csrfToken()) ?>">
     <link rel="manifest" href="/manifest.json">
-    <title>Evasion ERP</title>
+    <title>Mon POS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { accent: '#ff4d19', ink: '#111111' }, boxShadow: { soft: '0 20px 60px rgba(15,23,42,.10)' } } } }</script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
@@ -34,9 +34,9 @@ final class ViewController
         <div class="login-card mx-auto w-full max-w-md">
             <div class="mb-8 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="login-logo">E</div>
+                    <div class="login-logo">M</div>
                     <div>
-                        <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Evasion</p>
+                        <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Mon POS</p>
                         <h1 class="text-2xl font-semibold tracking-tight">Connexion</h1>
                     </div>
                 </div>
@@ -60,8 +60,6 @@ final class ViewController
                     <span x-text="authLoading ? 'Patientez...' : 'Se connecter'"></span>
                 </button>
             </form>
-
-            <button @click="enterPreview()" class="mt-4 w-full text-sm font-semibold text-accent">Mode aperçu</button>
         </div>
     </section>
 
@@ -71,10 +69,10 @@ final class ViewController
         <aside x-show="menuOpen" x-transition class="menu-panel">
             <div class="flex items-center justify-between px-5 py-5">
                 <div class="flex items-center gap-3">
-                    <div class="grid h-11 w-11 place-items-center rounded-2xl bg-black text-white dark:bg-white dark:text-black">E</div>
+                    <div class="grid h-11 w-11 place-items-center rounded-2xl bg-black text-white dark:bg-white dark:text-black">M</div>
                     <div>
-                        <p class="text-sm text-zinc-500">ERP</p>
-                        <h1 class="font-semibold tracking-tight">Evasion ERP</h1>
+                        <p class="text-sm text-zinc-500">Caisse</p>
+                        <h1 class="font-semibold tracking-tight">Mon POS</h1>
                     </div>
                 </div>
                 <button @click="menuOpen = false; persistMenu()" class="btn-secondary px-4">Fermer</button>
@@ -94,7 +92,7 @@ final class ViewController
                     <div class="flex items-center gap-3">
                         <button @click="menuOpen = !menuOpen; persistMenu()" class="btn-secondary px-4" x-text="menuOpen ? 'Masquer menu' : 'Menu'"></button>
                         <div>
-                            <p class="text-xs uppercase tracking-[.35em] text-accent">Evasion ERP</p>
+                            <p class="text-xs uppercase tracking-[.35em] text-accent">Mon POS</p>
                             <h2 class="mt-1 text-2xl font-semibold tracking-tight" x-text="title"></h2>
                         </div>
                     </div>

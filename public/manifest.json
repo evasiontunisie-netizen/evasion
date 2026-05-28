@@ -1,11 +1,11 @@
 {
-  "name": "Evasion ERP",
-  "short_name": "ERP",
+  "name": "Mon POS",
+  "short_name": "Mon POS",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f6f6f3",
   "theme_color": "#111111",
-  "description": "ERP moderne multi-showrooms et multi-sites WooCommerce.",
+  "description": "Caisse POS moderne.",
   "icons": [
     {
       "src": "/assets/icon-192.svg",
