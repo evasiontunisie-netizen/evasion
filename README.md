@@ -17,6 +17,10 @@ ERP PHP 8 moderne pour gérer plusieurs showrooms physiques et plusieurs sites e
 - Marketing & analytics: KPI, top produits, ventes par canal/showroom, campagnes.
 - Comptabilité: factures, dépenses, TVA, bénéfice, exports.
 - Notifications: in-app, email, SMS, WhatsApp-ready, publication temps réel.
+- IA pro: assistant d'analyse ventes/stocks/SAV/comptabilité avec recommandations opérationnelles.
+- Factures PDF complètes: endpoint dédié `/api/invoices/{id}/pdf`.
+- WebSocket réel: serveur PHP léger `bin/websocket-server.php` diffusant les événements ERP.
+- 2FA complet: setup QR, confirmation OTP et désactivation via API/UI.
 - PWA, dark mode, responsive desktop/tablette/mobile, FR/AR/EN prêt à étendre.
 
 ## Stack
@@ -36,6 +40,14 @@ php -S 0.0.0.0:8080 -t public
 ```
 
 Ouvrir ensuite `http://localhost:8080`.
+
+Pour les notifications temps réel WebSocket:
+
+```bash
+php bin/websocket-server.php
+```
+
+Le serveur écoute par défaut sur `0.0.0.0:8090`.
 
 ## Premier administrateur
 
@@ -110,8 +122,14 @@ Endpoints spécialisés:
 
 - `POST /api/pos/checkout`
 - `POST /api/transfers/{id}/receive`
+- `GET /api/invoices/{id}/pdf`
 - `GET /api/analytics/dashboard`
 - `GET /api/analytics/accounting`
+- `GET /api/ai/insights`
+- `POST /api/ai/ask`
+- `POST /api/auth/2fa/setup`
+- `POST /api/auth/2fa/confirm`
+- `POST /api/auth/2fa/disable`
 - `POST /api/woocommerce-sites/{id}/sync`
 - `POST /api/woocommerce/webhook`
 

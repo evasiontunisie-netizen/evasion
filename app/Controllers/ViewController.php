@@ -123,9 +123,13 @@ final class ViewController
                             <option value="ar">AR</option>
                             <option value="en">EN</option>
                         </select>
+                        <span class="hidden rounded-full px-3 py-2 text-xs font-semibold sm:inline-flex" :class="wsConnected ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500'" x-text="wsConnected ? 'Live' : 'Offline'"></span>
+                        <button @click="openAi()" class="btn-secondary">IA</button>
+                        <button @click="open2fa()" class="btn-secondary">2FA</button>
                         <button @click="darkMode = !darkMode; persistTheme()" class="btn-secondary" x-text="darkMode ? 'Light' : 'Dark'"></button>
                         <button @click="logout()" class="btn-secondary">Déconnexion</button>
                         <button @click="openCreate()" class="btn-primary">Créer</button>
+                        <button x-show="module === 'invoices'" @click="openInvoicePdf()" class="btn-primary">PDF facture</button>
                         <label x-show="module === 'products'" class="btn-secondary grid cursor-pointer place-items-center">
                             Import CSV
                             <input class="hidden" type="file" accept=".csv" @change="importCsv($event)">
@@ -153,6 +157,23 @@ final class ViewController
                                 </article>
                             </template>
                         </div>
+                        <article class="card hero-card">
+                            <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                                <div>
+                                    <p class="text-xs uppercase tracking-[.3em] text-accent">Assistant IA</p>
+                                    <h3 class="mt-2 text-2xl font-black tracking-tight" x-text="ai.summary || 'Analyse opérationnelle prête'"></h3>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-zinc-500">Score ERP</p>
+                                    <strong class="text-5xl" x-text="(ai.score || 0) + '%'"></strong>
+                                </div>
+                            </div>
+                            <div class="mt-5 grid gap-3 md:grid-cols-3">
+                                <template x-for="action in ai.actions" :key="action">
+                                    <div class="rounded-2xl bg-white/70 p-4 text-sm font-medium shadow-sm dark:bg-black/30" x-text="action"></div>
+                                </template>
+                            </div>
+                        </article>
                         <div class="grid gap-4 xl:grid-cols-[2fr_1fr]">
                             <article class="card">
                                 <div class="mb-4 flex items-center justify-between">
@@ -261,6 +282,17 @@ final class ViewController
                     </article>
                 </template>
 
+                <template x-if="module === 'invoices'">
+                    <div class="grid gap-4 md:grid-cols-4">
+                        <template x-for="item in accountingCards" :key="item.label">
+                            <article class="card">
+                                <p class="text-sm text-zinc-500" x-text="item.label"></p>
+                                <strong class="mt-2 block text-2xl" x-text="item.value"></strong>
+                            </article>
+                        </template>
+                    </div>
+                </template>
+
                 <template x-if="module !== 'dashboard' && module !== 'pos' && module !== 'products' && module !== 'users'">
                     <article class="card">
                         <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -290,6 +322,10 @@ final class ViewController
                 </template>
             </section>
         </main>
+    </div>
+
+    <div x-cloak x-show="isAuthenticated" class="fixed bottom-5 right-5 z-40">
+        <button @click="openAi()" class="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-black to-accent font-black text-white shadow-soft">IA</button>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

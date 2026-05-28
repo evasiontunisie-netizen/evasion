@@ -116,4 +116,47 @@ final class AuthController extends Controller
     {
         $this->ok(['user' => $request->user]);
     }
+
+    public function twoFactorSetup(Request $request): void
+    {
+        $secret = base64_encode(random_bytes(20));
+        $userId = (int) ($request->user['sub'] ?? 0);
+        Database::pdo()->prepare('UPDATE users SET two_factor_secret = :secret, two_factor_enabled = 0 WHERE id = :id')
+            ->execute(['secret' => $secret, 'id' => $userId]);
+
+        $email = rawurlencode((string) ($request->user['email'] ?? 'user'));
+        $issuer = rawurlencode('Evasion ERP');
+        $otpauth = "otpauth://totp/Evasion%20ERP:{$email}?secret=" . rawurlencode($secret) . "&issuer={$issuer}&algorithm=SHA1&digits=6&period=30";
+        Logger::activity($userId, '2fa.setup_requested');
+
+        $this->ok([
+            'secret' => $secret,
+            'otpauth_url' => $otpauth,
+            'qr_url' => 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . rawurlencode($otpauth),
+        ]);
+    }
+
+    public function twoFactorConfirm(Request $request): void
+    {
+        $userId = (int) ($request->user['sub'] ?? 0);
+        $statement = Database::pdo()->prepare('SELECT two_factor_secret FROM users WHERE id = :id LIMIT 1');
+        $statement->execute(['id' => $userId]);
+        $secret = (string) $statement->fetchColumn();
+        if ($secret === '' || !Security::verifyTotp($secret, (string) $request->input('otp'))) {
+            $this->error('Invalid 2FA code', 422);
+            return;
+        }
+
+        Database::pdo()->prepare('UPDATE users SET two_factor_enabled = 1 WHERE id = :id')->execute(['id' => $userId]);
+        Logger::activity($userId, '2fa.enabled');
+        $this->ok(['enabled' => true]);
+    }
+
+    public function twoFactorDisable(Request $request): void
+    {
+        $userId = (int) ($request->user['sub'] ?? 0);
+        Database::pdo()->prepare('UPDATE users SET two_factor_enabled = 0, two_factor_secret = NULL WHERE id = :id')->execute(['id' => $userId]);
+        Logger::activity($userId, '2fa.disabled');
+        $this->ok(['enabled' => false]);
+    }
 }

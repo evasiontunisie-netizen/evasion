@@ -42,6 +42,20 @@ final class AnalyticsController extends Controller
         $revenue = (float) $pdo->query('SELECT COALESCE(SUM(grand_total),0) FROM invoices')->fetchColumn();
         $expenses = (float) $pdo->query('SELECT COALESCE(SUM(amount),0) FROM expenses')->fetchColumn();
         $tax = (float) $pdo->query('SELECT COALESCE(SUM(tax_total),0) FROM invoices')->fetchColumn();
-        $this->ok(['revenue' => $revenue, 'expenses' => $expenses, 'profit' => $revenue - $expenses, 'tax' => $tax]);
+        $paid = (float) $pdo->query("SELECT COALESCE(SUM(grand_total),0) FROM invoices WHERE status = 'paid'")->fetchColumn();
+        $unpaid = (float) $pdo->query("SELECT COALESCE(SUM(grand_total),0) FROM invoices WHERE status IN ('draft','sent')")->fetchColumn();
+        $monthly = $pdo->query("SELECT DATE_FORMAT(issue_date, '%Y-%m') AS month, COALESCE(SUM(grand_total),0) AS revenue, COALESCE(SUM(tax_total),0) AS tax FROM invoices GROUP BY DATE_FORMAT(issue_date, '%Y-%m') ORDER BY month DESC LIMIT 12")->fetchAll();
+        $expenseCategories = $pdo->query('SELECT category, COALESCE(SUM(amount),0) AS amount FROM expenses GROUP BY category ORDER BY amount DESC LIMIT 10')->fetchAll();
+        $this->ok([
+            'revenue' => $revenue,
+            'paid' => $paid,
+            'unpaid' => $unpaid,
+            'expenses' => $expenses,
+            'profit' => $revenue - $expenses,
+            'tax' => $tax,
+            'margin_rate' => $revenue > 0 ? round((($revenue - $expenses) / $revenue) * 100, 2) : 0,
+            'monthly' => $monthly,
+            'expense_categories' => $expenseCategories,
+        ]);
     }
 }

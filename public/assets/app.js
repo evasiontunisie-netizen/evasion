@@ -17,6 +17,11 @@ function erpApp() {
       otp: ''
     },
     analytics: null,
+    accounting: null,
+    ai: { score: 0, summary: '', actions: [] },
+    aiQuestion: '',
+    ws: null,
+    wsConnected: false,
     salesChart: null,
     channelChart: null,
     productChart: null,
@@ -176,12 +181,22 @@ function erpApp() {
     get cartTotal() {
       return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     },
+    get accountingCards() {
+      const a = this.accounting || {};
+      return [
+        { label: 'Revenus', value: this.money(a.revenue || 0) },
+        { label: 'Payé', value: this.money(a.paid || 0) },
+        { label: 'À encaisser', value: this.money(a.unpaid || 0) },
+        { label: 'Marge', value: `${a.margin_rate || 0}%` }
+      ];
+    },
     init() {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
       }
       if (this.isAuthenticated) {
         this.load();
+        this.connectWebSocket();
       }
       this.ensureTokenNotice();
     },
@@ -226,6 +241,7 @@ function erpApp() {
         localStorage.setItem('token', data.token);
         localStorage.removeItem('previewMode');
         await this.load();
+        this.connectWebSocket();
         Swal.fire('Connecté', 'Bienvenue dans Evasion ERP.', 'success');
       } catch (error) {
         Swal.fire('Connexion impossible', error.message || 'Vérifie la base MySQL et tes identifiants.', 'error');
@@ -264,6 +280,9 @@ function erpApp() {
       localStorage.removeItem('previewMode');
       this.rows = [];
       this.analytics = null;
+      this.accounting = null;
+      this.ws?.close();
+      this.wsConnected = false;
       this.module = 'dashboard';
     },
     async load() {
@@ -277,6 +296,9 @@ function erpApp() {
         const data = await this.api(`/api/${this.module}?q=${encodeURIComponent(this.query)}`);
         this.rows = data.items || [];
         this.columns = this.rows[0] ? Object.keys(this.rows[0]).slice(0, 6) : ['id', 'name', 'status', 'created_at'];
+        if (this.module === 'invoices') {
+          await this.loadAccounting();
+        }
       } catch (error) {
         this.rows = [];
       }
@@ -284,10 +306,45 @@ function erpApp() {
     async loadAnalytics() {
       try {
         this.analytics = await this.api('/api/analytics/dashboard');
+        await this.loadAi();
       } catch (error) {
         this.analytics = { kpis: {}, sales_series: [], sales_by_channel: [] };
       }
       this.$nextTick(() => this.renderCharts());
+    },
+    async loadAccounting() {
+      try {
+        this.accounting = await this.api('/api/analytics/accounting');
+      } catch (error) {
+        this.accounting = null;
+      }
+    },
+    async loadAi() {
+      if (!this.token) return;
+      try {
+        this.ai = await this.api('/api/ai/insights');
+      } catch (error) {
+        this.ai = { score: 0, summary: 'IA indisponible', actions: [] };
+      }
+    },
+    connectWebSocket() {
+      if (!this.token || this.ws || !('WebSocket' in window)) return;
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      this.ws = new WebSocket(`${protocol}//${location.hostname}:8090`);
+      this.ws.onopen = () => { this.wsConnected = true; };
+      this.ws.onclose = () => {
+        this.wsConnected = false;
+        this.ws = null;
+      };
+      this.ws.onerror = () => { this.wsConnected = false; };
+      this.ws.onmessage = event => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.event || message.payload?.event) {
+            this.load();
+          }
+        } catch (_) {}
+      };
     },
     renderCharts() {
       const sales = this.analytics?.sales_series || [];
@@ -380,6 +437,53 @@ function erpApp() {
         Swal.fire('Créé', `${this.title} enregistré avec succès.`, 'success');
       } catch (error) {
         Swal.fire('Erreur création', error.message || 'Vérifie les champs obligatoires et la base de données.', 'error');
+      }
+    },
+    async openAi() {
+      if (!this.token) {
+        Swal.fire('IA verrouillée', 'Connecte-toi pour utiliser l’assistant IA pro.', 'info');
+        return;
+      }
+      await this.loadAi();
+      const html = `
+        <div class="text-left">
+          <div class="rounded-2xl bg-zinc-100 p-4 dark:bg-zinc-900">
+            <p class="text-sm text-zinc-500">Score ERP</p>
+            <strong class="text-4xl">${this.ai.score || 0}%</strong>
+          </div>
+          <div class="mt-4 space-y-2">${(this.ai.actions || []).map(action => `<p class="rounded-xl border p-3">${this.escapeHtml(action)}</p>`).join('')}</div>
+          <input id="ai-question" class="swal2-input" placeholder="Question: stock, ventes, SAV, facture...">
+        </div>`;
+      const result = await Swal.fire({ title: 'Assistant IA pro', html, showCancelButton: true, confirmButtonText: 'Demander', cancelButtonText: 'Fermer', confirmButtonColor: '#ff4d19', preConfirm: () => document.getElementById('ai-question').value });
+      if (result.isConfirmed && result.value) {
+        const data = await this.api('/api/ai/ask', { method: 'POST', body: JSON.stringify({ question: result.value }) });
+        Swal.fire('Réponse IA', data.answer, 'success');
+      }
+    },
+    async open2fa() {
+      if (!this.token) {
+        Swal.fire('Connexion requise', 'Connecte-toi avant d’activer le 2FA.', 'info');
+        return;
+      }
+      const setup = await this.api('/api/auth/2fa/setup', { method: 'POST', body: '{}' });
+      const html = `
+        <div class="space-y-3">
+          <img src="${setup.qr_url}" class="mx-auto rounded-2xl" alt="QR 2FA">
+          <p class="text-sm">Scanne avec Google Authenticator puis saisis le code.</p>
+          <code class="block rounded-xl bg-zinc-100 p-3 text-xs">${this.escapeHtml(setup.secret)}</code>
+          <input id="otp-code" class="swal2-input" placeholder="Code 6 chiffres">
+        </div>`;
+      const result = await Swal.fire({ title: 'Activer 2FA', html, showCancelButton: true, confirmButtonText: 'Activer', cancelButtonText: 'Annuler', confirmButtonColor: '#ff4d19', preConfirm: () => document.getElementById('otp-code').value });
+      if (result.isConfirmed) {
+        await this.api('/api/auth/2fa/confirm', { method: 'POST', body: JSON.stringify({ otp: result.value }) });
+        Swal.fire('2FA activé', 'La prochaine connexion demandera le code OTP.', 'success');
+      }
+    },
+    async openInvoicePdf() {
+      const id = this.rows[0]?.id;
+      const result = await Swal.fire({ title: 'Facture PDF', input: 'number', inputLabel: 'ID facture', inputValue: id || '', showCancelButton: true, confirmButtonText: 'Télécharger', confirmButtonColor: '#ff4d19' });
+      if (result.isConfirmed && result.value) {
+        window.open(`/api/invoices/${result.value}/pdf`, '_blank');
       }
     },
     formFieldHtml(field) {

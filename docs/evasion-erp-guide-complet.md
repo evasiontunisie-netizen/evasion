@@ -47,7 +47,7 @@ Elle couvre:
 - PWA avec service worker.
 - Recherche instantanee dans les modules.
 
-### Dashboard et courbes
+### Dashboard, IA et courbes
 
 - KPI chiffre d'affaires.
 - Commandes du mois.
@@ -58,6 +58,9 @@ Elle couvre:
 - Courbe ventes 30 jours.
 - Graphique ventes par canal.
 - Graphique produits par categorie.
+- Assistant IA pro avec score ERP.
+- Recommandations automatiques: stock, SAV, ventes, comptabilite.
+- Question/reponse IA metier depuis l'interface.
 
 ### Produits
 
@@ -208,13 +211,19 @@ L'import cree ou met a jour:
 - Points fidelite.
 - Notes internes.
 
-### Comptabilite
+### Comptabilite avancee
 
 - Factures.
 - Depenses.
 - Totaux comptables.
 - TVA.
 - Benefice simplifie.
+- Montant paye.
+- Montant a encaisser.
+- Marge.
+- Revenus mensuels.
+- Depenses par categorie.
+- PDF facture complet.
 - Export.
 
 ### Marketing
@@ -231,15 +240,15 @@ L'import cree ou met a jour:
 - Email/SMS/WhatsApp prepares en base.
 - Statut notification.
 
-## 3. Ce qui est partiel ou a connecter en production
+## 3. Ce qui reste a connecter en production
 
 - Synchronisation WooCommerce automatique en temps reel: structure presente, connecteur a brancher sur les vrais sites.
 - Envoi email reel: SMTP/API a configurer.
 - SMS reel: fournisseur a configurer.
 - WhatsApp API reel: fournisseur Meta/Twilio/360dialog a configurer.
-- WebSocket temps reel: publication preparee, serveur socket a deployer.
-- PDF facture avance: export PDF simple pour le moment.
-- 2FA: verification backend presente, interface de setup du secret a completer.
+- WebSocket: serveur PHP fourni, a lancer en process permanent en production.
+- PDF facture: generation complete fournie, design graphique personnalisable selon charte.
+- 2FA: setup QR + confirmation OTP fournis.
 - Permissions fines par ecran: base et middleware presents, regles a durcir selon organisation.
 
 ## 4. Installation locale avec XAMPP
@@ -298,6 +307,20 @@ Ouvrir:
 
 ```text
 http://localhost:8080
+```
+
+### Lancer le WebSocket live
+
+Dans un deuxieme terminal:
+
+```powershell
+php bin/websocket-server.php
+```
+
+Port par defaut:
+
+```text
+ws://localhost:8090
 ```
 
 ## 5. Creation admin
@@ -619,6 +642,62 @@ Retourne:
 - depenses;
 - benefice;
 - TVA.
+- paye;
+- a encaisser;
+- marge;
+- revenus mensuels;
+- depenses par categorie.
+
+### PDF facture complet
+
+```bash
+curl -L http://localhost:8080/api/invoices/1/pdf \
+  -H "Authorization: Bearer JWT_TOKEN" \
+  -o facture-1.pdf
+```
+
+### Assistant IA pro
+
+Insights:
+
+```bash
+curl http://localhost:8080/api/ai/insights \
+  -H "Authorization: Bearer JWT_TOKEN"
+```
+
+Question:
+
+```bash
+curl -X POST http://localhost:8080/api/ai/ask \
+  -H "Authorization: Bearer JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"question\":\"quoi faire pour le stock faible\"}"
+```
+
+### 2FA complet
+
+Setup:
+
+```bash
+curl -X POST http://localhost:8080/api/auth/2fa/setup \
+  -H "Authorization: Bearer JWT_TOKEN"
+```
+
+Confirmation:
+
+```bash
+curl -X POST http://localhost:8080/api/auth/2fa/confirm \
+  -H "Authorization: Bearer JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"otp\":\"123456\"}"
+```
+
+Desactivation:
+
+```bash
+curl -X POST http://localhost:8080/api/auth/2fa/disable \
+  -H "Authorization: Bearer JWT_TOKEN"
+```
 
 ### POS checkout
 
