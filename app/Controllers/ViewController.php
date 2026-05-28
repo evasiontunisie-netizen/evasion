@@ -88,7 +88,7 @@ final class ViewController
             </nav>
         </aside>
 
-        <main class="pb-24 transition-all duration-300 lg:pb-0" :class="menuOpen ? 'lg:pl-[300px]' : ''">
+        <main class="pb-24 lg:pb-0">
             <header class="sticky top-0 z-20 border-b border-black/10 bg-[#f6f6f3]/85 px-4 py-4 backdrop-blur-xl dark:border-white/10 dark:bg-black/80 sm:px-6">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
