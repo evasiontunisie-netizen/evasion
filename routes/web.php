@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Controllers\AnalyticsController;
+use App\Controllers\AiController;
 use App\Controllers\AuthController;
+use App\Controllers\InvoiceController;
 use App\Controllers\ModuleController;
 use App\Controllers\UploadController;
 use App\Controllers\ViewController;
@@ -32,12 +34,18 @@ $router->post('/api/auth/register-admin', [AuthController::class, 'registerAdmin
 $router->post('/api/auth/forgot-password', [AuthController::class, 'forgotPassword'], [$apiLimiter]);
 $router->post('/api/auth/reset-password', [AuthController::class, 'resetPassword'], [$apiLimiter]);
 $router->get('/api/auth/me', [AuthController::class, 'me'], [$apiLimiter, $auth]);
+$router->post('/api/auth/2fa/setup', [AuthController::class, 'twoFactorSetup'], [$apiLimiter, $auth]);
+$router->post('/api/auth/2fa/confirm', [AuthController::class, 'twoFactorConfirm'], [$apiLimiter, $auth]);
+$router->post('/api/auth/2fa/disable', [AuthController::class, 'twoFactorDisable'], [$apiLimiter, $auth]);
 
 $router->get('/api/analytics/dashboard', [AnalyticsController::class, 'dashboard'], [$apiLimiter, $auth]);
 $router->get('/api/analytics/accounting', [AnalyticsController::class, 'accounting'], [$apiLimiter, $auth]);
+$router->get('/api/ai/insights', [AiController::class, 'insights'], [$apiLimiter, $auth]);
+$router->post('/api/ai/ask', [AiController::class, 'ask'], [$apiLimiter, $auth]);
 
 $router->post('/api/uploads', [UploadController::class, 'store'], [$apiLimiter, $auth]);
 $router->post('/api/pos/checkout', [ModuleController::class, 'posCheckout'], [$apiLimiter, $auth]);
+$router->get('/api/invoices/{id}/pdf', [InvoiceController::class, 'pdf'], [$apiLimiter, $auth]);
 $router->post('/api/transfers/{id}/receive', [ModuleController::class, 'transferReceive'], [$apiLimiter, $auth]);
 $router->post('/api/woocommerce-sites/{id}/sync', [WooCommerceController::class, 'sync'], [$apiLimiter, $auth]);
 $router->post('/api/woocommerce/webhook', [WooCommerceController::class, 'webhook'], [$apiLimiter]);

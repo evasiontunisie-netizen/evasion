@@ -38,25 +38,71 @@ final class ModuleRegistry
             'notifications' => ['table' => 'notifications', 'search' => ['title', 'channel', 'status'], 'fields' => ['user_id', 'title', 'body', 'channel', 'status', 'payload']],
             'woocommerce-sites' => ['table' => 'woocommerce_sites', 'search' => ['name', 'url'], 'fields' => ['name', 'url', 'consumer_key', 'consumer_secret', 'status', 'last_sync_at']],
             'marketing-campaigns' => ['table' => 'marketing_campaigns', 'search' => ['name', 'channel'], 'fields' => ['name', 'channel', 'budget', 'revenue', 'starts_at', 'ends_at', 'status']],
+            'users' => ['table' => 'users', 'search' => ['name', 'email', 'status'], 'fields' => ['role_id', 'name', 'email', 'avatar_path', 'status']],
+            'roles' => ['table' => 'roles', 'search' => ['name', 'slug'], 'fields' => ['name', 'slug']],
+            'permissions' => ['table' => 'permissions', 'search' => ['name', 'slug'], 'fields' => ['name', 'slug']],
         ];
     }
 
     public static function navigation(): array
     {
         return [
-            ['key' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'grid'],
-            ['key' => 'products', 'label' => 'Produits', 'icon' => 'box'],
-            ['key' => 'stock', 'label' => 'Stocks', 'icon' => 'layers'],
-            ['key' => 'transfers', 'label' => 'Transferts', 'icon' => 'shuffle'],
-            ['key' => 'pos', 'label' => 'POS Caisse', 'icon' => 'terminal'],
-            ['key' => 'tickets', 'label' => 'Tickets SAV', 'icon' => 'message'],
-            ['key' => 'employees', 'label' => 'RH', 'icon' => 'users'],
-            ['key' => 'deliveries', 'label' => 'Livraison', 'icon' => 'truck'],
-            ['key' => 'woocommerce-sites', 'label' => 'WooCommerce', 'icon' => 'globe'],
-            ['key' => 'customers', 'label' => 'CRM', 'icon' => 'heart'],
-            ['key' => 'marketing-campaigns', 'label' => 'Marketing', 'icon' => 'chart'],
-            ['key' => 'invoices', 'label' => 'Comptabilité', 'icon' => 'receipt'],
-            ['key' => 'notifications', 'label' => 'Notifications', 'icon' => 'bell'],
+            ['key' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'grid', 'permission' => 'analytics.view'],
+            ['key' => 'products', 'label' => 'Produits', 'icon' => 'box', 'permission' => 'products.manage'],
+            ['key' => 'stock', 'label' => 'Stocks', 'icon' => 'layers', 'permission' => 'stock.manage'],
+            ['key' => 'transfers', 'label' => 'Transferts', 'icon' => 'shuffle', 'permission' => 'transfers.manage'],
+            ['key' => 'pos', 'label' => 'POS Caisse', 'icon' => 'terminal', 'permission' => 'pos.use'],
+            ['key' => 'tickets', 'label' => 'Tickets SAV', 'icon' => 'message', 'permission' => 'tickets.manage'],
+            ['key' => 'employees', 'label' => 'RH', 'icon' => 'users', 'permission' => 'hr.manage'],
+            ['key' => 'users', 'label' => 'Users', 'icon' => 'user', 'permission' => 'users.manage'],
+            ['key' => 'deliveries', 'label' => 'Livraison', 'icon' => 'truck', 'permission' => 'deliveries.manage'],
+            ['key' => 'woocommerce-sites', 'label' => 'WooCommerce', 'icon' => 'globe', 'permission' => 'woocommerce.manage'],
+            ['key' => 'customers', 'label' => 'CRM', 'icon' => 'heart', 'permission' => 'customers.manage'],
+            ['key' => 'marketing-campaigns', 'label' => 'Marketing', 'icon' => 'chart', 'permission' => 'marketing.manage'],
+            ['key' => 'invoices', 'label' => 'Comptabilité', 'icon' => 'receipt', 'permission' => 'accounting.manage'],
+            ['key' => 'notifications', 'label' => 'Notifications', 'icon' => 'bell', 'permission' => 'notifications.manage'],
+            ['key' => 'roles', 'label' => 'Permissions', 'icon' => 'shield', 'permission' => 'users.manage'],
         ];
+    }
+
+    public static function permissionFor(string $resource, string $action = 'read'): string
+    {
+        $map = [
+            'dashboard' => 'analytics.view',
+            'products' => 'products.manage',
+            'product-variants' => 'products.manage',
+            'product-images' => 'products.manage',
+            'categories' => 'products.manage',
+            'brands' => 'products.manage',
+            'suppliers' => 'products.manage',
+            'warehouses' => 'stock.manage',
+            'stock' => 'stock.manage',
+            'stock-movements' => 'stock.manage',
+            'transfers' => 'transfers.manage',
+            'transfer-items' => 'transfers.manage',
+            'tickets' => 'tickets.manage',
+            'ticket-messages' => 'tickets.manage',
+            'departments' => 'hr.manage',
+            'employees' => 'hr.manage',
+            'employee-documents' => 'hr.manage',
+            'attendance' => 'hr.manage',
+            'leaves' => 'hr.manage',
+            'salaries' => 'hr.manage',
+            'deliveries' => 'deliveries.manage',
+            'orders' => $action === 'create' ? 'pos.use' : 'analytics.view',
+            'order-items' => $action === 'create' ? 'pos.use' : 'analytics.view',
+            'payments' => 'pos.use',
+            'customers' => 'customers.manage',
+            'invoices' => 'accounting.manage',
+            'expenses' => 'accounting.manage',
+            'notifications' => 'notifications.manage',
+            'woocommerce-sites' => 'woocommerce.manage',
+            'marketing-campaigns' => 'marketing.manage',
+            'users' => 'users.manage',
+            'roles' => 'users.manage',
+            'permissions' => 'users.manage',
+        ];
+
+        return $map[$resource] ?? '*';
     }
 }

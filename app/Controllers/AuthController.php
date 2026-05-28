@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Auth\Jwt;
+use App\Core\Auth\AuthGuard;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Logger;
@@ -36,11 +37,12 @@ final class AuthController extends Controller
             return;
         }
 
-        $token = Jwt::issue(['sub' => (int) $user['id'], 'name' => $user['name'], 'email' => $user['email'], 'role' => $user['role_slug']]);
+        $permissions = AuthGuard::permissions((int) $user['id']);
+        $token = Jwt::issue(['sub' => (int) $user['id'], 'name' => $user['name'], 'email' => $user['email'], 'role' => $user['role_slug'], 'permissions' => $permissions]);
         Database::pdo()->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')->execute(['id' => $user['id']]);
         Logger::activity((int) $user['id'], 'login_success');
 
-        $this->ok(['token' => $token, 'user' => ['id' => (int) $user['id'], 'name' => $user['name'], 'email' => $user['email'], 'role' => $user['role_slug']]]);
+        $this->ok(['token' => $token, 'user' => ['id' => (int) $user['id'], 'name' => $user['name'], 'email' => $user['email'], 'role' => $user['role_slug'], 'permissions' => $permissions, 'two_factor_enabled' => (bool) $user['two_factor_enabled']]]);
     }
 
     public function registerAdmin(Request $request): void
@@ -114,6 +116,54 @@ final class AuthController extends Controller
 
     public function me(Request $request): void
     {
-        $this->ok(['user' => $request->user]);
+        $userId = (int) ($request->user['sub'] ?? 0);
+        $statement = Database::pdo()->prepare('SELECT id, name, email, two_factor_enabled, status FROM users WHERE id = :id LIMIT 1');
+        $statement->execute(['id' => $userId]);
+        $profile = $statement->fetch() ?: [];
+        $profile['permissions'] = AuthGuard::permissions($userId);
+        $this->ok(['user' => $profile]);
+    }
+
+    public function twoFactorSetup(Request $request): void
+    {
+        $secret = base64_encode(random_bytes(20));
+        $userId = (int) ($request->user['sub'] ?? 0);
+        Database::pdo()->prepare('UPDATE users SET two_factor_secret = :secret, two_factor_enabled = 0 WHERE id = :id')
+            ->execute(['secret' => $secret, 'id' => $userId]);
+
+        $email = rawurlencode((string) ($request->user['email'] ?? 'user'));
+        $issuer = rawurlencode('Evasion ERP');
+        $otpauth = "otpauth://totp/Evasion%20ERP:{$email}?secret=" . rawurlencode($secret) . "&issuer={$issuer}&algorithm=SHA1&digits=6&period=30";
+        Logger::activity($userId, '2fa.setup_requested');
+
+        $this->ok([
+            'secret' => $secret,
+            'otpauth_url' => $otpauth,
+            'qr_url' => 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . rawurlencode($otpauth),
+        ]);
+    }
+
+    public function twoFactorConfirm(Request $request): void
+    {
+        $userId = (int) ($request->user['sub'] ?? 0);
+        $statement = Database::pdo()->prepare('SELECT two_factor_secret FROM users WHERE id = :id LIMIT 1');
+        $statement->execute(['id' => $userId]);
+        $secret = (string) $statement->fetchColumn();
+        if ($secret === '' || !Security::verifyTotp($secret, (string) $request->input('otp'))) {
+            $this->error('Invalid 2FA code', 422);
+            return;
+        }
+
+        Database::pdo()->prepare('UPDATE users SET two_factor_enabled = 1 WHERE id = :id')->execute(['id' => $userId]);
+        Logger::activity($userId, '2fa.enabled');
+        $this->ok(['enabled' => true]);
+    }
+
+    public function twoFactorDisable(Request $request): void
+    {
+        $userId = (int) ($request->user['sub'] ?? 0);
+        Database::pdo()->prepare('UPDATE users SET two_factor_enabled = 0, two_factor_secret = NULL WHERE id = :id')->execute(['id' => $userId]);
+        Logger::activity($userId, '2fa.disabled');
+        $this->ok(['enabled' => false]);
     }
 }

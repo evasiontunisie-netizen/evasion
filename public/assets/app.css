@@ -15,6 +15,18 @@ html {
   backdrop-filter: blur(18px);
 }
 
+.hero-card {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(255, 77, 25, .18), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, .92), rgba(255, 255, 255, .68));
+}
+
+.dark .hero-card {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(255, 77, 25, .22), transparent 28%),
+    linear-gradient(135deg, rgba(39, 39, 42, .9), rgba(0, 0, 0, .72));
+}
+
 .dark .card {
   border-color: rgba(255, 255, 255, .10);
   background: rgba(24, 24, 27, .72);
@@ -48,6 +60,12 @@ html {
   background: rgba(255, 255, 255, .76);
 }
 
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: .55;
+  transform: none;
+}
+
 .dark .btn-secondary,
 .dark .input {
   border-color: rgba(255, 255, 255, .12);
@@ -69,7 +87,7 @@ html {
 
 .nav-item:hover,
 .nav-item.active {
-  background: #111;
+  background: linear-gradient(135deg, #111 0%, #ff4d19 140%);
   color: #fff;
   transform: translateX(2px);
 }
@@ -90,10 +108,45 @@ html {
   letter-spacing: -.02em;
 }
 
+.line-clamp-2 {
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
+  overflow: hidden;
+}
+
 .modern-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0 .65rem;
+}
+
+.swal-form-grid {
+  display: grid;
+  gap: .8rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: .5rem;
+  text-align: left;
+}
+
+.swal-form-label {
+  color: rgb(82 82 91);
+  display: grid;
+  font-size: .78rem;
+  font-weight: 700;
+  gap: .25rem;
+}
+
+.swal-form-label .swal2-input,
+.swal-form-label .swal2-textarea {
+  border-radius: 16px;
+  font-size: .9rem;
+  margin: 0;
+  width: 100%;
+}
+
+.swal-form-label .swal2-textarea {
+  min-height: 92px;
 }
 
 .modern-table th {

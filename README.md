@@ -17,6 +17,10 @@ ERP PHP 8 moderne pour gérer plusieurs showrooms physiques et plusieurs sites e
 - Marketing & analytics: KPI, top produits, ventes par canal/showroom, campagnes.
 - Comptabilité: factures, dépenses, TVA, bénéfice, exports.
 - Notifications: in-app, email, SMS, WhatsApp-ready, publication temps réel.
+- IA pro: assistant d'analyse ventes/stocks/SAV/comptabilité avec recommandations opérationnelles.
+- Factures PDF complètes: endpoint dédié `/api/invoices/{id}/pdf`.
+- WebSocket réel: serveur PHP léger `bin/websocket-server.php` diffusant les événements ERP.
+- 2FA complet: setup QR, confirmation OTP et désactivation via API/UI.
 - PWA, dark mode, responsive desktop/tablette/mobile, FR/AR/EN prêt à étendre.
 
 ## Stack
@@ -36,6 +40,26 @@ php -S 0.0.0.0:8080 -t public
 ```
 
 Ouvrir ensuite `http://localhost:8080`.
+
+Pour les notifications temps réel WebSocket:
+
+```bash
+php bin/websocket-server.php
+```
+
+Le serveur écoute par défaut sur `0.0.0.0:8090`.
+
+Production Linux:
+
+```bash
+sudo bash scripts/install-websocket-systemd.sh /var/www/evasion
+```
+
+XAMPP Windows:
+
+```text
+scripts/start-websocket-xampp.bat
+```
 
 ## Premier administrateur
 
@@ -75,6 +99,12 @@ storage/              Cache, logs et uploads
 
 Toutes les routes métier sont préfixées par `/api` et utilisent un bearer token JWT.
 
+Documentation complète:
+
+- Résumé fonctionnel + guide API: [`docs/evasion-erp-guide-complet.md`](docs/evasion-erp-guide-complet.md)
+- PDF téléchargeable: [`docs/evasion-erp-guide-complet.pdf`](docs/evasion-erp-guide-complet.pdf)
+- Spécification OpenAPI: [`docs/openapi.yaml`](docs/openapi.yaml)
+
 Ressources CRUD génériques:
 
 - `/api/products`
@@ -104,8 +134,14 @@ Endpoints spécialisés:
 
 - `POST /api/pos/checkout`
 - `POST /api/transfers/{id}/receive`
+- `GET /api/invoices/{id}/pdf`
 - `GET /api/analytics/dashboard`
 - `GET /api/analytics/accounting`
+- `GET /api/ai/insights`
+- `POST /api/ai/ask`
+- `POST /api/auth/2fa/setup`
+- `POST /api/auth/2fa/confirm`
+- `POST /api/auth/2fa/disable`
 - `POST /api/woocommerce-sites/{id}/sync`
 - `POST /api/woocommerce/webhook`
 
@@ -121,3 +157,24 @@ Endpoints spécialisés:
 - Logs applicatifs et activités.
 
 Avant production, générer un `JWT_SECRET` long et aléatoire, forcer HTTPS, configurer une passerelle email/SMS/WhatsApp, déplacer les secrets WooCommerce vers un coffre sécurisé et placer `public/` comme document root unique.
+
+## Permissions fines
+
+Les écrans et endpoints sont protégés par permissions:
+
+- `products.manage`
+- `stock.manage`
+- `transfers.manage`
+- `pos.use`
+- `tickets.manage`
+- `hr.manage`
+- `deliveries.manage`
+- `woocommerce.manage`
+- `customers.manage`
+- `marketing.manage`
+- `accounting.manage`
+- `notifications.manage`
+- `users.manage`
+- `analytics.view`
+
+Le menu masque automatiquement les modules non autorisés et l'API retourne `403` si la permission manque.

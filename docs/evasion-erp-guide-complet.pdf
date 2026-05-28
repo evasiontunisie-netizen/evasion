@@ -1,0 +1,1041 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R 22 0 R 24 0 R 26 0 R 28 0 R 30 0 R 32 0 R] /Count 14 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 2927 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 1/14) Tj
+/F2 18 Tf 54 792 Td (Evasion ERP - Resume fonctionnel et guide API) Tj
+/F1 10 Tf 54 755 Td (Version: 1.0) Tj
+/F1 10 Tf 54 741 Td (Stack: PHP 8, MVC, MySQL, PDO, JWT, TailwindCSS, Alpine.js, Chart.js, SweetAlert) Tj
+/F2 15 Tf 54 718 Td (1. Objectif du projet) Tj
+/F1 10 Tf 54 686 Td (Evasion ERP est une application de gestion d'entreprise pour plusieurs showrooms physiques et) Tj
+/F1 10 Tf 54 672 Td (plusieurs boutiques WooCommerce.) Tj
+/F1 10 Tf 54 649 Td (Elle couvre:) Tj
+/F1 10 Tf 54 626 Td (-) Tj
+/F1 10 Tf 68 626 Td (gestion produits;) Tj
+/F1 10 Tf 54 612 Td (-) Tj
+/F1 10 Tf 68 612 Td (stocks multi-emplacements;) Tj
+/F1 10 Tf 54 598 Td (-) Tj
+/F1 10 Tf 68 598 Td (transferts entre magasins;) Tj
+/F1 10 Tf 54 584 Td (-) Tj
+/F1 10 Tf 68 584 Td (caisse POS;) Tj
+/F1 10 Tf 54 570 Td (-) Tj
+/F1 10 Tf 68 570 Td (tickets SAV;) Tj
+/F1 10 Tf 54 556 Td (-) Tj
+/F1 10 Tf 68 556 Td (RH;) Tj
+/F1 10 Tf 54 542 Td (-) Tj
+/F1 10 Tf 68 542 Td (livraisons;) Tj
+/F1 10 Tf 54 528 Td (-) Tj
+/F1 10 Tf 68 528 Td (CRM clients;) Tj
+/F1 10 Tf 54 514 Td (-) Tj
+/F1 10 Tf 68 514 Td (WooCommerce;) Tj
+/F1 10 Tf 54 500 Td (-) Tj
+/F1 10 Tf 68 500 Td (marketing;) Tj
+/F1 10 Tf 54 486 Td (-) Tj
+/F1 10 Tf 68 486 Td (analytics;) Tj
+/F1 10 Tf 54 472 Td (-) Tj
+/F1 10 Tf 68 472 Td (comptabilite;) Tj
+/F1 10 Tf 54 458 Td (-) Tj
+/F1 10 Tf 68 458 Td (notifications;) Tj
+/F1 10 Tf 54 444 Td (-) Tj
+/F1 10 Tf 68 444 Td (API REST securisee.) Tj
+/F2 15 Tf 54 421 Td (2. Ce qui fonctionne actuellement) Tj
+/F2 12 Tf 54 389 Td (Authentification) Tj
+/F1 10 Tf 54 362 Td (-) Tj
+/F1 10 Tf 68 362 Td (Ecran login visible.) Tj
+/F1 10 Tf 54 348 Td (-) Tj
+/F1 10 Tf 68 348 Td (Creation du premier Super Admin.) Tj
+/F1 10 Tf 54 334 Td (-) Tj
+/F1 10 Tf 68 334 Td (Connexion par email + mot de passe.) Tj
+/F1 10 Tf 54 320 Td (-) Tj
+/F1 10 Tf 68 320 Td (JWT stocke cote navigateur.) Tj
+/F1 10 Tf 54 306 Td (-) Tj
+/F1 10 Tf 68 306 Td (Deconnexion.) Tj
+/F1 10 Tf 54 292 Td (-) Tj
+/F1 10 Tf 68 292 Td (Roles et permissions en base.) Tj
+/F1 10 Tf 54 278 Td (-) Tj
+/F1 10 Tf 68 278 Td (Hash des mots de passe avec `password_hash`.) Tj
+/F1 10 Tf 54 264 Td (-) Tj
+/F1 10 Tf 68 264 Td (Middleware API JWT.) Tj
+/F2 12 Tf 54 241 Td (Interface) Tj
+/F1 10 Tf 54 214 Td (-) Tj
+/F1 10 Tf 68 214 Td (Dashboard moderne responsive.) Tj
+/F1 10 Tf 54 200 Td (-) Tj
+/F1 10 Tf 68 200 Td (Sidebar premium.) Tj
+/F1 10 Tf 54 186 Td (-) Tj
+/F1 10 Tf 68 186 Td (Dark mode.) Tj
+/F1 10 Tf 54 172 Td (-) Tj
+/F1 10 Tf 68 172 Td (Mode apercu UI.) Tj
+/F1 10 Tf 54 158 Td (-) Tj
+/F1 10 Tf 68 158 Td (Interface desktop, tablette et mobile.) Tj
+/F1 10 Tf 54 144 Td (-) Tj
+/F1 10 Tf 68 144 Td (PWA avec service worker.) Tj
+/F1 10 Tf 54 130 Td (-) Tj
+/F1 10 Tf 68 130 Td (Recherche instantanee dans les modules.) Tj
+/F2 12 Tf 54 107 Td (Dashboard, IA et courbes) Tj
+/F1 10 Tf 54 80 Td (-) Tj
+/F1 10 Tf 68 80 Td (KPI chiffre d'affaires.) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 3270 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 2/14) Tj
+/F1 10 Tf 54 792 Td (-) Tj
+/F1 10 Tf 68 792 Td (Commandes du mois.) Tj
+/F1 10 Tf 54 778 Td (-) Tj
+/F1 10 Tf 68 778 Td (Tickets ouverts.) Tj
+/F1 10 Tf 54 764 Td (-) Tj
+/F1 10 Tf 68 764 Td (Stock faible.) Tj
+/F1 10 Tf 54 750 Td (-) Tj
+/F1 10 Tf 68 750 Td (Employes actifs.) Tj
+/F1 10 Tf 54 736 Td (-) Tj
+/F1 10 Tf 68 736 Td (Livraisons en cours.) Tj
+/F1 10 Tf 54 722 Td (-) Tj
+/F1 10 Tf 68 722 Td (Courbe ventes 30 jours.) Tj
+/F1 10 Tf 54 708 Td (-) Tj
+/F1 10 Tf 68 708 Td (Graphique ventes par canal.) Tj
+/F1 10 Tf 54 694 Td (-) Tj
+/F1 10 Tf 68 694 Td (Graphique produits par categorie.) Tj
+/F1 10 Tf 54 680 Td (-) Tj
+/F1 10 Tf 68 680 Td (Assistant IA pro avec score ERP.) Tj
+/F1 10 Tf 54 666 Td (-) Tj
+/F1 10 Tf 68 666 Td (Recommandations automatiques: stock, SAV, ventes, comptabilite.) Tj
+/F1 10 Tf 54 652 Td (-) Tj
+/F1 10 Tf 68 652 Td (Question/reponse IA metier depuis l'interface.) Tj
+/F2 12 Tf 54 629 Td (Produits) Tj
+/F1 10 Tf 54 602 Td (-) Tj
+/F1 10 Tf 68 602 Td (Creation produit depuis l'interface.) Tj
+/F1 10 Tf 54 588 Td (-) Tj
+/F1 10 Tf 68 588 Td (Liste produits sous forme de cartes.) Tj
+/F1 10 Tf 54 574 Td (-) Tj
+/F1 10 Tf 68 574 Td (Photos produits.) Tj
+/F1 10 Tf 54 560 Td (-) Tj
+/F1 10 Tf 68 560 Td (Prix regulier.) Tj
+/F1 10 Tf 54 546 Td (-) Tj
+/F1 10 Tf 68 546 Td (Prix promo.) Tj
+/F1 10 Tf 54 532 Td (-) Tj
+/F1 10 Tf 68 532 Td (SKU / UGS.) Tj
+/F1 10 Tf 54 518 Td (-) Tj
+/F1 10 Tf 68 518 Td (Barcode.) Tj
+/F1 10 Tf 54 504 Td (-) Tj
+/F1 10 Tf 68 504 Td (Categories.) Tj
+/F1 10 Tf 54 490 Td (-) Tj
+/F1 10 Tf 68 490 Td (Marques.) Tj
+/F1 10 Tf 54 476 Td (-) Tj
+/F1 10 Tf 68 476 Td (Fournisseurs.) Tj
+/F1 10 Tf 54 462 Td (-) Tj
+/F1 10 Tf 68 462 Td (Stock minimum.) Tj
+/F1 10 Tf 54 448 Td (-) Tj
+/F1 10 Tf 68 448 Td (Statut produit.) Tj
+/F1 10 Tf 54 434 Td (-) Tj
+/F1 10 Tf 68 434 Td (Export CSV, XLS, PDF.) Tj
+/F2 12 Tf 54 411 Td (Import CSV WooCommerce) Tj
+/F1 10 Tf 54 384 Td (Le format CSV WooCommerce francais est reconnu.) Tj
+/F1 10 Tf 54 361 Td (Colonnes supportees:) Tj
+/F1 10 Tf 54 338 Td (-) Tj
+/F1 10 Tf 68 338 Td (`ID`) Tj
+/F1 10 Tf 54 324 Td (-) Tj
+/F1 10 Tf 68 324 Td (`Type`) Tj
+/F1 10 Tf 54 310 Td (-) Tj
+/F1 10 Tf 68 310 Td (`UGS`) Tj
+/F1 10 Tf 54 296 Td (-) Tj
+/F1 10 Tf 68 296 Td (`GTIN, UPC, EAN ou ISBN`) Tj
+/F1 10 Tf 54 282 Td (-) Tj
+/F1 10 Tf 68 282 Td (`Nom`) Tj
+/F1 10 Tf 54 268 Td (-) Tj
+/F1 10 Tf 68 268 Td (`Publie`) Tj
+/F1 10 Tf 54 254 Td (-) Tj
+/F1 10 Tf 68 254 Td (`Description courte`) Tj
+/F1 10 Tf 54 240 Td (-) Tj
+/F1 10 Tf 68 240 Td (`Description`) Tj
+/F1 10 Tf 54 226 Td (-) Tj
+/F1 10 Tf 68 226 Td (`En stock ?`) Tj
+/F1 10 Tf 54 212 Td (-) Tj
+/F1 10 Tf 68 212 Td (`Stock`) Tj
+/F1 10 Tf 54 198 Td (-) Tj
+/F1 10 Tf 68 198 Td (`Montant de stock faible`) Tj
+/F1 10 Tf 54 184 Td (-) Tj
+/F1 10 Tf 68 184 Td (`Tarif promo`) Tj
+/F1 10 Tf 54 170 Td (-) Tj
+/F1 10 Tf 68 170 Td (`Tarif regulier`) Tj
+/F1 10 Tf 54 156 Td (-) Tj
+/F1 10 Tf 68 156 Td (`Categories`) Tj
+/F1 10 Tf 54 142 Td (-) Tj
+/F1 10 Tf 68 142 Td (`Images`) Tj
+/F1 10 Tf 54 128 Td (-) Tj
+/F1 10 Tf 68 128 Td (`Marques`) Tj
+/F1 10 Tf 54 105 Td (L'import cree ou met a jour:) Tj
+/F1 10 Tf 54 82 Td (-) Tj
+/F1 10 Tf 68 82 Td (produit;) Tj
+/F1 10 Tf 54 68 Td (-) Tj
+/F1 10 Tf 68 68 Td (categorie;) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 11 0 R >>
+endobj
+11 0 obj
+<< /Length 2824 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 3/14) Tj
+/F1 10 Tf 54 792 Td (-) Tj
+/F1 10 Tf 68 792 Td (marque;) Tj
+/F1 10 Tf 54 778 Td (-) Tj
+/F1 10 Tf 68 778 Td (prix;) Tj
+/F1 10 Tf 54 764 Td (-) Tj
+/F1 10 Tf 68 764 Td (prix promo;) Tj
+/F1 10 Tf 54 750 Td (-) Tj
+/F1 10 Tf 68 750 Td (description;) Tj
+/F1 10 Tf 54 736 Td (-) Tj
+/F1 10 Tf 68 736 Td (image principale et galerie;) Tj
+/F1 10 Tf 54 722 Td (-) Tj
+/F1 10 Tf 68 722 Td (stock web.) Tj
+/F2 12 Tf 54 699 Td (Stock) Tj
+/F1 10 Tf 54 672 Td (-) Tj
+/F1 10 Tf 68 672 Td (Stock principal.) Tj
+/F1 10 Tf 54 658 Td (-) Tj
+/F1 10 Tf 68 658 Td (Showroom 1.) Tj
+/F1 10 Tf 54 644 Td (-) Tj
+/F1 10 Tf 68 644 Td (Showroom 2.) Tj
+/F1 10 Tf 54 630 Td (-) Tj
+/F1 10 Tf 68 630 Td (Depot.) Tj
+/F1 10 Tf 54 616 Td (-) Tj
+/F1 10 Tf 68 616 Td (Stock web.) Tj
+/F1 10 Tf 54 602 Td (-) Tj
+/F1 10 Tf 68 602 Td (Creation stock.) Tj
+/F1 10 Tf 54 588 Td (-) Tj
+/F1 10 Tf 68 588 Td (Quantite.) Tj
+/F1 10 Tf 54 574 Td (-) Tj
+/F1 10 Tf 68 574 Td (Quantite reservee.) Tj
+/F1 10 Tf 54 560 Td (-) Tj
+/F1 10 Tf 68 560 Td (SKU snapshot.) Tj
+/F2 12 Tf 54 537 Td (Transferts magasins) Tj
+/F1 10 Tf 54 510 Td (-) Tj
+/F1 10 Tf 68 510 Td (Creation transfert.) Tj
+/F1 10 Tf 54 496 Td (-) Tj
+/F1 10 Tf 68 496 Td (Reference transfert.) Tj
+/F1 10 Tf 54 482 Td (-) Tj
+/F1 10 Tf 68 482 Td (Stock source.) Tj
+/F1 10 Tf 54 468 Td (-) Tj
+/F1 10 Tf 68 468 Td (Stock destination.) Tj
+/F1 10 Tf 54 454 Td (-) Tj
+/F1 10 Tf 68 454 Td (Statuts:) Tj
+/F1 10 Tf 54 440 Td (  - pending;) Tj
+/F1 10 Tf 54 426 Td (  - validated;) Tj
+/F1 10 Tf 54 412 Td (  - shipped;) Tj
+/F1 10 Tf 54 398 Td (  - received;) Tj
+/F1 10 Tf 54 384 Td (  - cancelled.) Tj
+/F1 10 Tf 54 370 Td (-) Tj
+/F1 10 Tf 68 370 Td (Validation reception via endpoint dedie.) Tj
+/F2 12 Tf 54 347 Td (POS caisse) Tj
+/F1 10 Tf 54 320 Td (-) Tj
+/F1 10 Tf 68 320 Td (Ecran caisse.) Tj
+/F1 10 Tf 54 306 Td (-) Tj
+/F1 10 Tf 68 306 Td (Produits demo rapides.) Tj
+/F1 10 Tf 54 292 Td (-) Tj
+/F1 10 Tf 68 292 Td (Panier.) Tj
+/F1 10 Tf 54 278 Td (-) Tj
+/F1 10 Tf 68 278 Td (Total.) Tj
+/F1 10 Tf 54 264 Td (-) Tj
+/F1 10 Tf 68 264 Td (Encaissement API.) Tj
+/F1 10 Tf 54 250 Td (-) Tj
+/F1 10 Tf 68 250 Td (Creation commande POS.) Tj
+/F1 10 Tf 54 236 Td (-) Tj
+/F1 10 Tf 68 236 Td (Decrementation stock si produit lie.) Tj
+/F2 12 Tf 54 213 Td (Tickets SAV) Tj
+/F1 10 Tf 54 186 Td (-) Tj
+/F1 10 Tf 68 186 Td (Creation ticket.) Tj
+/F1 10 Tf 54 172 Td (-) Tj
+/F1 10 Tf 68 172 Td (Client.) Tj
+/F1 10 Tf 54 158 Td (-) Tj
+/F1 10 Tf 68 158 Td (Employe assigne.) Tj
+/F1 10 Tf 54 144 Td (-) Tj
+/F1 10 Tf 68 144 Td (Sujet.) Tj
+/F1 10 Tf 54 130 Td (-) Tj
+/F1 10 Tf 68 130 Td (Categorie.) Tj
+/F1 10 Tf 54 116 Td (-) Tj
+/F1 10 Tf 68 116 Td (Priorite.) Tj
+/F1 10 Tf 54 102 Td (-) Tj
+/F1 10 Tf 68 102 Td (Statut.) Tj
+/F1 10 Tf 54 88 Td (-) Tj
+/F1 10 Tf 68 88 Td (Description.) Tj
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 13 0 R >>
+endobj
+13 0 obj
+<< /Length 2578 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 4/14) Tj
+/F2 12 Tf 54 792 Td (RH) Tj
+/F1 10 Tf 54 765 Td (-) Tj
+/F1 10 Tf 68 765 Td (Employes.) Tj
+/F1 10 Tf 54 751 Td (-) Tj
+/F1 10 Tf 68 751 Td (Code employe.) Tj
+/F1 10 Tf 54 737 Td (-) Tj
+/F1 10 Tf 68 737 Td (Nom / prenom.) Tj
+/F1 10 Tf 54 723 Td (-) Tj
+/F1 10 Tf 68 723 Td (Email.) Tj
+/F1 10 Tf 54 709 Td (-) Tj
+/F1 10 Tf 68 709 Td (Telephone.) Tj
+/F1 10 Tf 54 695 Td (-) Tj
+/F1 10 Tf 68 695 Td (Poste.) Tj
+/F1 10 Tf 54 681 Td (-) Tj
+/F1 10 Tf 68 681 Td (Salaire base.) Tj
+/F1 10 Tf 54 667 Td (-) Tj
+/F1 10 Tf 68 667 Td (Statut.) Tj
+/F1 10 Tf 54 653 Td (-) Tj
+/F1 10 Tf 68 653 Td (Presences.) Tj
+/F1 10 Tf 54 639 Td (-) Tj
+/F1 10 Tf 68 639 Td (Salaires.) Tj
+/F1 10 Tf 54 625 Td (-) Tj
+/F1 10 Tf 68 625 Td (Conges.) Tj
+/F1 10 Tf 54 611 Td (-) Tj
+/F1 10 Tf 68 611 Td (Documents employe en base.) Tj
+/F2 12 Tf 54 588 Td (Utilisateurs avec photos) Tj
+/F1 10 Tf 54 561 Td (-) Tj
+/F1 10 Tf 68 561 Td (Module `Users`.) Tj
+/F1 10 Tf 54 547 Td (-) Tj
+/F1 10 Tf 68 547 Td (Liste sous forme de cartes.) Tj
+/F1 10 Tf 54 533 Td (-) Tj
+/F1 10 Tf 68 533 Td (Avatar utilisateur.) Tj
+/F1 10 Tf 54 519 Td (-) Tj
+/F1 10 Tf 68 519 Td (Creation utilisateur avec:) Tj
+/F1 10 Tf 54 505 Td (  - nom;) Tj
+/F1 10 Tf 54 491 Td (  - email;) Tj
+/F1 10 Tf 54 477 Td (  - mot de passe;) Tj
+/F1 10 Tf 54 463 Td (  - role_id;) Tj
+/F1 10 Tf 54 449 Td (  - avatar_path;) Tj
+/F1 10 Tf 54 435 Td (  - statut.) Tj
+/F2 12 Tf 54 412 Td (Livraison) Tj
+/F1 10 Tf 54 385 Td (-) Tj
+/F1 10 Tf 68 385 Td (Commande liee.) Tj
+/F1 10 Tf 54 371 Td (-) Tj
+/F1 10 Tf 68 371 Td (Tracking number.) Tj
+/F1 10 Tf 54 357 Td (-) Tj
+/F1 10 Tf 68 357 Td (Zone.) Tj
+/F1 10 Tf 54 343 Td (-) Tj
+/F1 10 Tf 68 343 Td (Frais livraison.) Tj
+/F1 10 Tf 54 329 Td (-) Tj
+/F1 10 Tf 68 329 Td (Livreur.) Tj
+/F1 10 Tf 54 315 Td (-) Tj
+/F1 10 Tf 68 315 Td (Statuts:) Tj
+/F1 10 Tf 54 301 Td (  - preparing;) Tj
+/F1 10 Tf 54 287 Td (  - shipped;) Tj
+/F1 10 Tf 54 273 Td (  - in_delivery;) Tj
+/F1 10 Tf 54 259 Td (  - delivered;) Tj
+/F1 10 Tf 54 245 Td (  - returned.) Tj
+/F2 12 Tf 54 222 Td (CRM clients) Tj
+/F1 10 Tf 54 195 Td (-) Tj
+/F1 10 Tf 68 195 Td (Nom.) Tj
+/F1 10 Tf 54 181 Td (-) Tj
+/F1 10 Tf 68 181 Td (Email.) Tj
+/F1 10 Tf 54 167 Td (-) Tj
+/F1 10 Tf 68 167 Td (Telephone.) Tj
+/F1 10 Tf 54 153 Td (-) Tj
+/F1 10 Tf 68 153 Td (WhatsApp.) Tj
+/F1 10 Tf 54 139 Td (-) Tj
+/F1 10 Tf 68 139 Td (Ville.) Tj
+/F1 10 Tf 54 125 Td (-) Tj
+/F1 10 Tf 68 125 Td (Points fidelite.) Tj
+/F1 10 Tf 54 111 Td (-) Tj
+/F1 10 Tf 68 111 Td (Notes internes.) Tj
+/F2 12 Tf 54 88 Td (Comptabilite avancee) Tj
+ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 15 0 R >>
+endobj
+15 0 obj
+<< /Length 3771 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 5/14) Tj
+/F1 10 Tf 54 792 Td (-) Tj
+/F1 10 Tf 68 792 Td (Factures.) Tj
+/F1 10 Tf 54 778 Td (-) Tj
+/F1 10 Tf 68 778 Td (Depenses.) Tj
+/F1 10 Tf 54 764 Td (-) Tj
+/F1 10 Tf 68 764 Td (Totaux comptables.) Tj
+/F1 10 Tf 54 750 Td (-) Tj
+/F1 10 Tf 68 750 Td (TVA.) Tj
+/F1 10 Tf 54 736 Td (-) Tj
+/F1 10 Tf 68 736 Td (Benefice simplifie.) Tj
+/F1 10 Tf 54 722 Td (-) Tj
+/F1 10 Tf 68 722 Td (Montant paye.) Tj
+/F1 10 Tf 54 708 Td (-) Tj
+/F1 10 Tf 68 708 Td (Montant a encaisser.) Tj
+/F1 10 Tf 54 694 Td (-) Tj
+/F1 10 Tf 68 694 Td (Marge.) Tj
+/F1 10 Tf 54 680 Td (-) Tj
+/F1 10 Tf 68 680 Td (Revenus mensuels.) Tj
+/F1 10 Tf 54 666 Td (-) Tj
+/F1 10 Tf 68 666 Td (Depenses par categorie.) Tj
+/F1 10 Tf 54 652 Td (-) Tj
+/F1 10 Tf 68 652 Td (PDF facture complet.) Tj
+/F1 10 Tf 54 638 Td (-) Tj
+/F1 10 Tf 68 638 Td (Export.) Tj
+/F2 12 Tf 54 615 Td (Marketing) Tj
+/F1 10 Tf 54 588 Td (-) Tj
+/F1 10 Tf 68 588 Td (Campagnes.) Tj
+/F1 10 Tf 54 574 Td (-) Tj
+/F1 10 Tf 68 574 Td (Canal.) Tj
+/F1 10 Tf 54 560 Td (-) Tj
+/F1 10 Tf 68 560 Td (Budget.) Tj
+/F1 10 Tf 54 546 Td (-) Tj
+/F1 10 Tf 68 546 Td (Revenu.) Tj
+/F1 10 Tf 54 532 Td (-) Tj
+/F1 10 Tf 68 532 Td (Statut.) Tj
+/F2 12 Tf 54 509 Td (Notifications et temps reel) Tj
+/F1 10 Tf 54 482 Td (-) Tj
+/F1 10 Tf 68 482 Td (Notification in-app.) Tj
+/F1 10 Tf 54 468 Td (-) Tj
+/F1 10 Tf 68 468 Td (Email/SMS/WhatsApp prepares en base.) Tj
+/F1 10 Tf 54 454 Td (-) Tj
+/F1 10 Tf 68 454 Td (Statut notification.) Tj
+/F1 10 Tf 54 440 Td (-) Tj
+/F1 10 Tf 68 440 Td (Serveur WebSocket PHP fourni.) Tj
+/F1 10 Tf 54 426 Td (-) Tj
+/F1 10 Tf 68 426 Td (Diffusion live des evenements ERP via `storage/cache/realtime.jsonl`.) Tj
+/F2 12 Tf 54 403 Td (Securite avancee) Tj
+/F1 10 Tf 54 376 Td (-) Tj
+/F1 10 Tf 68 376 Td (2FA complet avec QR code.) Tj
+/F1 10 Tf 54 362 Td (-) Tj
+/F1 10 Tf 68 362 Td (Activation OTP depuis l'interface.) Tj
+/F1 10 Tf 54 348 Td (-) Tj
+/F1 10 Tf 68 348 Td (Desactivation OTP depuis l'interface.) Tj
+/F1 10 Tf 54 334 Td (-) Tj
+/F1 10 Tf 68 334 Td (Login avec code OTP si active.) Tj
+/F1 10 Tf 54 320 Td (-) Tj
+/F1 10 Tf 68 320 Td (Permissions fines par ecran.) Tj
+/F1 10 Tf 54 306 Td (-) Tj
+/F1 10 Tf 68 306 Td (Menus masques selon permissions.) Tj
+/F1 10 Tf 54 292 Td (-) Tj
+/F1 10 Tf 68 292 Td (Middleware API par module.) Tj
+/F1 10 Tf 54 278 Td (-) Tj
+/F1 10 Tf 68 278 Td (Gestion roles et permissions accessible aux admins.) Tj
+/F2 15 Tf 54 255 Td (3. Ce qui reste a connecter en production) Tj
+/F1 10 Tf 54 223 Td (-) Tj
+/F1 10 Tf 68 223 Td (Synchronisation WooCommerce automatique en temps reel: structure presente, connecteur a) Tj
+/F1 10 Tf 54 209 Td (-) Tj
+/F1 10 Tf 68 209 Td (brancher sur les vrais sites.) Tj
+/F1 10 Tf 54 195 Td (-) Tj
+/F1 10 Tf 68 195 Td (Envoi email reel: SMTP/API a configurer.) Tj
+/F1 10 Tf 54 181 Td (-) Tj
+/F1 10 Tf 68 181 Td (SMS reel: fournisseur a configurer.) Tj
+/F1 10 Tf 54 167 Td (-) Tj
+/F1 10 Tf 68 167 Td (WhatsApp API reel: fournisseur Meta/Twilio/360dialog a configurer.) Tj
+/F1 10 Tf 54 153 Td (-) Tj
+/F1 10 Tf 68 153 Td (WebSocket: complet, fourni avec script systemd et batch XAMPP; a lancer comme service) Tj
+/F1 10 Tf 54 139 Td (-) Tj
+/F1 10 Tf 68 139 Td (permanent en production.) Tj
+/F1 10 Tf 54 125 Td (-) Tj
+/F1 10 Tf 68 125 Td (PDF facture: complet avec bandeau, sections facture/client/articles/totaux; charte) Tj
+/F1 10 Tf 54 111 Td (-) Tj
+/F1 10 Tf 68 111 Td (personnalisable.) Tj
+/F1 10 Tf 54 97 Td (-) Tj
+/F1 10 Tf 68 97 Td (2FA: complet avec setup QR, confirmation OTP, desactivation et login OTP.) Tj
+/F1 10 Tf 54 83 Td (-) Tj
+/F1 10 Tf 68 83 Td (Permissions fines par ecran: complet avec permissions API, masquage UI, seed roles et) Tj
+/F1 10 Tf 54 69 Td (-) Tj
+/F1 10 Tf 68 69 Td (module roles/permissions.) Tj
+ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 17 0 R >>
+endobj
+17 0 obj
+<< /Length 1550 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 6/14) Tj
+/F2 15 Tf 54 783 Td (4. Installation locale avec XAMPP) Tj
+/F2 12 Tf 54 751 Td (Copier le projet) Tj
+/F1 10 Tf 54 724 Td (Mettre le dossier dans:) Tj
+/F3 9 Tf 54 692 Td (    C:\\xampp\\htdocs\\evasion-main) Tj
+/F2 12 Tf 54 662 Td (Configurer `.env`) Tj
+/F1 10 Tf 54 635 Td (Copier:) Tj
+/F3 9 Tf 54 603 Td (    copy .env.example .env) Tj
+/F1 10 Tf 54 573 Td (Configuration XAMPP classique:) Tj
+/F3 9 Tf 54 541 Td (    APP_URL=http://localhost:8080) Tj
+/F3 9 Tf 54 529 Td (    DB_HOST=127.0.0.1) Tj
+/F3 9 Tf 54 517 Td (    DB_PORT=3306) Tj
+/F3 9 Tf 54 505 Td (    DB_DATABASE=evasion_erp) Tj
+/F3 9 Tf 54 493 Td (    DB_USERNAME=root) Tj
+/F3 9 Tf 54 481 Td (    DB_PASSWORD=) Tj
+/F3 9 Tf 54 469 Td (    JWT_SECRET=change-this-with-a-64-char-random-secret) Tj
+/F2 12 Tf 54 439 Td (Importer la base) Tj
+/F1 10 Tf 54 412 Td (Ouvrir:) Tj
+/F3 9 Tf 54 380 Td (    http://localhost/phpmyadmin) Tj
+/F1 10 Tf 54 350 Td (Importer dans l'ordre:) Tj
+/F1 10 Tf 54 327 Td (1. `database/schema.sql`) Tj
+/F1 10 Tf 54 313 Td (2. `database/seed.sql`) Tj
+/F2 12 Tf 54 290 Td (Lancer le serveur) Tj
+/F1 10 Tf 54 263 Td (Dans PowerShell:) Tj
+/F3 9 Tf 54 231 Td (    cd C:\\xampp\\htdocs\\evasion-main) Tj
+/F3 9 Tf 54 219 Td (    php -S localhost:8080 -t public) Tj
+/F1 10 Tf 54 189 Td (Ouvrir:) Tj
+/F3 9 Tf 54 157 Td (    http://localhost:8080) Tj
+/F2 12 Tf 54 127 Td (Lancer le WebSocket live) Tj
+/F1 10 Tf 54 100 Td (Dans un deuxieme terminal:) Tj
+/F3 9 Tf 54 68 Td (    php bin/websocket-server.php) Tj
+ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 19 0 R >>
+endobj
+19 0 obj
+<< /Length 1908 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 7/14) Tj
+/F1 10 Tf 54 774 Td (Port par defaut:) Tj
+/F3 9 Tf 54 742 Td (    ws://localhost:8090) Tj
+/F2 12 Tf 54 712 Td (Installation WebSocket en service Linux) Tj
+/F1 10 Tf 54 685 Td (Copier le projet sur le serveur, puis:) Tj
+/F3 9 Tf 54 653 Td (    sudo bash scripts/install-websocket-systemd.sh /var/www/evasion) Tj
+/F1 10 Tf 54 623 Td (Commandes utiles:) Tj
+/F3 9 Tf 54 591 Td (    sudo systemctl status evasion-websocket) Tj
+/F3 9 Tf 54 579 Td (    sudo systemctl restart evasion-websocket) Tj
+/F3 9 Tf 54 567 Td (    sudo journalctl -u evasion-websocket -f) Tj
+/F2 12 Tf 54 537 Td (Lancement WebSocket XAMPP Windows) Tj
+/F1 10 Tf 54 510 Td (Double-cliquer:) Tj
+/F3 9 Tf 54 478 Td (    scripts/start-websocket-xampp.bat) Tj
+/F2 15 Tf 54 448 Td (5. Creation admin) Tj
+/F1 10 Tf 54 416 Td (Via l'interface:) Tj
+/F1 10 Tf 54 393 Td (1. ouvrir `http://localhost:8080`;) Tj
+/F1 10 Tf 54 379 Td (2. cliquer `Premier admin`;) Tj
+/F1 10 Tf 54 365 Td (3. saisir:) Tj
+/F3 9 Tf 54 333 Td (    Nom: Admin) Tj
+/F3 9 Tf 54 321 Td (    Email: admin@test.com) Tj
+/F3 9 Tf 54 309 Td (    Mot de passe: AdminSecure123!) Tj
+/F1 10 Tf 54 279 Td (Via SQL direct:) Tj
+/F3 9 Tf 54 247 Td (    DELETE FROM users WHERE email = 'admin@test.com';) Tj
+/F3 9 Tf 54 226 Td (    INSERT INTO users \() Tj
+/F3 9 Tf 54 214 Td (        role_id,) Tj
+/F3 9 Tf 54 202 Td (        name,) Tj
+/F3 9 Tf 54 190 Td (        email,) Tj
+/F3 9 Tf 54 178 Td (        password_hash,) Tj
+/F3 9 Tf 54 166 Td (        status) Tj
+/F3 9 Tf 54 154 Td (    \)) Tj
+/F3 9 Tf 54 142 Td (    SELECT) Tj
+/F3 9 Tf 54 130 Td (        id,) Tj
+/F3 9 Tf 54 118 Td (        'Admin',) Tj
+/F3 9 Tf 54 106 Td (        'admin@test.com',) Tj
+/F3 9 Tf 54 94 Td (        '$2y$10$KboHG.9rJAyRGGBWtcoTG.eheghDMXF9j0kpStGdFVgKGiulCkB1y',) Tj
+/F3 9 Tf 54 82 Td (        'active') Tj
+/F3 9 Tf 54 70 Td (    FROM roles) Tj
+ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 21 0 R >>
+endobj
+21 0 obj
+<< /Length 1558 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 8/14) Tj
+/F3 9 Tf 54 792 Td (    WHERE slug = 'super-admin';) Tj
+/F1 10 Tf 54 762 Td (Identifiants:) Tj
+/F3 9 Tf 54 730 Td (    Email: admin@test.com) Tj
+/F3 9 Tf 54 718 Td (    Mot de passe: AdminSecure123!) Tj
+/F2 15 Tf 54 688 Td (6. Guide API REST) Tj
+/F1 10 Tf 54 656 Td (Base URL locale:) Tj
+/F3 9 Tf 54 624 Td (    http://localhost:8080/api) Tj
+/F1 10 Tf 54 594 Td (Header requis pour les routes securisees:) Tj
+/F3 9 Tf 54 562 Td (    Authorization: Bearer JWT_TOKEN) Tj
+/F3 9 Tf 54 550 Td (    Accept: application/json) Tj
+/F3 9 Tf 54 538 Td (    Content-Type: application/json) Tj
+/F2 12 Tf 54 508 Td (Health check) Tj
+/F3 9 Tf 54 472 Td (    GET /api/health) Tj
+/F1 10 Tf 54 442 Td (Exemple:) Tj
+/F3 9 Tf 54 410 Td (    curl http://localhost:8080/api/health) Tj
+/F2 12 Tf 54 380 Td (Login) Tj
+/F3 9 Tf 54 344 Td (    POST /api/auth/login) Tj
+/F1 10 Tf 54 314 Td (Body:) Tj
+/F3 9 Tf 54 282 Td (    {) Tj
+/F3 9 Tf 54 270 Td (      "email": "admin@test.com",) Tj
+/F3 9 Tf 54 258 Td (      "password": "AdminSecure123!") Tj
+/F3 9 Tf 54 246 Td (    }) Tj
+/F1 10 Tf 54 216 Td (Exemple:) Tj
+/F3 9 Tf 54 184 Td (    curl -X POST http://localhost:8080/api/auth/login \\) Tj
+/F3 9 Tf 54 172 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 160 Td (      -d "{\\"email\\":\\"admin@test.com\\",\\"password\\":\\"AdminSecure123!\\"}") Tj
+/F1 10 Tf 54 130 Td (Reponse:) Tj
+/F3 9 Tf 54 98 Td (    {) Tj
+/F3 9 Tf 54 86 Td (      "success": true,) Tj
+/F3 9 Tf 54 74 Td (      "data": {) Tj
+ET
+endstream
+endobj
+22 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 23 0 R >>
+endobj
+23 0 obj
+<< /Length 2304 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 9/14) Tj
+/F3 9 Tf 54 792 Td (        "token": "JWT_TOKEN",) Tj
+/F3 9 Tf 54 780 Td (        "user": {) Tj
+/F3 9 Tf 54 768 Td (          "id": 1,) Tj
+/F3 9 Tf 54 756 Td (          "name": "Admin",) Tj
+/F3 9 Tf 54 744 Td (          "email": "admin@test.com",) Tj
+/F3 9 Tf 54 732 Td (          "role": "super-admin") Tj
+/F3 9 Tf 54 720 Td (        }) Tj
+/F3 9 Tf 54 708 Td (      }) Tj
+/F3 9 Tf 54 696 Td (    }) Tj
+/F2 12 Tf 54 666 Td (Profil courant) Tj
+/F3 9 Tf 54 630 Td (    GET /api/auth/me) Tj
+/F2 12 Tf 54 600 Td (Creation premier admin) Tj
+/F3 9 Tf 54 564 Td (    POST /api/auth/register-admin) Tj
+/F1 10 Tf 54 534 Td (Body:) Tj
+/F3 9 Tf 54 502 Td (    {) Tj
+/F3 9 Tf 54 490 Td (      "name": "Admin",) Tj
+/F3 9 Tf 54 478 Td (      "email": "admin@test.com",) Tj
+/F3 9 Tf 54 466 Td (      "password": "AdminSecure123!") Tj
+/F3 9 Tf 54 454 Td (    }) Tj
+/F2 15 Tf 54 424 Td (7. Ressources CRUD disponibles) Tj
+/F1 10 Tf 54 392 Td (Toutes ces routes supportent:) Tj
+/F3 9 Tf 54 360 Td (    GET    /api/{resource}) Tj
+/F3 9 Tf 54 348 Td (    POST   /api/{resource}) Tj
+/F3 9 Tf 54 336 Td (    GET    /api/{resource}/{id}) Tj
+/F3 9 Tf 54 324 Td (    PUT    /api/{resource}/{id}) Tj
+/F3 9 Tf 54 312 Td (    PATCH  /api/{resource}/{id}) Tj
+/F3 9 Tf 54 300 Td (    DELETE /api/{resource}/{id}) Tj
+/F3 9 Tf 54 288 Td (    GET    /api/{resource}/export?format=csv) Tj
+/F3 9 Tf 54 276 Td (    GET    /api/{resource}/export?format=xls) Tj
+/F3 9 Tf 54 264 Td (    GET    /api/{resource}/export?format=pdf) Tj
+/F3 9 Tf 54 252 Td (    POST   /api/{resource}/import) Tj
+/F1 10 Tf 54 222 Td (Ressources:) Tj
+/F1 10 Tf 54 199 Td (-) Tj
+/F1 10 Tf 68 199 Td (`products`) Tj
+/F1 10 Tf 54 185 Td (-) Tj
+/F1 10 Tf 68 185 Td (`product-variants`) Tj
+/F1 10 Tf 54 171 Td (-) Tj
+/F1 10 Tf 68 171 Td (`product-images`) Tj
+/F1 10 Tf 54 157 Td (-) Tj
+/F1 10 Tf 68 157 Td (`categories`) Tj
+/F1 10 Tf 54 143 Td (-) Tj
+/F1 10 Tf 68 143 Td (`brands`) Tj
+/F1 10 Tf 54 129 Td (-) Tj
+/F1 10 Tf 68 129 Td (`suppliers`) Tj
+/F1 10 Tf 54 115 Td (-) Tj
+/F1 10 Tf 68 115 Td (`warehouses`) Tj
+/F1 10 Tf 54 101 Td (-) Tj
+/F1 10 Tf 68 101 Td (`stock`) Tj
+/F1 10 Tf 54 87 Td (-) Tj
+/F1 10 Tf 68 87 Td (`stock-movements`) Tj
+/F1 10 Tf 54 73 Td (-) Tj
+/F1 10 Tf 68 73 Td (`transfers`) Tj
+ET
+endstream
+endobj
+24 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 25 0 R >>
+endobj
+25 0 obj
+<< /Length 2923 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 10/14) Tj
+/F1 10 Tf 54 792 Td (-) Tj
+/F1 10 Tf 68 792 Td (`transfer-items`) Tj
+/F1 10 Tf 54 778 Td (-) Tj
+/F1 10 Tf 68 778 Td (`tickets`) Tj
+/F1 10 Tf 54 764 Td (-) Tj
+/F1 10 Tf 68 764 Td (`ticket-messages`) Tj
+/F1 10 Tf 54 750 Td (-) Tj
+/F1 10 Tf 68 750 Td (`departments`) Tj
+/F1 10 Tf 54 736 Td (-) Tj
+/F1 10 Tf 68 736 Td (`employees`) Tj
+/F1 10 Tf 54 722 Td (-) Tj
+/F1 10 Tf 68 722 Td (`employee-documents`) Tj
+/F1 10 Tf 54 708 Td (-) Tj
+/F1 10 Tf 68 708 Td (`attendance`) Tj
+/F1 10 Tf 54 694 Td (-) Tj
+/F1 10 Tf 68 694 Td (`leaves`) Tj
+/F1 10 Tf 54 680 Td (-) Tj
+/F1 10 Tf 68 680 Td (`salaries`) Tj
+/F1 10 Tf 54 666 Td (-) Tj
+/F1 10 Tf 68 666 Td (`deliveries`) Tj
+/F1 10 Tf 54 652 Td (-) Tj
+/F1 10 Tf 68 652 Td (`orders`) Tj
+/F1 10 Tf 54 638 Td (-) Tj
+/F1 10 Tf 68 638 Td (`order-items`) Tj
+/F1 10 Tf 54 624 Td (-) Tj
+/F1 10 Tf 68 624 Td (`payments`) Tj
+/F1 10 Tf 54 610 Td (-) Tj
+/F1 10 Tf 68 610 Td (`customers`) Tj
+/F1 10 Tf 54 596 Td (-) Tj
+/F1 10 Tf 68 596 Td (`invoices`) Tj
+/F1 10 Tf 54 582 Td (-) Tj
+/F1 10 Tf 68 582 Td (`expenses`) Tj
+/F1 10 Tf 54 568 Td (-) Tj
+/F1 10 Tf 68 568 Td (`notifications`) Tj
+/F1 10 Tf 54 554 Td (-) Tj
+/F1 10 Tf 68 554 Td (`woocommerce-sites`) Tj
+/F1 10 Tf 54 540 Td (-) Tj
+/F1 10 Tf 68 540 Td (`marketing-campaigns`) Tj
+/F1 10 Tf 54 526 Td (-) Tj
+/F1 10 Tf 68 526 Td (`users`) Tj
+/F2 15 Tf 54 503 Td (8. Exemples API reels) Tj
+/F2 12 Tf 54 471 Td (Creer produit) Tj
+/F3 9 Tf 54 435 Td (    curl -X POST http://localhost:8080/api/products \\) Tj
+/F3 9 Tf 54 423 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 411 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 399 Td (      -d "{) Tj
+/F3 9 Tf 54 387 Td (        \\"name\\":\\"TAPIS PRO BT 6100\\",) Tj
+/F3 9 Tf 54 375 Td (        \\"sku\\":\\"BT-6100\\",) Tj
+/F3 9 Tf 54 363 Td (        \\"sale_price\\":15999,) Tj
+/F3 9 Tf 54 351 Td (        \\"promo_price\\":13800,) Tj
+/F3 9 Tf 54 339 Td (        \\"minimum_stock\\":2,) Tj
+/F3 9 Tf 54 327 Td (        \\"status\\":\\"active\\") Tj
+/F3 9 Tf 54 315 Td (      }") Tj
+/F2 12 Tf 54 285 Td (Importer CSV WooCommerce produits) Tj
+/F3 9 Tf 54 249 Td (    curl -X POST http://localhost:8080/api/products/import \\) Tj
+/F3 9 Tf 54 237 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 225 Td (      -F "file=@wc-product-export.csv") Tj
+/F2 12 Tf 54 195 Td (Creer image produit) Tj
+/F3 9 Tf 54 159 Td (    curl -X POST http://localhost:8080/api/product-images \\) Tj
+/F3 9 Tf 54 147 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 135 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 123 Td (      -d "{) Tj
+/F3 9 Tf 54 111 Td (        \\"product_id\\":1,) Tj
+/F3 9 Tf 54 99 Td (        \\"path\\":\\"https://fitness-tn.com/wp-content/uploads/image.jpg\\",) Tj
+/F3 9 Tf 54 87 Td (        \\"sort_order\\":0) Tj
+/F3 9 Tf 54 75 Td (      }") Tj
+ET
+endstream
+endobj
+26 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 27 0 R >>
+endobj
+27 0 obj
+<< /Length 2730 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 11/14) Tj
+/F2 12 Tf 54 783 Td (Creer stock) Tj
+/F3 9 Tf 54 747 Td (    curl -X POST http://localhost:8080/api/stock \\) Tj
+/F3 9 Tf 54 735 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 723 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 711 Td (      -d "{) Tj
+/F3 9 Tf 54 699 Td (        \\"product_id\\":1,) Tj
+/F3 9 Tf 54 687 Td (        \\"warehouse_id\\":1,) Tj
+/F3 9 Tf 54 675 Td (        \\"quantity\\":10,) Tj
+/F3 9 Tf 54 663 Td (        \\"reserved_quantity\\":0,) Tj
+/F3 9 Tf 54 651 Td (        \\"sku_snapshot\\":\\"BT-6100\\") Tj
+/F3 9 Tf 54 639 Td (      }") Tj
+/F2 12 Tf 54 609 Td (Creer transfert) Tj
+/F3 9 Tf 54 573 Td (    curl -X POST http://localhost:8080/api/transfers \\) Tj
+/F3 9 Tf 54 561 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 549 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 537 Td (      -d "{) Tj
+/F3 9 Tf 54 525 Td (        \\"reference\\":\\"TR-001\\",) Tj
+/F3 9 Tf 54 513 Td (        \\"from_warehouse_id\\":1,) Tj
+/F3 9 Tf 54 501 Td (        \\"to_warehouse_id\\":2,) Tj
+/F3 9 Tf 54 489 Td (        \\"status\\":\\"pending\\",) Tj
+/F3 9 Tf 54 477 Td (        \\"notes\\":\\"Transfert depot vers showroom\\") Tj
+/F3 9 Tf 54 465 Td (      }") Tj
+/F2 12 Tf 54 435 Td (Reception transfert) Tj
+/F3 9 Tf 54 399 Td (    curl -X POST http://localhost:8080/api/transfers/1/receive \\) Tj
+/F3 9 Tf 54 387 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 375 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 363 Td (      -d "{\\"signature_path\\":\\"storage/uploads/signatures/signature.png\\"}") Tj
+/F2 12 Tf 54 333 Td (Creer ticket SAV) Tj
+/F3 9 Tf 54 297 Td (    curl -X POST http://localhost:8080/api/tickets \\) Tj
+/F3 9 Tf 54 285 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 273 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 261 Td (      -d "{) Tj
+/F3 9 Tf 54 249 Td (        \\"subject\\":\\"Produit defectueux\\",) Tj
+/F3 9 Tf 54 237 Td (        \\"category\\":\\"defective_product\\",) Tj
+/F3 9 Tf 54 225 Td (        \\"priority\\":\\"urgent\\",) Tj
+/F3 9 Tf 54 213 Td (        \\"status\\":\\"open\\",) Tj
+/F3 9 Tf 54 201 Td (        \\"description\\":\\"Client signale un probleme moteur.\\") Tj
+/F3 9 Tf 54 189 Td (      }") Tj
+/F2 12 Tf 54 159 Td (Creer utilisateur avec photo) Tj
+/F3 9 Tf 54 123 Td (    curl -X POST http://localhost:8080/api/users \\) Tj
+/F3 9 Tf 54 111 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 99 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 87 Td (      -d "{) Tj
+/F3 9 Tf 54 75 Td (        \\"role_id\\":10,) Tj
+ET
+endstream
+endobj
+28 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 29 0 R >>
+endobj
+29 0 obj
+<< /Length 2272 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 12/14) Tj
+/F3 9 Tf 54 792 Td (        \\"name\\":\\"Employe Test\\",) Tj
+/F3 9 Tf 54 780 Td (        \\"email\\":\\"employe@test.com\\",) Tj
+/F3 9 Tf 54 768 Td (        \\"password\\":\\"ChangeMeSecure123!\\",) Tj
+/F3 9 Tf 54 756 Td (        \\"avatar_path\\":\\"https://example.com/avatar.jpg\\",) Tj
+/F3 9 Tf 54 744 Td (        \\"status\\":\\"active\\") Tj
+/F3 9 Tf 54 732 Td (      }") Tj
+/F2 12 Tf 54 702 Td (Dashboard analytics) Tj
+/F3 9 Tf 54 666 Td (    GET /api/analytics/dashboard) Tj
+/F1 10 Tf 54 636 Td (Retourne:) Tj
+/F1 10 Tf 54 613 Td (-) Tj
+/F1 10 Tf 68 613 Td (KPI;) Tj
+/F1 10 Tf 54 599 Td (-) Tj
+/F1 10 Tf 68 599 Td (ventes 30 jours;) Tj
+/F1 10 Tf 54 585 Td (-) Tj
+/F1 10 Tf 68 585 Td (ventes par canal;) Tj
+/F1 10 Tf 54 571 Td (-) Tj
+/F1 10 Tf 68 571 Td (top produits;) Tj
+/F1 10 Tf 54 557 Td (-) Tj
+/F1 10 Tf 68 557 Td (ventes par showroom;) Tj
+/F1 10 Tf 54 543 Td (-) Tj
+/F1 10 Tf 68 543 Td (produits par categorie.) Tj
+/F2 12 Tf 54 520 Td (Comptabilite) Tj
+/F3 9 Tf 54 484 Td (    GET /api/analytics/accounting) Tj
+/F1 10 Tf 54 454 Td (Retourne:) Tj
+/F1 10 Tf 54 431 Td (-) Tj
+/F1 10 Tf 68 431 Td (revenus;) Tj
+/F1 10 Tf 54 417 Td (-) Tj
+/F1 10 Tf 68 417 Td (depenses;) Tj
+/F1 10 Tf 54 403 Td (-) Tj
+/F1 10 Tf 68 403 Td (benefice;) Tj
+/F1 10 Tf 54 389 Td (-) Tj
+/F1 10 Tf 68 389 Td (TVA.) Tj
+/F1 10 Tf 54 375 Td (-) Tj
+/F1 10 Tf 68 375 Td (paye;) Tj
+/F1 10 Tf 54 361 Td (-) Tj
+/F1 10 Tf 68 361 Td (a encaisser;) Tj
+/F1 10 Tf 54 347 Td (-) Tj
+/F1 10 Tf 68 347 Td (marge;) Tj
+/F1 10 Tf 54 333 Td (-) Tj
+/F1 10 Tf 68 333 Td (revenus mensuels;) Tj
+/F1 10 Tf 54 319 Td (-) Tj
+/F1 10 Tf 68 319 Td (depenses par categorie.) Tj
+/F2 12 Tf 54 296 Td (PDF facture complet) Tj
+/F3 9 Tf 54 260 Td (    curl -L http://localhost:8080/api/invoices/1/pdf \\) Tj
+/F3 9 Tf 54 248 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 236 Td (      -o facture-1.pdf) Tj
+/F2 12 Tf 54 206 Td (Assistant IA pro) Tj
+/F1 10 Tf 54 179 Td (Insights:) Tj
+/F3 9 Tf 54 147 Td (    curl http://localhost:8080/api/ai/insights \\) Tj
+/F3 9 Tf 54 135 Td (      -H "Authorization: Bearer JWT_TOKEN") Tj
+/F1 10 Tf 54 105 Td (Question:) Tj
+/F3 9 Tf 54 73 Td (    curl -X POST http://localhost:8080/api/ai/ask \\) Tj
+ET
+endstream
+endobj
+30 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 31 0 R >>
+endobj
+31 0 obj
+<< /Length 2291 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 13/14) Tj
+/F3 9 Tf 54 792 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 780 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 768 Td (      -d "{\\"question\\":\\"quoi faire pour le stock faible\\"}") Tj
+/F2 12 Tf 54 738 Td (2FA complet) Tj
+/F1 10 Tf 54 711 Td (Setup:) Tj
+/F3 9 Tf 54 679 Td (    curl -X POST http://localhost:8080/api/auth/2fa/setup \\) Tj
+/F3 9 Tf 54 667 Td (      -H "Authorization: Bearer JWT_TOKEN") Tj
+/F1 10 Tf 54 637 Td (Confirmation:) Tj
+/F3 9 Tf 54 605 Td (    curl -X POST http://localhost:8080/api/auth/2fa/confirm \\) Tj
+/F3 9 Tf 54 593 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 581 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 569 Td (      -d "{\\"otp\\":\\"123456\\"}") Tj
+/F1 10 Tf 54 539 Td (Desactivation:) Tj
+/F3 9 Tf 54 507 Td (    curl -X POST http://localhost:8080/api/auth/2fa/disable \\) Tj
+/F3 9 Tf 54 495 Td (      -H "Authorization: Bearer JWT_TOKEN") Tj
+/F2 12 Tf 54 465 Td (POS checkout) Tj
+/F3 9 Tf 54 429 Td (    curl -X POST http://localhost:8080/api/pos/checkout \\) Tj
+/F3 9 Tf 54 417 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 405 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 393 Td (      -d "{) Tj
+/F3 9 Tf 54 381 Td (        \\"warehouse_id\\":1,) Tj
+/F3 9 Tf 54 369 Td (        \\"items\\":[) Tj
+/F3 9 Tf 54 357 Td (          {\\"product_id\\":1,\\"sku\\":\\"BT-6100\\",\\"name\\":\\"TAPIS PRO BT) Tj
+/F3 9 Tf 54 345 Td (6100\\",\\"quantity\\":1,\\"price\\":13800}) Tj
+/F3 9 Tf 54 333 Td (        ]) Tj
+/F3 9 Tf 54 321 Td (      }") Tj
+/F2 12 Tf 54 291 Td (WooCommerce sync) Tj
+/F3 9 Tf 54 255 Td (    curl -X POST http://localhost:8080/api/woocommerce-sites/1/sync \\) Tj
+/F3 9 Tf 54 243 Td (      -H "Authorization: Bearer JWT_TOKEN" \\) Tj
+/F3 9 Tf 54 231 Td (      -H "Content-Type: application/json" \\) Tj
+/F3 9 Tf 54 219 Td (      -d "{\\"type\\":\\"products\\"}") Tj
+/F2 12 Tf 54 189 Td (WooCommerce webhook) Tj
+/F3 9 Tf 54 153 Td (    POST /api/woocommerce/webhook) Tj
+/F1 10 Tf 54 123 Td (Route publique pour recevoir les webhooks WooCommerce.) Tj
+/F2 15 Tf 54 100 Td (9. Schema base de donnees) Tj
+/F1 10 Tf 54 68 Td (Tables principales:) Tj
+ET
+endstream
+endobj
+32 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /MediaBox [0 0 612 842] /Contents 33 0 R >>
+endobj
+33 0 obj
+<< /Length 2936 >>
+stream
+BT
+/F1 8 Tf 54 28 Td (Evasion ERP - Guide complet - page 14/14) Tj
+/F1 10 Tf 54 783 Td (-) Tj
+/F1 10 Tf 68 783 Td (`users`) Tj
+/F1 10 Tf 54 769 Td (-) Tj
+/F1 10 Tf 68 769 Td (`roles`) Tj
+/F1 10 Tf 54 755 Td (-) Tj
+/F1 10 Tf 68 755 Td (`permissions`) Tj
+/F1 10 Tf 54 741 Td (-) Tj
+/F1 10 Tf 68 741 Td (`products`) Tj
+/F1 10 Tf 54 727 Td (-) Tj
+/F1 10 Tf 68 727 Td (`product_images`) Tj
+/F1 10 Tf 54 713 Td (-) Tj
+/F1 10 Tf 68 713 Td (`product_variants`) Tj
+/F1 10 Tf 54 699 Td (-) Tj
+/F1 10 Tf 68 699 Td (`categories`) Tj
+/F1 10 Tf 54 685 Td (-) Tj
+/F1 10 Tf 68 685 Td (`brands`) Tj
+/F1 10 Tf 54 671 Td (-) Tj
+/F1 10 Tf 68 671 Td (`suppliers`) Tj
+/F1 10 Tf 54 657 Td (-) Tj
+/F1 10 Tf 68 657 Td (`warehouses`) Tj
+/F1 10 Tf 54 643 Td (-) Tj
+/F1 10 Tf 68 643 Td (`stock`) Tj
+/F1 10 Tf 54 629 Td (-) Tj
+/F1 10 Tf 68 629 Td (`stock_movements`) Tj
+/F1 10 Tf 54 615 Td (-) Tj
+/F1 10 Tf 68 615 Td (`transfers`) Tj
+/F1 10 Tf 54 601 Td (-) Tj
+/F1 10 Tf 68 601 Td (`transfer_items`) Tj
+/F1 10 Tf 54 587 Td (-) Tj
+/F1 10 Tf 68 587 Td (`tickets`) Tj
+/F1 10 Tf 54 573 Td (-) Tj
+/F1 10 Tf 68 573 Td (`ticket_messages`) Tj
+/F1 10 Tf 54 559 Td (-) Tj
+/F1 10 Tf 68 559 Td (`employees`) Tj
+/F1 10 Tf 54 545 Td (-) Tj
+/F1 10 Tf 68 545 Td (`attendance`) Tj
+/F1 10 Tf 54 531 Td (-) Tj
+/F1 10 Tf 68 531 Td (`salaries`) Tj
+/F1 10 Tf 54 517 Td (-) Tj
+/F1 10 Tf 68 517 Td (`deliveries`) Tj
+/F1 10 Tf 54 503 Td (-) Tj
+/F1 10 Tf 68 503 Td (`orders`) Tj
+/F1 10 Tf 54 489 Td (-) Tj
+/F1 10 Tf 68 489 Td (`order_items`) Tj
+/F1 10 Tf 54 475 Td (-) Tj
+/F1 10 Tf 68 475 Td (`customers`) Tj
+/F1 10 Tf 54 461 Td (-) Tj
+/F1 10 Tf 68 461 Td (`invoices`) Tj
+/F1 10 Tf 54 447 Td (-) Tj
+/F1 10 Tf 68 447 Td (`expenses`) Tj
+/F1 10 Tf 54 433 Td (-) Tj
+/F1 10 Tf 68 433 Td (`notifications`) Tj
+/F1 10 Tf 54 419 Td (-) Tj
+/F1 10 Tf 68 419 Td (`logs`) Tj
+/F1 10 Tf 54 405 Td (-) Tj
+/F1 10 Tf 68 405 Td (`woocommerce_sites`) Tj
+/F1 10 Tf 54 391 Td (-) Tj
+/F1 10 Tf 68 391 Td (`marketing_campaigns`) Tj
+/F2 15 Tf 54 368 Td (10. Recommandations production) Tj
+/F1 10 Tf 54 336 Td (-) Tj
+/F1 10 Tf 68 336 Td (Utiliser HTTPS obligatoire.) Tj
+/F1 10 Tf 54 322 Td (-) Tj
+/F1 10 Tf 68 322 Td (Generer un `JWT_SECRET` fort.) Tj
+/F1 10 Tf 54 308 Td (-) Tj
+/F1 10 Tf 68 308 Td (Mettre `public/` comme document root.) Tj
+/F1 10 Tf 54 294 Td (-) Tj
+/F1 10 Tf 68 294 Td (Desactiver `APP_DEBUG`.) Tj
+/F1 10 Tf 54 280 Td (-) Tj
+/F1 10 Tf 68 280 Td (Configurer sauvegardes MySQL.) Tj
+/F1 10 Tf 54 266 Td (-) Tj
+/F1 10 Tf 68 266 Td (Ajouter SMTP pour emails.) Tj
+/F1 10 Tf 54 252 Td (-) Tj
+/F1 10 Tf 68 252 Td (Ajouter fournisseur SMS/WhatsApp.) Tj
+/F1 10 Tf 54 238 Td (-) Tj
+/F1 10 Tf 68 238 Td (Ajouter worker de sync WooCommerce.) Tj
+/F1 10 Tf 54 224 Td (-) Tj
+/F1 10 Tf 68 224 Td (Ajouter serveur WebSocket.) Tj
+/F1 10 Tf 54 210 Td (-) Tj
+/F1 10 Tf 68 210 Td (Ajouter tests automatises API.) Tj
+/F1 10 Tf 54 196 Td (-) Tj
+/F1 10 Tf 68 196 Td (Proteger les secrets WooCommerce dans un coffre.) Tj
+ET
+endstream
+endobj
+xref
+0 34
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000206 00000 n 
+0000000276 00000 n 
+0000000351 00000 n 
+0000000419 00000 n 
+0000000565 00000 n 
+0000003544 00000 n 
+0000003690 00000 n 
+0000007012 00000 n 
+0000007160 00000 n 
+0000010037 00000 n 
+0000010185 00000 n 
+0000012816 00000 n 
+0000012964 00000 n 
+0000016788 00000 n 
+0000016936 00000 n 
+0000018539 00000 n 
+0000018687 00000 n 
+0000020648 00000 n 
+0000020796 00000 n 
+0000022407 00000 n 
+0000022555 00000 n 
+0000024912 00000 n 
+0000025060 00000 n 
+0000028036 00000 n 
+0000028184 00000 n 
+0000030967 00000 n 
+0000031115 00000 n 
+0000033440 00000 n 
+0000033588 00000 n 
+0000035932 00000 n 
+0000036080 00000 n 
+trailer
+<< /Size 34 /Root 1 0 R >>
+startxref
+39069
+%%EOF

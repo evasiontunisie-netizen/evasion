@@ -7,11 +7,11 @@ namespace App\Core;
 final class Request
 {
     public function __construct(
-        public readonly string $method,
-        public readonly string $path,
-        public readonly array $query,
-        public readonly array $body,
-        public readonly array $headers,
+        public string $method,
+        public string $path,
+        public array $query,
+        public array $body,
+        public array $headers,
         public array $params = [],
         public ?array $user = null,
     ) {
