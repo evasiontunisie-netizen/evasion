@@ -132,8 +132,8 @@ final class AuthController extends Controller
             ->execute(['secret' => $secret, 'id' => $userId]);
 
         $email = rawurlencode((string) ($request->user['email'] ?? 'user'));
-        $issuer = rawurlencode('Evasion ERP');
-        $otpauth = "otpauth://totp/Evasion%20ERP:{$email}?secret=" . rawurlencode($secret) . "&issuer={$issuer}&algorithm=SHA1&digits=6&period=30";
+        $issuer = rawurlencode('Mon POS');
+        $otpauth = "otpauth://totp/Mon%20POS:{$email}?secret=" . rawurlencode($secret) . "&issuer={$issuer}&algorithm=SHA1&digits=6&period=30";
         Logger::activity($userId, '2fa.setup_requested');
 
         $this->ok([

@@ -9,7 +9,6 @@ function erpApp() {
     token: localStorage.getItem('token') || '',
     currentUser: JSON.parse(localStorage.getItem('currentUser') || 'null'),
     permissions: JSON.parse(localStorage.getItem('permissions') || '[]'),
-    previewMode: localStorage.getItem('previewMode') === 'true',
     menuOpen: localStorage.getItem('menuOpen') === 'true',
     authMode: 'login',
     authLoading: false,
@@ -212,7 +211,7 @@ function erpApp() {
       return this.titles[this.module] || this.module;
     },
     get isAuthenticated() {
-      return Boolean(this.token || this.previewMode);
+      return Boolean(this.token);
     },
     get kpiCards() {
       const k = this.analytics?.kpis || {};
@@ -315,14 +314,12 @@ function erpApp() {
         this.token = data.token;
         this.currentUser = data.user;
         this.permissions = data.user.permissions || [];
-        this.previewMode = false;
         localStorage.setItem('token', data.token);
         localStorage.setItem('currentUser', JSON.stringify(data.user));
         localStorage.setItem('permissions', JSON.stringify(this.permissions));
-        localStorage.removeItem('previewMode');
         await this.load();
         this.connectWebSocket();
-        Swal.fire('Connecté', 'Bienvenue dans Evasion ERP.', 'success');
+        Swal.fire('Connecté', 'Bienvenue dans Mon POS.', 'success');
       } catch (error) {
         Swal.fire('Connexion impossible', error.message || 'Vérifie la base MySQL et tes identifiants.', 'error');
       } finally {
@@ -348,18 +345,11 @@ function erpApp() {
         this.authLoading = false;
       }
     },
-    enterPreview() {
-      this.previewMode = true;
-      localStorage.setItem('previewMode', 'true');
-      this.load();
-    },
     logout() {
       this.token = '';
-      this.previewMode = false;
       localStorage.removeItem('token');
       localStorage.removeItem('currentUser');
       localStorage.removeItem('permissions');
-      localStorage.removeItem('previewMode');
       this.currentUser = null;
       this.permissions = [];
       this.rows = [];
@@ -415,7 +405,7 @@ function erpApp() {
       }
     },
     can(permission) {
-      return this.previewMode || this.permissions.includes('*') || this.permissions.includes(permission);
+      return this.permissions.includes('*') || this.permissions.includes(permission);
     },
     currentPermission() {
       return this.permissionMap[this.module] || '*';
@@ -530,10 +520,6 @@ function erpApp() {
       }
     },
     async openCreate() {
-      if (this.previewMode && !this.token) {
-        Swal.fire('Mode aperçu', 'Connecte-toi avec un compte admin pour créer des données réelles.', 'info');
-        return;
-      }
       if (!this.canCreateCurrent()) {
         Swal.fire('Accès refusé', 'Ton rôle ne peut pas créer dans ce module.', 'error');
         return;

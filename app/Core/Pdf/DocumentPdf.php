@@ -8,7 +8,7 @@ final class DocumentPdf
 {
     public static function make(string $title, array $sections): string
     {
-        $lines = [[$title, 'H1'], ['Evasion ERP - document professionnel', 'SMALL'], [' ', 'P']];
+        $lines = [[$title, 'H1'], ['Mon POS - document professionnel', 'SMALL'], [' ', 'P']];
         foreach ($sections as $sectionTitle => $rows) {
             $lines[] = [(string) $sectionTitle, 'H2'];
             foreach ((array) $rows as $row) {
@@ -51,7 +51,7 @@ final class DocumentPdf
                 '0.96 0.30 0.10 rg 44 754 524 2 re f',
                 '0.97 0.97 0.95 rg 0 0 612 44 re f',
             ];
-            $stream[] = self::text('EVASION ERP', 430, 818, 12, '/F2', '1 1 1 rg');
+            $stream[] = self::text('MON POS', 430, 818, 12, '/F2', '1 1 1 rg');
             $stream[] = self::text('Facturation professionnelle', 430, 803, 8, '/F1', '1 1 1 rg');
             $stream[] = self::text('Page ' . ($pageIndex + 1) . '/' . count($pages), 54, 24, 8, '/F1', '0.35 0.35 0.35 rg');
             foreach ($page as [$text, $style, $size, $y]) {
