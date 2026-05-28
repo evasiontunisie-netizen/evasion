@@ -1,0 +1,238 @@
+openapi: 3.0.3
+info:
+  title: Evasion ERP REST API
+  version: 1.0.0
+  description: API REST sécurisée pour ERP multi-showrooms, POS, SAV, RH, stocks et WooCommerce.
+servers:
+  - url: http://localhost:8080/api
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ResourceList:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+            meta:
+              type: object
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          type: string
+paths:
+  /health:
+    get:
+      security: []
+      summary: Health check
+      responses:
+        '200':
+          description: API status
+  /auth/login:
+    post:
+      security: []
+      summary: Login JWT avec support 2FA TOTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                otp:
+                  type: string
+      responses:
+        '200':
+          description: JWT issued
+        '202':
+          description: Two factor code required
+  /auth/register-admin:
+    post:
+      security: []
+      summary: Crée le premier Super Admin uniquement si aucun utilisateur n'existe
+      responses:
+        '201':
+          description: Admin created
+  /auth/forgot-password:
+    post:
+      security: []
+      summary: Demande de récupération mot de passe
+      responses:
+        '200':
+          description: Reset request accepted
+  /auth/reset-password:
+    post:
+      security: []
+      summary: Réinitialisation mot de passe via token
+      responses:
+        '200':
+          description: Password updated
+  /auth/me:
+    get:
+      summary: Profil utilisateur courant
+      responses:
+        '200':
+          description: Current user
+  /analytics/dashboard:
+    get:
+      summary: KPI, séries de ventes, canaux, top produits et ventes showrooms
+      responses:
+        '200':
+          description: Dashboard analytics
+  /analytics/accounting:
+    get:
+      summary: Revenus, dépenses, bénéfice et TVA
+      responses:
+        '200':
+          description: Accounting totals
+  /pos/checkout:
+    post:
+      summary: Encaissement POS avec lignes, paiement et décrément stock
+      responses:
+        '201':
+          description: POS order created
+  /transfers/{id}/receive:
+    post:
+      summary: Validation de réception transfert avec signature
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Transfer received
+  /woocommerce-sites/{id}/sync:
+    post:
+      summary: Planifie une synchronisation produits, commandes, clients, prix ou stock
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Sync queued
+  /woocommerce/webhook:
+    post:
+      security: []
+      summary: Réception webhook WooCommerce
+      responses:
+        '200':
+          description: Webhook received
+  /{resource}:
+    get:
+      summary: Liste paginée d'une ressource ERP
+      parameters:
+        - name: resource
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [products,categories,brands,warehouses,stock,stock-movements,transfers,tickets,employees,attendance,salaries,deliveries,orders,customers,invoices,expenses,notifications,woocommerce-sites,marketing-campaigns]
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Resource list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceList'
+    post:
+      summary: Création d'une ressource ERP
+      responses:
+        '201':
+          description: Resource created
+  /{resource}/{id}:
+    get:
+      summary: Détail d'une ressource
+      parameters:
+        - name: resource
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Resource detail
+    put:
+      summary: Mise à jour complète
+      responses:
+        '200':
+          description: Resource updated
+    patch:
+      summary: Mise à jour partielle
+      responses:
+        '200':
+          description: Resource updated
+    delete:
+      summary: Suppression
+      responses:
+        '200':
+          description: Resource deleted
+  /{resource}/export:
+    get:
+      summary: Export CSV, XLS ou PDF
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [csv,xls,xlsx,pdf]
+      responses:
+        '200':
+          description: Binary export
+  /{resource}/import:
+    post:
+      summary: Import CSV
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import result

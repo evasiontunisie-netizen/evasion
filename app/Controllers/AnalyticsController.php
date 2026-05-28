@@ -1,0 +1,46 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controllers;
+
+use App\Core\Cache;
+use App\Core\Controller;
+use App\Core\Database;
+use App\Core\Request;
+
+final class AnalyticsController extends Controller
+{
+    public function dashboard(Request $request): void
+    {
+        $data = Cache::remember('dashboard:' . date('Y-m-d-H'), 300, static function (): array {
+            $pdo = Database::pdo();
+
+            return [
+                'kpis' => [
+                    'revenue_today' => (float) $pdo->query("SELECT COALESCE(SUM(grand_total),0) FROM orders WHERE DATE(created_at) = CURDATE()")->fetchColumn(),
+                    'orders_month' => (int) $pdo->query("SELECT COUNT(*) FROM orders WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')")->fetchColumn(),
+                    'open_tickets' => (int) $pdo->query("SELECT COUNT(*) FROM tickets WHERE status IN ('open','in_progress')")->fetchColumn(),
+                    'low_stock' => (int) $pdo->query('SELECT COUNT(*) FROM stock s JOIN products p ON p.id = s.product_id WHERE s.quantity <= p.minimum_stock')->fetchColumn(),
+                    'active_employees' => (int) $pdo->query("SELECT COUNT(*) FROM employees WHERE status = 'active'")->fetchColumn(),
+                    'pending_deliveries' => (int) $pdo->query("SELECT COUNT(*) FROM deliveries WHERE status IN ('preparing','shipped','in_delivery')")->fetchColumn(),
+                ],
+                'sales_series' => $pdo->query("SELECT DATE(created_at) AS day, COALESCE(SUM(grand_total),0) AS revenue FROM orders WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY DATE(created_at) ORDER BY day")->fetchAll(),
+                'sales_by_channel' => $pdo->query('SELECT channel, COALESCE(SUM(grand_total),0) AS revenue FROM orders GROUP BY channel ORDER BY revenue DESC')->fetchAll(),
+                'top_products' => $pdo->query('SELECT name, SUM(quantity) AS units, SUM(total) AS revenue FROM order_items GROUP BY name ORDER BY revenue DESC LIMIT 10')->fetchAll(),
+                'showroom_sales' => $pdo->query('SELECT w.name, COALESCE(SUM(o.grand_total),0) AS revenue FROM warehouses w LEFT JOIN orders o ON o.warehouse_id = w.id GROUP BY w.id, w.name ORDER BY revenue DESC')->fetchAll(),
+            ];
+        });
+
+        $this->ok($data);
+    }
+
+    public function accounting(Request $request): void
+    {
+        $pdo = Database::pdo();
+        $revenue = (float) $pdo->query('SELECT COALESCE(SUM(grand_total),0) FROM invoices')->fetchColumn();
+        $expenses = (float) $pdo->query('SELECT COALESCE(SUM(amount),0) FROM expenses')->fetchColumn();
+        $tax = (float) $pdo->query('SELECT COALESCE(SUM(tax_total),0) FROM invoices')->fetchColumn();
+        $this->ok(['revenue' => $revenue, 'expenses' => $expenses, 'profit' => $revenue - $expenses, 'tax' => $tax]);
+    }
+}
