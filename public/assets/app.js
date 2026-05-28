@@ -275,10 +275,8 @@ function erpApp() {
     setModule(key) {
       this.module = key;
       this.query = '';
-      if (window.innerWidth < 1024) {
-        this.menuOpen = false;
-        this.persistMenu();
-      }
+      this.menuOpen = false;
+      this.persistMenu();
       this.load();
     },
     headers() {
