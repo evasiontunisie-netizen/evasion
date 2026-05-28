@@ -634,6 +634,8 @@ function erpApp() {
     },
     async openPosHistory() {
       try {
+        this.menuOpen = false;
+        this.persistMenu();
         const params = new URLSearchParams({
           date_from: this.filters.date_from || '',
           date_to: this.filters.date_to || '',

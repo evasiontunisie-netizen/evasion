@@ -18,6 +18,10 @@ body {
   display: none !important;
 }
 
+.swal2-container {
+  z-index: 10000 !important;
+}
+
 .login-shell {
   align-items: center;
   background:
