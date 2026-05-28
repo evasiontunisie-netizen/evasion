@@ -6,6 +6,47 @@ html {
   display: none !important;
 }
 
+.login-shell {
+  align-items: center;
+  background:
+    radial-gradient(circle at top left, rgba(255, 77, 25, .12), transparent 30%),
+    linear-gradient(135deg, #fafafa 0%, #f4f4f5 100%);
+  display: flex;
+  justify-content: center;
+}
+
+.dark .login-shell {
+  background:
+    radial-gradient(circle at top left, rgba(255, 77, 25, .18), transparent 32%),
+    linear-gradient(135deg, #09090b 0%, #18181b 100%);
+}
+
+.login-card {
+  border: 1px solid rgba(17, 17, 17, .08);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, .12);
+  padding: 2rem;
+}
+
+.dark .login-card {
+  border-color: rgba(255, 255, 255, .10);
+  background: rgba(24, 24, 27, .86);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .40);
+}
+
+.login-logo {
+  background: linear-gradient(135deg, #111 0%, #ff4d19 120%);
+  border-radius: 18px;
+  color: #fff;
+  display: grid;
+  font-size: 1.15rem;
+  font-weight: 900;
+  height: 48px;
+  place-items: center;
+  width: 48px;
+}
+
 .card {
   border: 1px solid rgba(17, 17, 17, .08);
   border-radius: 28px;
