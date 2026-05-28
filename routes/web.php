@@ -44,7 +44,9 @@ $router->get('/api/ai/insights', [AiController::class, 'insights'], [$apiLimiter
 $router->post('/api/ai/ask', [AiController::class, 'ask'], [$apiLimiter, $auth]);
 
 $router->post('/api/uploads', [UploadController::class, 'store'], [$apiLimiter, $auth]);
+$router->get('/api/pos/catalog', [ModuleController::class, 'posCatalog'], [$apiLimiter, $auth]);
 $router->post('/api/pos/checkout', [ModuleController::class, 'posCheckout'], [$apiLimiter, $auth]);
+$router->get('/api/pos/orders/{id}/ticket-pdf', [ModuleController::class, 'posTicketPdf'], [$apiLimiter, $auth]);
 $router->get('/api/invoices/{id}/pdf', [InvoiceController::class, 'pdf'], [$apiLimiter, $auth]);
 $router->post('/api/transfers/{id}/receive', [ModuleController::class, 'transferReceive'], [$apiLimiter, $auth]);
 $router->post('/api/woocommerce-sites/{id}/sync', [WooCommerceController::class, 'sync'], [$apiLimiter, $auth]);

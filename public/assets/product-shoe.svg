@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title">
+  <title id="title">Sneakers Performance</title>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff7ed"/>
+      <stop offset="1" stop-color="#fed7aa"/>
+    </linearGradient>
+    <linearGradient id="shoe" x1="0" x2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#ff4d19"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="44" fill="url(#bg)"/>
+  <circle cx="520" cy="86" r="72" fill="#ffedd5"/>
+  <path d="M112 256c74 13 146-16 202-70 20-19 52-22 75-6l125 88c18 13 29 34 29 56H190c-49 0-78-20-78-68Z" fill="url(#shoe)"/>
+  <path d="M159 317h384c0 24-19 43-43 43H192c-31 0-58-21-66-51 11 5 22 8 33 8Z" fill="#111827"/>
+  <path d="M338 196c-22 30-57 55-100 70" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round"/>
+  <path d="M358 212 312 248m86-12-46 36m86-12-46 35" fill="none" stroke="#fff7ed" stroke-width="10" stroke-linecap="round"/>
+  <text x="64" y="82" fill="#111827" font-family="Arial, sans-serif" font-size="34" font-weight="800">EV-SHOE-001</text>
+</svg>

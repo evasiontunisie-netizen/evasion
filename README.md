@@ -61,17 +61,22 @@ XAMPP Windows:
 scripts/start-websocket-xampp.bat
 ```
 
-## Premier administrateur
+## Comptes de test
 
-Après avoir importé le schéma et les rôles:
+Après avoir importé `database/schema.sql` puis `database/seed.sql`, quatre comptes actifs sont disponibles:
+
+- Admin: `admin@example.com`
+- Manager: `manager@example.com`
+- Caisse: `cashier@example.com`
+- Support: `support@example.com`
+
+Mot de passe commun:
 
 ```bash
-curl -X POST http://localhost:8080/api/auth/register-admin \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Super Admin","email":"admin@example.com","password":"ChangeMeSecure123!"}'
+ChangeMeSecure123!
 ```
 
-Puis:
+Exemple de login:
 
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
@@ -132,7 +137,9 @@ Chaque ressource supporte:
 
 Endpoints spécialisés:
 
+- `GET /api/pos/catalog`
 - `POST /api/pos/checkout`
+- `GET /api/pos/orders/{id}/ticket-pdf`
 - `POST /api/transfers/{id}/receive`
 - `GET /api/invoices/{id}/pdf`
 - `GET /api/analytics/dashboard`

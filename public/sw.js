@@ -1,4 +1,4 @@
-const CACHE_NAME = 'evasion-erp-v6';
+const CACHE_NAME = 'evasion-erp-v7';
 const ASSETS = ['/', '/assets/app.css', '/assets/app.js', '/manifest.json'];
 
 self.addEventListener('install', event => {
@@ -11,5 +11,10 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  if (url.pathname === '/' || url.pathname.startsWith('/assets/')) {
+    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+    return;
+  }
   event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request)));
 });

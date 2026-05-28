@@ -15,7 +15,7 @@ final class InvoiceController extends Controller
 {
     public function pdf(Request $request): void
     {
-        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['accounting.manage'])) {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['accounting.manage', 'pos.use'])) {
             $this->error('Forbidden', 403);
             return;
         }

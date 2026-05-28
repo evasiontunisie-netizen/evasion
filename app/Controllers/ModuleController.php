@@ -9,6 +9,7 @@ use App\Core\Auth\AuthGuard;
 use App\Core\Database;
 use App\Core\Export\Exporter;
 use App\Core\Logger;
+use App\Core\Pdf\DocumentPdf;
 use App\Core\Realtime\WebSocketNotifier;
 use App\Core\Repository;
 use App\Core\Request;
@@ -145,25 +146,84 @@ final class ModuleController extends Controller
         $this->ok(['transfer' => $this->repo('transfers')->find($id)]);
     }
 
+    public function posCatalog(Request $request): void
+    {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['pos.use'])) {
+            $this->error('Forbidden', 403);
+            return;
+        }
+
+        $q = trim((string) $request->input('q', ''));
+        $params = ['warehouse_id' => (int) $request->input('warehouse_id', 1)];
+        $where = 'p.status = "active"';
+        if ($q !== '') {
+            $where .= ' AND (p.name LIKE :q OR p.sku LIKE :q OR p.barcode LIKE :q)';
+            $params['q'] = '%' . $q . '%';
+        }
+
+        $sql = "SELECT p.id AS product_id, p.sku, p.barcode, p.name, p.sale_price, p.promo_price, p.tax_rate,
+                       COALESCE(p.promo_price, p.sale_price, 0) AS price,
+                       COALESCE(SUM(s.quantity - s.reserved_quantity), 0) AS stock,
+                       (SELECT path FROM product_images pi WHERE pi.product_id = p.id ORDER BY pi.sort_order, pi.id LIMIT 1) AS image_url
+                FROM products p
+                LEFT JOIN stock s ON s.product_id = p.id AND s.warehouse_id = :warehouse_id
+                WHERE {$where}
+                GROUP BY p.id
+                ORDER BY p.name
+                LIMIT 60";
+        $statement = Database::pdo()->prepare($sql);
+        $statement->execute($params);
+
+        $this->ok(['items' => array_map(static function (array $row): array {
+            $row['product_id'] = (int) $row['product_id'];
+            $row['price'] = (float) $row['price'];
+            $row['sale_price'] = (float) $row['sale_price'];
+            $row['promo_price'] = $row['promo_price'] === null ? null : (float) $row['promo_price'];
+            $row['tax_rate'] = (float) $row['tax_rate'];
+            $row['stock'] = (int) $row['stock'];
+            $row['image_url'] = $row['image_url'] ?: '/assets/icon-192.svg';
+
+            return $row;
+        }, $statement->fetchAll())]);
+    }
+
     public function posCheckout(Request $request): void
     {
         if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['pos.use'])) {
             $this->error('Forbidden', 403);
             return;
         }
-        $items = (array) $request->input('items', []);
-        $customerId = $request->input('customer_id');
+        $items = array_values(array_filter((array) $request->input('items', []), static fn ($item): bool => is_array($item)));
+        if ($items === []) {
+            $this->error('Cart is empty', 422);
+            return;
+        }
+
+        $customerId = $request->input('customer_id') ?: null;
         $warehouseId = (int) $request->input('warehouse_id', 1);
+        $payments = array_values(array_filter((array) $request->input('payments', []), static fn ($payment): bool => is_array($payment)));
         $pdo = Database::pdo();
         $pdo->beginTransaction();
         try {
             $subtotal = 0.0;
+            $tax = 0.0;
             foreach ($items as $item) {
-                $subtotal += ((float) ($item['price'] ?? 0)) * ((int) ($item['quantity'] ?? 1));
+                $qty = max(1, (int) ($item['quantity'] ?? 1));
+                $price = max(0, (float) ($item['price'] ?? 0));
+                $lineTotal = $price * $qty;
+                $subtotal += $lineTotal;
+                $tax += $lineTotal * max(0, (float) ($item['tax_rate'] ?? 0)) / 100;
             }
-            $discount = (float) $request->input('discount_total', 0);
-            $tax = (float) $request->input('tax_total', 0);
+
+            $discount = max(0, (float) $request->input('discount_total', 0));
+            $tax = (float) $request->input('tax_total', $tax);
             $grandTotal = max(0, $subtotal - $discount + $tax);
+            $paidTotal = $this->paymentTotal($payments);
+            if ($payments === []) {
+                $paidTotal = $grandTotal;
+                $payments[] = ['method' => 'cash', 'amount' => $grandTotal, 'reference' => null];
+            }
+            $paymentStatus = $paidTotal + 0.0001 >= $grandTotal ? 'paid' : ($paidTotal > 0 ? 'partial' : 'unpaid');
             $orderNumber = 'POS-' . date('Ymd-His') . '-' . random_int(100, 999);
             $order = $this->repo('orders')->create([
                 'customer_id' => $customerId,
@@ -171,22 +231,25 @@ final class ModuleController extends Controller
                 'user_id' => $request->user['sub'] ?? null,
                 'order_number' => $orderNumber,
                 'channel' => 'pos',
-                'status' => 'paid',
-                'payment_status' => 'paid',
+                'status' => $paymentStatus === 'paid' ? 'paid' : 'pending',
+                'payment_status' => $paymentStatus,
                 'subtotal' => $subtotal,
                 'discount_total' => $discount,
                 'tax_total' => $tax,
                 'grand_total' => $grandTotal,
                 'currency' => 'TND',
             ]);
+
             $line = $pdo->prepare('INSERT INTO order_items (order_id, product_id, sku, name, quantity, unit_price, tax_rate, total) VALUES (:order_id, :product_id, :sku, :name, :quantity, :unit_price, :tax_rate, :total)');
             $stock = $pdo->prepare('UPDATE stock SET quantity = quantity - :quantity WHERE product_id = :product_id AND warehouse_id = :warehouse_id');
+            $movement = $pdo->prepare('INSERT INTO stock_movements (product_id, warehouse_id, user_id, type, quantity, reference, notes) VALUES (:product_id, :warehouse_id, :user_id, "out", :quantity, :reference, :notes)');
             foreach ($items as $item) {
-                $qty = (int) ($item['quantity'] ?? 1);
-                $price = (float) ($item['price'] ?? 0);
+                $qty = max(1, (int) ($item['quantity'] ?? 1));
+                $price = max(0, (float) ($item['price'] ?? 0));
+                $productId = !empty($item['product_id']) ? (int) $item['product_id'] : null;
                 $line->execute([
                     'order_id' => $order['id'],
-                    'product_id' => $item['product_id'] ?? null,
+                    'product_id' => $productId,
                     'sku' => $item['sku'] ?? null,
                     'name' => $item['name'] ?? 'Produit',
                     'quantity' => $qty,
@@ -194,17 +257,126 @@ final class ModuleController extends Controller
                     'tax_rate' => $item['tax_rate'] ?? 0,
                     'total' => $qty * $price,
                 ]);
-                if (!empty($item['product_id'])) {
-                    $stock->execute(['quantity' => $qty, 'product_id' => $item['product_id'], 'warehouse_id' => $warehouseId]);
+                if ($productId) {
+                    $stock->execute(['quantity' => $qty, 'product_id' => $productId, 'warehouse_id' => $warehouseId]);
+                    $movement->execute([
+                        'product_id' => $productId,
+                        'warehouse_id' => $warehouseId,
+                        'user_id' => $request->user['sub'] ?? null,
+                        'quantity' => $qty,
+                        'reference' => $orderNumber,
+                        'notes' => 'Vente POS',
+                    ]);
                 }
             }
+
+            $paymentInsert = $pdo->prepare('INSERT INTO payments (order_id, method, amount, reference) VALUES (:order_id, :method, :amount, :reference)');
+            foreach ($payments as $payment) {
+                $amount = max(0, (float) ($payment['amount'] ?? 0));
+                if ($amount <= 0) {
+                    continue;
+                }
+                $paymentInsert->execute([
+                    'order_id' => $order['id'],
+                    'method' => $this->paymentMethod((string) ($payment['method'] ?? 'cash')),
+                    'amount' => $amount,
+                    'reference' => $payment['reference'] ?? null,
+                ]);
+            }
+
+            $invoiceNumber = 'INV-' . $orderNumber;
+            $pdo->prepare('INSERT INTO invoices (order_id, customer_id, invoice_number, issue_date, subtotal, tax_total, grand_total, status) VALUES (:order_id, :customer_id, :invoice_number, CURDATE(), :subtotal, :tax_total, :grand_total, :status)')
+                ->execute([
+                    'order_id' => $order['id'],
+                    'customer_id' => $customerId,
+                    'invoice_number' => $invoiceNumber,
+                    'subtotal' => $subtotal,
+                    'tax_total' => $tax,
+                    'grand_total' => $grandTotal,
+                    'status' => $paymentStatus === 'paid' ? 'paid' : 'sent',
+                ]);
+            $invoiceId = (int) $pdo->lastInsertId();
+
             $pdo->commit();
             WebSocketNotifier::publish('orders', ['event' => 'pos.sale', 'order' => $order]);
-            $this->ok(['order' => $order, 'receipt_url' => '/api/orders/' . $order['id'] . '/export?format=pdf'], 201);
+            $this->ok([
+                'order' => $this->repo('orders')->find((int) $order['id']),
+                'invoice' => ['id' => $invoiceId, 'invoice_number' => $invoiceNumber],
+                'totals' => [
+                    'subtotal' => $subtotal,
+                    'discount_total' => $discount,
+                    'tax_total' => $tax,
+                    'grand_total' => $grandTotal,
+                    'paid_total' => $paidTotal,
+                    'change_due' => max(0, $paidTotal - $grandTotal),
+                    'payment_status' => $paymentStatus,
+                ],
+                'ticket_pdf_url' => '/api/pos/orders/' . $order['id'] . '/ticket-pdf',
+                'invoice_pdf_url' => '/api/invoices/' . $invoiceId . '/pdf',
+            ], 201);
         } catch (\Throwable $exception) {
             $pdo->rollBack();
             throw $exception;
         }
+    }
+
+    public function posTicketPdf(Request $request): void
+    {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['pos.use'])) {
+            $this->error('Forbidden', 403);
+            return;
+        }
+
+        $id = (int) $request->params['id'];
+        $statement = Database::pdo()->prepare('SELECT o.*, c.name AS customer_name, u.name AS cashier_name FROM orders o LEFT JOIN customers c ON c.id = o.customer_id LEFT JOIN users u ON u.id = o.user_id WHERE o.id = :id AND o.channel = "pos" LIMIT 1');
+        $statement->execute(['id' => $id]);
+        $order = $statement->fetch();
+        if (!$order) {
+            $this->error('POS order not found', 404);
+            return;
+        }
+
+        $lines = Database::pdo()->prepare('SELECT name, quantity, unit_price, total FROM order_items WHERE order_id = :id');
+        $lines->execute(['id' => $id]);
+        $payments = Database::pdo()->prepare('SELECT method, amount, reference FROM payments WHERE order_id = :id');
+        $payments->execute(['id' => $id]);
+
+        $pdf = DocumentPdf::make('Ticket POS ' . $order['order_number'], [
+            'Caisse' => [
+                'Commande: ' . $order['order_number'],
+                'Caissier: ' . ($order['cashier_name'] ?: '-'),
+                'Client: ' . ($order['customer_name'] ?: 'Client comptoir'),
+                'Date: ' . $order['created_at'],
+            ],
+            'Articles' => array_map(static fn (array $line): array => [
+                $line['name'],
+                'x' . $line['quantity'],
+                number_format((float) $line['unit_price'], 3, ',', ' ') . ' TND',
+                number_format((float) $line['total'], 3, ',', ' ') . ' TND',
+            ], $lines->fetchAll()),
+            'Paiements' => array_map(static fn (array $payment): string => strtoupper((string) $payment['method']) . ': ' . number_format((float) $payment['amount'], 3, ',', ' ') . ' TND' . ($payment['reference'] ? ' - Ref: ' . $payment['reference'] : ''), $payments->fetchAll()),
+            'Totaux' => [
+                'Sous-total: ' . number_format((float) $order['subtotal'], 3, ',', ' ') . ' TND',
+                'Remise: ' . number_format((float) $order['discount_total'], 3, ',', ' ') . ' TND',
+                'TVA: ' . number_format((float) $order['tax_total'], 3, ',', ' ') . ' TND',
+                'Total: ' . number_format((float) $order['grand_total'], 3, ',', ' ') . ' TND',
+                'Statut paiement: ' . $order['payment_status'],
+            ],
+        ]);
+
+        Response::download($pdf, 'ticket-' . preg_replace('/[^a-zA-Z0-9_-]/', '-', (string) $order['order_number']) . '.pdf', 'application/pdf');
+    }
+
+    private function paymentTotal(array $payments): float
+    {
+        return array_reduce($payments, static fn (float $sum, array $payment): float => $sum + max(0, (float) ($payment['amount'] ?? 0)), 0.0);
+    }
+
+    private function paymentMethod(string $method): string
+    {
+        $allowed = ['cash', 'card', 'transfer', 'mobile', 'cheque', 'gift_card', 'mixed'];
+
+        return in_array($method, $allowed, true) ? $method : 'cash';
     }
 
     private function repo(string $resource): Repository

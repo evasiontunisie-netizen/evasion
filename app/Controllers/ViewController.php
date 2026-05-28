@@ -30,78 +30,56 @@ final class ViewController
     <link rel="stylesheet" href="/assets/app.css">
 </head>
 <body class="bg-[#f6f6f3] text-ink antialiased transition dark:bg-black dark:text-white">
-    <section x-cloak x-show="!isAuthenticated" class="min-h-screen overflow-hidden p-4 sm:p-6">
-        <div class="mx-auto grid min-h-[calc(100vh-2rem)] max-w-7xl overflow-hidden rounded-[2rem] border border-black/10 bg-white shadow-soft dark:border-white/10 dark:bg-zinc-950 lg:grid-cols-[1.05fr_.95fr]">
-            <div class="relative hidden bg-ink p-10 text-white dark:bg-black lg:block">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,77,25,.45),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,.18),transparent_22%)]"></div>
-                <div class="relative z-10 flex h-full flex-col justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="grid h-12 w-12 place-items-center rounded-2xl bg-white text-xl font-black text-ink">E</div>
-                        <div>
-                            <p class="text-sm text-white/60">Premium ERP Suite</p>
-                            <h1 class="text-xl font-semibold">Evasion ERP</h1>
-                        </div>
-                    </div>
+    <section x-cloak x-show="!isAuthenticated" class="login-shell min-h-screen p-4">
+        <div class="login-card mx-auto w-full max-w-md">
+            <div class="mb-8 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="login-logo">E</div>
                     <div>
-                        <p class="mb-4 inline-flex rounded-full bg-white/10 px-4 py-2 text-sm text-white/80">Multi-showrooms + WooCommerce + POS</p>
-                        <h2 class="max-w-xl text-5xl font-semibold tracking-tight">Pilote toute ton entreprise depuis un cockpit moderne.</h2>
-                        <p class="mt-5 max-w-lg text-white/65">Stocks, ventes, caisse, SAV, RH, livraison, marketing, comptabilité et analytics dans une interface rapide et responsive.</p>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3 text-sm text-white/70">
-                        <div class="rounded-3xl bg-white/10 p-4"><strong class="block text-2xl text-white">JWT</strong>Sécurité</div>
-                        <div class="rounded-3xl bg-white/10 p-4"><strong class="block text-2xl text-white">PWA</strong>Mobile</div>
-                        <div class="rounded-3xl bg-white/10 p-4"><strong class="block text-2xl text-white">Live</strong>Alertes</div>
+                        <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Evasion</p>
+                        <h1 class="text-2xl font-semibold tracking-tight">Connexion</h1>
                     </div>
                 </div>
+                <button @click="darkMode = !darkMode; persistTheme()" class="btn-secondary px-4" x-text="darkMode ? 'Light' : 'Dark'"></button>
             </div>
-            <div class="flex items-center justify-center p-5 sm:p-10">
-                <div class="w-full max-w-md">
-                    <div class="mb-8 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs uppercase tracking-[.32em] text-accent">Connexion sécurisée</p>
-                            <h2 class="mt-2 text-3xl font-semibold tracking-tight" x-text="authMode === 'login' ? 'Bienvenue' : 'Créer Super Admin'"></h2>
-                        </div>
-                        <button @click="darkMode = !darkMode; persistTheme()" class="btn-secondary" x-text="darkMode ? 'Light' : 'Dark'"></button>
-                    </div>
 
-                    <div class="mb-5 grid grid-cols-2 rounded-full bg-zinc-100 p-1 dark:bg-white/10">
-                        <button @click="authMode = 'login'" class="rounded-full px-4 py-3 text-sm font-semibold" :class="authMode === 'login' ? 'bg-white shadow dark:bg-black' : 'text-zinc-500'">Login</button>
-                        <button @click="authMode = 'register'" class="rounded-full px-4 py-3 text-sm font-semibold" :class="authMode === 'register' ? 'bg-white shadow dark:bg-black' : 'text-zinc-500'">Premier admin</button>
-                    </div>
-
-                    <form @submit.prevent="authMode === 'login' ? login() : registerAdmin()" class="space-y-4">
-                        <template x-if="authMode === 'register'">
-                            <input x-model="authForm.name" class="input w-full" placeholder="Nom complet">
-                        </template>
-                        <input x-model="authForm.email" class="input w-full" type="email" placeholder="Email">
-                        <input x-model="authForm.password" class="input w-full" type="password" placeholder="Mot de passe">
-                        <template x-if="authMode === 'login'">
-                            <input x-model="authForm.otp" class="input w-full" placeholder="Code 2FA si activé">
-                        </template>
-                        <button class="btn-primary w-full" :disabled="authLoading">
-                            <span x-text="authLoading ? 'Veuillez patienter...' : (authMode === 'login' ? 'Se connecter' : 'Créer le compte admin')"></span>
-                        </button>
-                    </form>
-
-                    <button @click="enterPreview()" class="btn-secondary mt-4 w-full">Voir l'interface en mode aperçu</button>
-                    <p class="mt-5 text-sm leading-6 text-zinc-500">Pour une vraie connexion, importe `database/schema.sql`, puis `database/seed.sql`, crée le premier admin et connecte-toi. Le mode aperçu affiche seulement l'UI sans déverrouiller les API sécurisées.</p>
-                </div>
+            <div class="mb-5 grid gap-2 sm:grid-cols-2">
+                <template x-for="account in demoAccounts" :key="account.email">
+                    <button type="button" @click="fillDemoAccount(account)" class="demo-account" :class="authForm.email === account.email && 'active'">
+                        <span x-text="account.label"></span>
+                        <small x-text="account.role"></small>
+                    </button>
+                </template>
             </div>
+
+            <form @submit.prevent="login()" class="space-y-4">
+                <input x-model="authForm.email" class="input w-full" type="email" placeholder="Email">
+                <input x-model="authForm.password" class="input w-full" type="password" placeholder="Mot de passe">
+                <input x-model="authForm.otp" class="input w-full" placeholder="Code 2FA">
+                <button class="btn-primary w-full" :disabled="authLoading">
+                    <span x-text="authLoading ? 'Patientez...' : 'Se connecter'"></span>
+                </button>
+            </form>
+
+            <button @click="enterPreview()" class="mt-4 w-full text-sm font-semibold text-accent">Mode aperçu</button>
         </div>
     </section>
 
-    <div x-cloak x-show="isAuthenticated" class="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
-        <aside class="fixed inset-x-0 bottom-0 z-30 border-t border-black/10 bg-white/95 backdrop-blur lg:static lg:h-screen lg:border-r lg:border-t-0 dark:border-white/10 dark:bg-zinc-950/95">
-            <div class="hidden px-6 py-6 lg:block">
+    <div x-cloak x-show="isAuthenticated" class="app-shell min-h-screen">
+        <button x-show="menuOpen" x-transition.opacity @click="menuOpen = false; persistMenu()" class="menu-backdrop lg:hidden" aria-label="Fermer le menu"></button>
+
+        <aside x-show="menuOpen" x-transition class="menu-panel">
+            <div class="flex items-center justify-between px-5 py-5">
                 <div class="flex items-center gap-3">
                     <div class="grid h-11 w-11 place-items-center rounded-2xl bg-black text-white dark:bg-white dark:text-black">E</div>
                     <div>
-                        <p class="text-sm text-zinc-500">Premium Suite</p>
+                        <p class="text-sm text-zinc-500">ERP</p>
                         <h1 class="font-semibold tracking-tight">Evasion ERP</h1>
                     </div>
                 </div>
+                <button @click="menuOpen = false; persistMenu()" class="btn-secondary px-4">Fermer</button>
             </div>
-            <nav class="flex gap-1 overflow-x-auto px-3 py-2 lg:block lg:space-y-1 lg:px-4">
+            <nav class="space-y-1 px-4 pb-5">
                 <?php foreach ($nav as $item): ?>
                     <button x-show="can('<?= Security::e($item['permission']) ?>')" @click="setModule('<?= Security::e($item['key']) ?>')" class="nav-item" :class="module === '<?= Security::e($item['key']) ?>' && 'active'">
                         <span><?= Security::e($item['label']) ?></span>
@@ -113,9 +91,12 @@ final class ViewController
         <main class="pb-24 lg:pb-0">
             <header class="sticky top-0 z-20 border-b border-black/10 bg-[#f6f6f3]/85 px-4 py-4 backdrop-blur-xl dark:border-white/10 dark:bg-black/80 sm:px-6">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs uppercase tracking-[.35em] text-accent">Multi-showroom + WooCommerce</p>
-                        <h2 class="mt-1 text-2xl font-semibold tracking-tight" x-text="title"></h2>
+                    <div class="flex items-center gap-3">
+                        <button @click="menuOpen = !menuOpen; persistMenu()" class="btn-secondary px-4" x-text="menuOpen ? 'Masquer menu' : 'Menu'"></button>
+                        <div>
+                            <p class="text-xs uppercase tracking-[.35em] text-accent">Evasion ERP</p>
+                            <h2 class="mt-1 text-2xl font-semibold tracking-tight" x-text="title"></h2>
+                        </div>
                     </div>
                     <div class="flex items-center gap-2">
                         <select x-model="locale" class="input w-24">
@@ -198,36 +179,114 @@ final class ViewController
                 </template>
 
                 <template x-if="module === 'pos'">
-                    <div class="grid gap-4 xl:grid-cols-[1.7fr_1fr]">
+                    <div class="grid gap-4 2xl:grid-cols-[1.45fr_.95fr]">
                         <article class="card">
-                            <h3 class="section-title mb-4">Caisse POS rapide</h3>
-                            <input x-model="posSearch" class="input mb-4" placeholder="Scanner barcode / QR ou rechercher produit">
-                            <div class="grid gap-3 sm:grid-cols-2">
-                                <template x-for="product in demoProducts" :key="product.sku">
-                                    <button @click="addToCart(product)" class="rounded-3xl border border-black/10 p-4 text-left transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10">
-                                        <p class="font-semibold" x-text="product.name"></p>
-                                        <p class="text-sm text-zinc-500" x-text="product.sku"></p>
-                                        <p class="mt-3 text-lg font-bold" x-text="money(product.price)"></p>
+                            <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                    <h3 class="section-title">Caisse</h3>
+                                    <p class="text-sm text-zinc-500">Vente rapide.</p>
+                                </div>
+                                <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-accent dark:bg-orange-500/10" x-text="posProducts.length + ' produits'"></span>
+                            </div>
+                            <div class="mb-4 grid gap-3 md:grid-cols-[1fr_120px]">
+                                <input x-model.debounce.250ms="posSearch" @input="loadPosCatalog()" class="input" placeholder="Scanner ou rechercher">
+                                <input x-model.number="posWarehouseId" @change="loadPosCatalog()" class="input" type="number" min="1" placeholder="Stock">
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                                <template x-for="product in posProducts" :key="product.sku">
+                                    <button @click="addToCart(product)" class="pos-product-card">
+                                        <img :src="product.image_url || '/assets/icon-192.svg'" :alt="product.name" loading="lazy">
+                                        <div class="p-4">
+                                            <p class="line-clamp-2 font-bold" x-text="product.name"></p>
+                                            <p class="mt-1 text-xs text-zinc-500" x-text="product.sku"></p>
+                                            <div class="mt-3 flex items-center justify-between">
+                                                <strong class="text-accent" x-text="money(product.price)"></strong>
+                                                <span class="rounded-full bg-zinc-100 px-2 py-1 text-xs dark:bg-white/10" x-text="'Stock ' + product.stock"></span>
+                                            </div>
+                                        </div>
                                     </button>
                                 </template>
                             </div>
                         </article>
-                        <article class="card">
-                            <h3 class="section-title mb-4">Panier</h3>
-                            <template x-for="item in cart" :key="item.sku">
-                                <div class="flex items-center justify-between border-b border-black/5 py-3 dark:border-white/10">
-                                    <div>
-                                        <p class="font-medium" x-text="item.name"></p>
-                                        <p class="text-sm text-zinc-500" x-text="'x' + item.quantity"></p>
-                                    </div>
-                                    <strong x-text="money(item.price * item.quantity)"></strong>
+                        <div class="space-y-4">
+                            <article class="card">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <h3 class="section-title">Panier</h3>
+                                    <input x-model="posCustomerId" class="input w-28" placeholder="Client ID">
                                 </div>
-                            </template>
-                            <div class="mt-5 flex items-center justify-between text-xl font-bold">
-                                <span>Total</span><span x-text="money(cartTotal)"></span>
-                            </div>
-                            <button @click="checkout()" class="btn-primary mt-5 w-full">Encaisser</button>
-                        </article>
+                                <template x-for="item in cart" :key="item.sku">
+                                    <button @click="selectCartItem(item)" class="cart-line" :class="selectedCartSku === item.sku && 'active'">
+                                        <div>
+                                            <p class="font-medium" x-text="item.name"></p>
+                                            <p class="text-sm text-zinc-500" x-text="'x' + item.quantity + ' - ' + item.sku"></p>
+                                        </div>
+                                        <div class="text-right">
+                                            <strong x-text="money(item.price * item.quantity)"></strong>
+                                            <span @click.stop="removeCartItem(item)" class="mt-1 block text-xs font-bold text-red-500">Retirer</span>
+                                        </div>
+                                    </button>
+                                </template>
+                                <div class="mt-4 space-y-2 rounded-3xl bg-zinc-50 p-4 text-sm dark:bg-white/5">
+                                    <div class="flex justify-between"><span>Sous-total</span><strong x-text="money(cartSubtotal)"></strong></div>
+                                    <div class="flex justify-between"><span>Remise</span><strong x-text="money(posDiscount || 0)"></strong></div>
+                                    <div class="flex justify-between"><span>TVA</span><strong x-text="money(posTaxTotal)"></strong></div>
+                                    <div class="flex justify-between text-xl font-black"><span>Total</span><strong x-text="money(cartTotal)"></strong></div>
+                                </div>
+                            </article>
+
+                            <article class="card">
+                                <h3 class="section-title mb-4">Clavier</h3>
+                                <div class="mb-3 rounded-2xl bg-black px-4 py-3 text-right text-2xl font-black text-white" x-text="keypadValue || '0'"></div>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <template x-for="key in ['1','2','3','4','5','6','7','8','9','0','00','.']" :key="key">
+                                        <button @click="pressKeypad(key)" class="keypad-btn" x-text="key"></button>
+                                    </template>
+                                    <button @click="pressKeypad('back')" class="keypad-btn">⌫</button>
+                                    <button @click="pressKeypad('clear')" class="keypad-btn">C</button>
+                                    <button @click="applyKeypadQuantity()" class="keypad-btn primary">Qté</button>
+                                </div>
+                                <button @click="applyKeypadDiscount()" class="btn-secondary mt-3 w-full">Appliquer remise</button>
+                            </article>
+
+                            <article class="card">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <h3 class="section-title">Paiements</h3>
+                                    <button @click="addPaymentRow()" class="btn-secondary px-4">+</button>
+                                </div>
+                                <div class="space-y-3">
+                                    <template x-for="(payment, index) in posPayments" :key="index">
+                                        <div class="grid gap-2 rounded-2xl border border-black/10 p-3 dark:border-white/10">
+                                            <select x-model="payment.method" class="input w-full">
+                                                <template x-for="method in paymentMethods" :key="method[0]">
+                                                    <option :value="method[0]" x-text="method[1]"></option>
+                                                </template>
+                                            </select>
+                                            <div class="grid grid-cols-[1fr_auto] gap-2">
+                                                <input x-model.number="payment.amount" class="input" type="number" step="0.001" placeholder="Montant">
+                                                <button @click="setPaymentToRemaining(index)" class="btn-secondary px-4">Reste</button>
+                                            </div>
+                                            <input x-model="payment.reference" class="input w-full" placeholder="Référence">
+                                            <button x-show="posPayments.length > 1" @click="removePaymentRow(index)" class="text-sm font-bold text-red-500">Supprimer</button>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+                                    <div class="rounded-2xl bg-zinc-100 p-3 dark:bg-white/10"><span class="block text-zinc-500">Payé</span><strong x-text="money(posPaidTotal)"></strong></div>
+                                    <div class="rounded-2xl bg-zinc-100 p-3 dark:bg-white/10"><span class="block text-zinc-500">Reste</span><strong x-text="money(posRemaining)"></strong></div>
+                                    <div class="rounded-2xl bg-zinc-100 p-3 dark:bg-white/10"><span class="block text-zinc-500">Rendu</span><strong x-text="money(posChangeDue)"></strong></div>
+                                </div>
+                                <button @click="checkout()" class="btn-primary mt-5 w-full">Encaisser</button>
+                            </article>
+
+                            <article x-show="lastPosSale" class="card">
+                                <h3 class="section-title mb-4">Documents</h3>
+                                <div class="grid gap-2 sm:grid-cols-2">
+                                    <button @click="downloadPdf(lastPosSale.ticket_pdf_url, 'ticket-pos.pdf')" class="btn-secondary">Ticket PDF</button>
+                                    <button @click="downloadPdf(lastPosSale.invoice_pdf_url, 'facture-pos.pdf')" class="btn-secondary">Facture PDF</button>
+                                </div>
+                                <p class="mt-3 text-sm text-zinc-500" x-text="lastPosSale.order ? lastPosSale.order.order_number : ''"></p>
+                            </article>
+                        </div>
                     </div>
                 </template>
 

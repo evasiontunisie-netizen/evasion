@@ -300,7 +300,7 @@ CREATE TABLE pos_sessions (
 CREATE TABLE payments (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     order_id BIGINT UNSIGNED NOT NULL,
-    method ENUM('cash','card','transfer','mixed') NOT NULL,
+    method ENUM('cash','card','transfer','mobile','cheque','gift_card','mixed') NOT NULL,
     amount DECIMAL(12,3) NOT NULL,
     reference VARCHAR(180) NULL,
     paid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
