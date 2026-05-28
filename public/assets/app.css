@@ -96,6 +96,34 @@ html {
   border-spacing: 0 .65rem;
 }
 
+.swal-form-grid {
+  display: grid;
+  gap: .8rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: .5rem;
+  text-align: left;
+}
+
+.swal-form-label {
+  color: rgb(82 82 91);
+  display: grid;
+  font-size: .78rem;
+  font-weight: 700;
+  gap: .25rem;
+}
+
+.swal-form-label .swal2-input,
+.swal-form-label .swal2-textarea {
+  border-radius: 16px;
+  font-size: .9rem;
+  margin: 0;
+  width: 100%;
+}
+
+.swal-form-label .swal2-textarea {
+  min-height: 92px;
+}
+
 .modern-table th {
   color: rgb(113 113 122);
   font-size: .74rem;

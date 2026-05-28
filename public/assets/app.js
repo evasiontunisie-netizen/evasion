@@ -42,6 +42,110 @@ function erpApp() {
       invoices: 'Comptabilité',
       notifications: 'Notifications'
     },
+    formSchemas: {
+      products: [
+        { name: 'name', label: 'Nom produit', required: true },
+        { name: 'sku', label: 'SKU', required: true },
+        { name: 'barcode', label: 'Barcode' },
+        { name: 'category_id', label: 'ID catégorie', type: 'number' },
+        { name: 'brand_id', label: 'ID marque', type: 'number' },
+        { name: 'supplier_id', label: 'ID fournisseur', type: 'number' },
+        { name: 'purchase_price', label: 'Prix achat', type: 'number', step: '0.001', value: 0 },
+        { name: 'sale_price', label: 'Prix vente', type: 'number', step: '0.001', value: 0 },
+        { name: 'minimum_stock', label: 'Stock minimum', type: 'number', value: 0 },
+        { name: 'status', label: 'Statut', type: 'select', options: [['active', 'Actif'], ['draft', 'Brouillon'], ['archived', 'Archivé']] }
+      ],
+      stock: [
+        { name: 'product_id', label: 'ID produit', type: 'number', required: true },
+        { name: 'warehouse_id', label: 'ID stock/showroom', type: 'number', required: true },
+        { name: 'quantity', label: 'Quantité', type: 'number', value: 0 },
+        { name: 'reserved_quantity', label: 'Réservé', type: 'number', value: 0 },
+        { name: 'sku_snapshot', label: 'SKU' }
+      ],
+      transfers: [
+        { name: 'reference', label: 'Référence', required: true, value: `TR-${Date.now()}` },
+        { name: 'from_warehouse_id', label: 'Depuis stock ID', type: 'number', required: true, value: 1 },
+        { name: 'to_warehouse_id', label: 'Vers stock ID', type: 'number', required: true, value: 2 },
+        { name: 'status', label: 'Statut', type: 'select', options: [['pending', 'En attente'], ['validated', 'Validé'], ['shipped', 'Expédié'], ['received', 'Reçu'], ['cancelled', 'Annulé']] },
+        { name: 'notes', label: 'Commentaires', type: 'textarea' }
+      ],
+      tickets: [
+        { name: 'subject', label: 'Sujet', required: true },
+        { name: 'customer_id', label: 'ID client', type: 'number' },
+        { name: 'assigned_to', label: 'ID employé assigné', type: 'number' },
+        { name: 'category', label: 'Catégorie', type: 'select', options: [['sav', 'SAV'], ['delivery', 'Livraison'], ['defective_product', 'Produit défectueux'], ['refund', 'Remboursement'], ['complaint', 'Réclamation'], ['technical_support', 'Assistance technique']] },
+        { name: 'priority', label: 'Priorité', type: 'select', options: [['low', 'Basse'], ['medium', 'Moyenne'], ['high', 'Haute'], ['urgent', 'Urgente']] },
+        { name: 'status', label: 'Statut', type: 'select', options: [['open', 'Ouvert'], ['in_progress', 'En cours'], ['resolved', 'Résolu'], ['closed', 'Fermé']] },
+        { name: 'description', label: 'Description', type: 'textarea' }
+      ],
+      employees: [
+        { name: 'employee_code', label: 'Code employé', required: true, value: `EMP-${Date.now()}` },
+        { name: 'first_name', label: 'Prénom', required: true },
+        { name: 'last_name', label: 'Nom', required: true },
+        { name: 'email', label: 'Email', type: 'email' },
+        { name: 'phone', label: 'Téléphone' },
+        { name: 'position', label: 'Poste' },
+        { name: 'salary_base', label: 'Salaire base', type: 'number', step: '0.001', value: 0 },
+        { name: 'status', label: 'Statut', type: 'select', options: [['active', 'Actif'], ['on_leave', 'Congé'], ['inactive', 'Inactif']] }
+      ],
+      deliveries: [
+        { name: 'order_id', label: 'ID commande', type: 'number', required: true },
+        { name: 'tracking_number', label: 'Tracking', required: true, value: `DL-${Date.now()}` },
+        { name: 'driver_id', label: 'ID livreur', type: 'number' },
+        { name: 'zone', label: 'Zone' },
+        { name: 'delivery_fee', label: 'Frais livraison', type: 'number', step: '0.001', value: 0 },
+        { name: 'status', label: 'Statut', type: 'select', options: [['preparing', 'Préparation'], ['shipped', 'Expédiée'], ['in_delivery', 'En livraison'], ['delivered', 'Livrée'], ['returned', 'Retournée']] }
+      ],
+      customers: [
+        { name: 'name', label: 'Nom client', required: true },
+        { name: 'email', label: 'Email', type: 'email' },
+        { name: 'phone', label: 'Téléphone' },
+        { name: 'whatsapp', label: 'WhatsApp' },
+        { name: 'city', label: 'Ville' },
+        { name: 'loyalty_points', label: 'Points fidélité', type: 'number', value: 0 },
+        { name: 'internal_notes', label: 'Notes internes', type: 'textarea' }
+      ],
+      invoices: [
+        { name: 'invoice_number', label: 'Numéro facture', required: true, value: `INV-${Date.now()}` },
+        { name: 'customer_id', label: 'ID client', type: 'number' },
+        { name: 'order_id', label: 'ID commande', type: 'number' },
+        { name: 'issue_date', label: 'Date émission', type: 'date', value: new Date().toISOString().slice(0, 10) },
+        { name: 'subtotal', label: 'Sous-total', type: 'number', step: '0.001', value: 0 },
+        { name: 'tax_total', label: 'TVA', type: 'number', step: '0.001', value: 0 },
+        { name: 'grand_total', label: 'Total', type: 'number', step: '0.001', value: 0 },
+        { name: 'status', label: 'Statut', type: 'select', options: [['draft', 'Brouillon'], ['sent', 'Envoyée'], ['paid', 'Payée'], ['cancelled', 'Annulée']] }
+      ],
+      expenses: [
+        { name: 'label', label: 'Libellé', required: true },
+        { name: 'category', label: 'Catégorie', required: true },
+        { name: 'amount', label: 'Montant', type: 'number', step: '0.001', required: true },
+        { name: 'tax_amount', label: 'TVA', type: 'number', step: '0.001', value: 0 },
+        { name: 'expense_date', label: 'Date', type: 'date', value: new Date().toISOString().slice(0, 10) },
+        { name: 'payment_method', label: 'Paiement' },
+        { name: 'notes', label: 'Notes', type: 'textarea' }
+      ],
+      'woocommerce-sites': [
+        { name: 'name', label: 'Nom boutique', required: true },
+        { name: 'url', label: 'URL WordPress', required: true },
+        { name: 'consumer_key', label: 'Consumer key', required: true },
+        { name: 'consumer_secret', label: 'Consumer secret', required: true },
+        { name: 'status', label: 'Statut', type: 'select', options: [['active', 'Actif'], ['paused', 'Pause'], ['error', 'Erreur']] }
+      ],
+      'marketing-campaigns': [
+        { name: 'name', label: 'Campagne', required: true },
+        { name: 'channel', label: 'Canal', required: true },
+        { name: 'budget', label: 'Budget', type: 'number', step: '0.001', value: 0 },
+        { name: 'revenue', label: 'Revenu', type: 'number', step: '0.001', value: 0 },
+        { name: 'starts_at', label: 'Début', type: 'date' },
+        { name: 'status', label: 'Statut', type: 'select', options: [['draft', 'Brouillon'], ['active', 'Active'], ['paused', 'Pause'], ['completed', 'Terminée']] }
+      ],
+      notifications: [
+        { name: 'title', label: 'Titre', required: true },
+        { name: 'body', label: 'Message', type: 'textarea' },
+        { name: 'channel', label: 'Canal', type: 'select', options: [['in_app', 'In app'], ['email', 'Email'], ['sms', 'SMS'], ['whatsapp', 'WhatsApp']] },
+        { name: 'status', label: 'Statut', type: 'select', options: [['queued', 'En attente'], ['sent', 'Envoyée'], ['read', 'Lue'], ['failed', 'Échec']] }
+      ]
+    },
     get title() {
       return this.titles[this.module] || this.module;
     },
@@ -197,13 +301,85 @@ function erpApp() {
         });
       }
     },
-    openCreate() {
-      Swal.fire({
+    async openCreate() {
+      if (this.previewMode && !this.token) {
+        Swal.fire('Mode aperçu', 'Connecte-toi avec un compte admin pour créer des données réelles.', 'info');
+        return;
+      }
+
+      const schema = this.formSchemas[this.module];
+      if (!schema) {
+        Swal.fire('Module non disponible', 'Ce module n’a pas encore de formulaire rapide.', 'info');
+        return;
+      }
+
+      const result = await Swal.fire({
         title: `Créer - ${this.title}`,
-        text: 'Les formulaires dynamiques peuvent être branchés sur les endpoints REST générés.',
-        icon: 'info',
-        confirmButtonColor: '#ff4d19'
+        html: `<div class="swal-form-grid">${schema.map(field => this.formFieldHtml(field)).join('')}</div>`,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Enregistrer',
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: '#ff4d19',
+        preConfirm: () => this.collectCreatePayload(schema)
       });
+
+      if (!result.isConfirmed) return;
+
+      try {
+        await this.api(`/api/${this.module}`, { method: 'POST', body: JSON.stringify(result.value) });
+        await this.load();
+        Swal.fire('Créé', `${this.title} enregistré avec succès.`, 'success');
+      } catch (error) {
+        Swal.fire('Erreur création', error.message || 'Vérifie les champs obligatoires et la base de données.', 'error');
+      }
+    },
+    formFieldHtml(field) {
+      const id = `swal-field-${field.name.replace(/[^a-z0-9_-]/gi, '-')}`;
+      const required = field.required ? 'required' : '';
+      const value = this.escapeHtml(field.value ?? '');
+      const label = `${this.escapeHtml(field.label)}${field.required ? ' *' : ''}`;
+
+      if (field.type === 'textarea') {
+        return `<label class="swal-form-label" for="${id}">${label}<textarea id="${id}" data-name="${field.name}" data-type="textarea" class="swal2-textarea" ${required}>${value}</textarea></label>`;
+      }
+
+      if (field.type === 'select') {
+        const options = (field.options || []).map(([optionValue, optionLabel]) => {
+          const selected = optionValue === (field.value ?? (field.options[0] ? field.options[0][0] : '')) ? 'selected' : '';
+          return `<option value="${this.escapeHtml(optionValue)}" ${selected}>${this.escapeHtml(optionLabel)}</option>`;
+        }).join('');
+        return `<label class="swal-form-label" for="${id}">${label}<select id="${id}" data-name="${field.name}" data-type="select" class="swal2-input" ${required}>${options}</select></label>`;
+      }
+
+      return `<label class="swal-form-label" for="${id}">${label}<input id="${id}" data-name="${field.name}" data-type="${field.type || 'text'}" class="swal2-input" type="${field.type || 'text'}" step="${field.step || '1'}" value="${value}" ${required}></label>`;
+    },
+    collectCreatePayload(schema) {
+      const payload = {};
+      for (const field of schema) {
+        const id = `swal-field-${field.name.replace(/[^a-z0-9_-]/gi, '-')}`;
+        const element = document.getElementById(id);
+        if (!element) continue;
+
+        const rawValue = element.value.trim();
+        if (field.required && rawValue === '') {
+          Swal.showValidationMessage(`${field.label} est obligatoire`);
+          return false;
+        }
+        if (rawValue === '') continue;
+
+        payload[field.name] = field.type === 'number' ? Number(rawValue) : rawValue;
+      }
+
+      return payload;
+    },
+    escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     },
     exportData(format) {
       if (['dashboard', 'pos'].includes(this.module)) return;
