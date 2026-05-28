@@ -75,6 +75,12 @@ storage/              Cache, logs et uploads
 
 Toutes les routes métier sont préfixées par `/api` et utilisent un bearer token JWT.
 
+Documentation complète:
+
+- Résumé fonctionnel + guide API: [`docs/evasion-erp-guide-complet.md`](docs/evasion-erp-guide-complet.md)
+- PDF téléchargeable: [`docs/evasion-erp-guide-complet.pdf`](docs/evasion-erp-guide-complet.pdf)
+- Spécification OpenAPI: [`docs/openapi.yaml`](docs/openapi.yaml)
+
 Ressources CRUD génériques:
 
 - `/api/products`
