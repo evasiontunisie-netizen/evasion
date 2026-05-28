@@ -9,9 +9,9 @@ use PDO;
 final class Repository
 {
     public function __construct(
-        private readonly string $table,
-        private readonly array $fillable,
-        private readonly array $searchable = [],
+        private string $table,
+        private array $fillable,
+        private array $searchable = [],
     ) {
     }
 
