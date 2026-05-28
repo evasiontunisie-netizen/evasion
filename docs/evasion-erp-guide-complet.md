@@ -234,11 +234,24 @@ L'import cree ou met a jour:
 - Revenu.
 - Statut.
 
-### Notifications
+### Notifications et temps reel
 
 - Notification in-app.
 - Email/SMS/WhatsApp prepares en base.
 - Statut notification.
+- Serveur WebSocket PHP fourni.
+- Diffusion live des evenements ERP via `storage/cache/realtime.jsonl`.
+
+### Securite avancee
+
+- 2FA complet avec QR code.
+- Activation OTP depuis l'interface.
+- Desactivation OTP depuis l'interface.
+- Login avec code OTP si active.
+- Permissions fines par ecran.
+- Menus masques selon permissions.
+- Middleware API par module.
+- Gestion roles et permissions accessible aux admins.
 
 ## 3. Ce qui reste a connecter en production
 
@@ -246,10 +259,10 @@ L'import cree ou met a jour:
 - Envoi email reel: SMTP/API a configurer.
 - SMS reel: fournisseur a configurer.
 - WhatsApp API reel: fournisseur Meta/Twilio/360dialog a configurer.
-- WebSocket: serveur PHP fourni, a lancer en process permanent en production.
-- PDF facture: generation complete fournie, design graphique personnalisable selon charte.
-- 2FA: setup QR + confirmation OTP fournis.
-- Permissions fines par ecran: base et middleware presents, regles a durcir selon organisation.
+- WebSocket: complet, fourni avec script systemd et batch XAMPP; a lancer comme service permanent en production.
+- PDF facture: complet avec bandeau, sections facture/client/articles/totaux; charte personnalisable.
+- 2FA: complet avec setup QR, confirmation OTP, desactivation et login OTP.
+- Permissions fines par ecran: complet avec permissions API, masquage UI, seed roles et module roles/permissions.
 
 ## 4. Installation locale avec XAMPP
 
@@ -321,6 +334,30 @@ Port par defaut:
 
 ```text
 ws://localhost:8090
+```
+
+### Installation WebSocket en service Linux
+
+Copier le projet sur le serveur, puis:
+
+```bash
+sudo bash scripts/install-websocket-systemd.sh /var/www/evasion
+```
+
+Commandes utiles:
+
+```bash
+sudo systemctl status evasion-websocket
+sudo systemctl restart evasion-websocket
+sudo journalctl -u evasion-websocket -f
+```
+
+### Lancement WebSocket XAMPP Windows
+
+Double-cliquer:
+
+```text
+scripts/start-websocket-xampp.bat
 ```
 
 ## 5. Creation admin

@@ -30,7 +30,18 @@ final class AuthGuard
         };
     }
 
-    private static function can(int $userId, array $permissions): bool
+    public static function can(int $userId, array $permissions): bool
+    {
+        if ($permissions === []) {
+            return true;
+        }
+
+        $granted = self::permissions($userId);
+
+        return in_array('*', $granted, true) || count(array_intersect($permissions, $granted)) > 0;
+    }
+
+    public static function permissions(int $userId): array
     {
         $sql = "SELECT p.slug
                 FROM users u
@@ -40,8 +51,7 @@ final class AuthGuard
                 WHERE u.id = :id";
         $statement = Database::pdo()->prepare($sql);
         $statement->execute(['id' => $userId]);
-        $granted = array_column($statement->fetchAll(), 'slug');
 
-        return in_array('*', $granted, true) || count(array_intersect($permissions, $granted)) > 0;
+        return array_values(array_unique(array_column($statement->fetchAll(), 'slug')));
     }
 }

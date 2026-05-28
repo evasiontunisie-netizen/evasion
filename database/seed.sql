@@ -24,15 +24,47 @@ INSERT INTO permissions (name, slug) VALUES
 ('Manage accounting', 'accounting.manage'),
 ('Manage marketing', 'marketing.manage'),
 ('Manage deliveries', 'deliveries.manage'),
-('Manage WooCommerce', 'woocommerce.manage')
+('Manage WooCommerce', 'woocommerce.manage'),
+('Manage customers', 'customers.manage'),
+('Manage notifications', 'notifications.manage'),
+('Manage users', 'users.manage'),
+('View analytics', 'analytics.view')
 ON DUPLICATE KEY UPDATE name = VALUES(name);
 
 INSERT IGNORE INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r JOIN permissions p WHERE r.slug = 'super-admin' AND p.slug = '*';
 
 INSERT IGNORE INTO role_permissions (role_id, permission_id)
-SELECT r.id, p.id FROM roles r JOIN permissions p ON p.slug IN ('products.manage','stock.manage','transfers.manage','pos.use','tickets.manage','deliveries.manage')
-WHERE r.slug IN ('admin','manager');
+SELECT r.id, p.id FROM roles r JOIN permissions p ON p.slug <> '*'
+WHERE r.slug = 'admin';
+
+INSERT IGNORE INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r JOIN permissions p ON p.slug IN ('products.manage','stock.manage','transfers.manage','pos.use','tickets.manage','deliveries.manage','customers.manage','analytics.view','notifications.manage')
+WHERE r.slug = 'manager';
+
+INSERT IGNORE INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r JOIN permissions p ON p.slug IN ('hr.manage','analytics.view')
+WHERE r.slug = 'rh';
+
+INSERT IGNORE INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r JOIN permissions p ON p.slug IN ('accounting.manage','analytics.view')
+WHERE r.slug = 'comptable';
+
+INSERT IGNORE INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r JOIN permissions p ON p.slug IN ('pos.use','customers.manage','analytics.view')
+WHERE r.slug = 'caissier';
+
+INSERT IGNORE INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r JOIN permissions p ON p.slug IN ('deliveries.manage')
+WHERE r.slug = 'livreur';
+
+INSERT IGNORE INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r JOIN permissions p ON p.slug IN ('tickets.manage','customers.manage')
+WHERE r.slug = 'support-client';
+
+INSERT IGNORE INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r JOIN permissions p ON p.slug IN ('marketing.manage','customers.manage','analytics.view')
+WHERE r.slug = 'marketing';
 
 INSERT INTO warehouses (name, code, type, city, status) VALUES
 ('Stock principal', 'MAIN', 'main', 'Tunis', 'active'),

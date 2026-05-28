@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Auth\AuthGuard;
 use App\Core\Database;
 use App\Core\Pdf\DocumentPdf;
 use App\Core\Request;
@@ -14,6 +15,11 @@ final class InvoiceController extends Controller
 {
     public function pdf(Request $request): void
     {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['accounting.manage'])) {
+            $this->error('Forbidden', 403);
+            return;
+        }
+
         $id = (int) $request->params['id'];
         $statement = Database::pdo()->prepare('SELECT i.*, c.name AS customer_name, c.email AS customer_email, c.phone AS customer_phone, c.address AS customer_address, o.order_number FROM invoices i LEFT JOIN customers c ON c.id = i.customer_id LEFT JOIN orders o ON o.id = i.order_id WHERE i.id = :id LIMIT 1');
         $statement->execute(['id' => $id]);

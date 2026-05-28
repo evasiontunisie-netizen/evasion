@@ -7,6 +7,8 @@ function erpApp() {
     darkMode: localStorage.getItem('theme') === 'dark',
     locale: localStorage.getItem('locale') || 'fr',
     token: localStorage.getItem('token') || '',
+    currentUser: JSON.parse(localStorage.getItem('currentUser') || 'null'),
+    permissions: JSON.parse(localStorage.getItem('permissions') || '[]'),
     previewMode: localStorage.getItem('previewMode') === 'true',
     authMode: 'login',
     authLoading: false,
@@ -42,6 +44,7 @@ function erpApp() {
       tickets: 'Tickets & SAV',
       employees: 'Ressources humaines',
       users: 'Utilisateurs',
+      roles: 'Permissions',
       deliveries: 'Livraison',
       'woocommerce-sites': 'Sites WooCommerce',
       customers: 'CRM clients',
@@ -159,7 +162,33 @@ function erpApp() {
         { name: 'role_id', label: 'ID rôle', type: 'number', value: 10 },
         { name: 'avatar_path', label: 'URL photo/avatar' },
         { name: 'status', label: 'Statut', type: 'select', options: [['active', 'Actif'], ['inactive', 'Inactif'], ['suspended', 'Suspendu']] }
+      ],
+      roles: [
+        { name: 'name', label: 'Nom rôle', required: true },
+        { name: 'slug', label: 'Slug', required: true }
+      ],
+      permissions: [
+        { name: 'name', label: 'Nom permission', required: true },
+        { name: 'slug', label: 'Slug', required: true }
       ]
+    },
+    permissionMap: {
+      dashboard: 'analytics.view',
+      products: 'products.manage',
+      stock: 'stock.manage',
+      transfers: 'transfers.manage',
+      pos: 'pos.use',
+      tickets: 'tickets.manage',
+      employees: 'hr.manage',
+      users: 'users.manage',
+      deliveries: 'deliveries.manage',
+      'woocommerce-sites': 'woocommerce.manage',
+      customers: 'customers.manage',
+      'marketing-campaigns': 'marketing.manage',
+      invoices: 'accounting.manage',
+      notifications: 'notifications.manage',
+      roles: 'users.manage',
+      permissions: 'users.manage'
     },
     get title() {
       return this.titles[this.module] || this.module;
@@ -195,6 +224,7 @@ function erpApp() {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
       }
       if (this.isAuthenticated) {
+        this.refreshMe();
         this.load();
         this.connectWebSocket();
       }
@@ -237,8 +267,12 @@ function erpApp() {
           return;
         }
         this.token = data.token;
+        this.currentUser = data.user;
+        this.permissions = data.user.permissions || [];
         this.previewMode = false;
         localStorage.setItem('token', data.token);
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+        localStorage.setItem('permissions', JSON.stringify(this.permissions));
         localStorage.removeItem('previewMode');
         await this.load();
         this.connectWebSocket();
@@ -277,7 +311,11 @@ function erpApp() {
       this.token = '';
       this.previewMode = false;
       localStorage.removeItem('token');
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('permissions');
       localStorage.removeItem('previewMode');
+      this.currentUser = null;
+      this.permissions = [];
       this.rows = [];
       this.analytics = null;
       this.accounting = null;
@@ -302,6 +340,30 @@ function erpApp() {
       } catch (error) {
         this.rows = [];
       }
+    },
+    async refreshMe() {
+      if (!this.token) return;
+      try {
+        const data = await this.api('/api/auth/me');
+        this.currentUser = data.user;
+        this.permissions = data.user.permissions || this.permissions;
+        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+        localStorage.setItem('permissions', JSON.stringify(this.permissions));
+      } catch (error) {
+        console.warn('Unable to refresh user profile');
+      }
+    },
+    can(permission) {
+      return this.previewMode || this.permissions.includes('*') || this.permissions.includes(permission);
+    },
+    currentPermission() {
+      return this.permissionMap[this.module] || '*';
+    },
+    canReadCurrent() {
+      return this.can(this.currentPermission());
+    },
+    canCreateCurrent() {
+      return !['dashboard', 'pos'].includes(this.module) && this.can(this.currentPermission());
     },
     async loadAnalytics() {
       try {
@@ -411,6 +473,10 @@ function erpApp() {
         Swal.fire('Mode aperçu', 'Connecte-toi avec un compte admin pour créer des données réelles.', 'info');
         return;
       }
+      if (!this.canCreateCurrent()) {
+        Swal.fire('Accès refusé', 'Ton rôle ne peut pas créer dans ce module.', 'error');
+        return;
+      }
 
       const schema = this.formSchemas[this.module];
       if (!schema) {
@@ -465,6 +531,16 @@ function erpApp() {
         Swal.fire('Connexion requise', 'Connecte-toi avant d’activer le 2FA.', 'info');
         return;
       }
+      await this.refreshMe();
+      if (Number(this.currentUser?.two_factor_enabled || 0) === 1 || this.currentUser?.two_factor_enabled === true) {
+        const result = await Swal.fire({ title: '2FA actif', text: 'Voulez-vous désactiver la double authentification ?', icon: 'question', showCancelButton: true, confirmButtonText: 'Désactiver', cancelButtonText: 'Garder', confirmButtonColor: '#ff4d19' });
+        if (result.isConfirmed) {
+          await this.api('/api/auth/2fa/disable', { method: 'POST', body: '{}' });
+          await this.refreshMe();
+          Swal.fire('2FA désactivé', 'La connexion ne demandera plus OTP.', 'success');
+        }
+        return;
+      }
       const setup = await this.api('/api/auth/2fa/setup', { method: 'POST', body: '{}' });
       const html = `
         <div class="space-y-3">
@@ -476,6 +552,7 @@ function erpApp() {
       const result = await Swal.fire({ title: 'Activer 2FA', html, showCancelButton: true, confirmButtonText: 'Activer', cancelButtonText: 'Annuler', confirmButtonColor: '#ff4d19', preConfirm: () => document.getElementById('otp-code').value });
       if (result.isConfirmed) {
         await this.api('/api/auth/2fa/confirm', { method: 'POST', body: JSON.stringify({ otp: result.value }) });
+        await this.refreshMe();
         Swal.fire('2FA activé', 'La prochaine connexion demandera le code OTP.', 'success');
       }
     },

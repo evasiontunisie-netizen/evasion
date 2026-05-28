@@ -45,14 +45,31 @@ final class DocumentPdf
         $objects = ['<< /Type /Catalog /Pages 2 0 R >>', 'PAGES', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>'];
         $refs = [];
         foreach ($pages as $pageIndex => $page) {
-            $stream = ["0.96 0.30 0.10 rg 0 812 612 30 re f", 'BT'];
-            $stream[] = '/F2 8 Tf 470 820 Td (EVASION ERP) Tj';
-            $stream[] = '/F1 8 Tf 54 28 Td (Page ' . ($pageIndex + 1) . '/' . count($pages) . ') Tj';
+            $stream = [
+                '0.05 0.05 0.05 rg 0 790 612 52 re f',
+                '0.96 0.30 0.10 rg 0 790 8 52 re f',
+                '0.96 0.30 0.10 rg 44 754 524 2 re f',
+                '0.97 0.97 0.95 rg 0 0 612 44 re f',
+            ];
+            $stream[] = self::text('EVASION ERP', 430, 818, 12, '/F2', '1 1 1 rg');
+            $stream[] = self::text('Facturation professionnelle', 430, 803, 8, '/F1', '1 1 1 rg');
+            $stream[] = self::text('Page ' . ($pageIndex + 1) . '/' . count($pages), 54, 24, 8, '/F1', '0.35 0.35 0.35 rg');
             foreach ($page as [$text, $style, $size, $y]) {
-                $font = in_array($style, ['H1', 'H2'], true) ? '/F2' : '/F1';
-                $stream[] = "{$font} {$size} Tf 54 {$y} Td (" . self::escape($text) . ') Tj';
+                if ($style === 'H1') {
+                    $stream[] = self::text($text, 54, $y + 18, 20, '/F2', '1 1 1 rg');
+                    continue;
+                }
+                if ($style === 'H2') {
+                    $stream[] = '0.99 0.92 0.88 rg 44 ' . ($y - 4) . ' 524 22 re f';
+                    $stream[] = '0.96 0.30 0.10 rg 44 ' . ($y - 4) . ' 4 22 re f';
+                    $stream[] = self::text($text, 58, $y + 2, 12, '/F2', '0.08 0.08 0.08 rg');
+                    continue;
+                }
+
+                $font = $style === 'SMALL' ? '/F1' : '/F1';
+                $color = $style === 'SMALL' ? '0.45 0.45 0.45 rg' : '0.12 0.12 0.12 rg';
+                $stream[] = self::text($text, 58, $y, $size, $font, $color);
             }
-            $stream[] = 'ET';
             $content = implode("\n", $stream);
             $pageNumber = count($objects) + 1;
             $contentNumber = $pageNumber + 1;
@@ -91,5 +108,10 @@ final class DocumentPdf
     {
         $value = iconv('UTF-8', 'ASCII//TRANSLIT', $value) ?: $value;
         return str_replace(['\\', '(', ')'], ['\\\\', '\(', '\)'], $value);
+    }
+
+    private static function text(string $text, int $x, int $y, int $size, string $font, string $color): string
+    {
+        return "BT {$color} {$font} {$size} Tf {$x} {$y} Td (" . self::escape($text) . ') Tj ET';
     }
 }

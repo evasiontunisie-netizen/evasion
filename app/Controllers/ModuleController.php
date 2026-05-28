@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Auth\AuthGuard;
 use App\Core\Database;
 use App\Core\Export\Exporter;
 use App\Core\Logger;
@@ -18,12 +19,18 @@ final class ModuleController extends Controller
 {
     public function index(Request $request): void
     {
+        if (!$this->authorize($request, 'read')) {
+            return;
+        }
         $repo = $this->repo($request->params['resource'] ?? '');
         $this->ok($repo->paginate($request->query));
     }
 
     public function show(Request $request): void
     {
+        if (!$this->authorize($request, 'read')) {
+            return;
+        }
         $repo = $this->repo($request->params['resource'] ?? '');
         $item = $repo->find((int) $request->params['id']);
         $item ? $this->ok(['item' => $item]) : $this->error('Not found', 404);
@@ -31,6 +38,9 @@ final class ModuleController extends Controller
 
     public function store(Request $request): void
     {
+        if (!$this->authorize($request, 'create')) {
+            return;
+        }
         $resource = $request->params['resource'] ?? '';
         if ($resource === 'users') {
             $item = $this->storeUser($request);
@@ -47,6 +57,9 @@ final class ModuleController extends Controller
 
     public function update(Request $request): void
     {
+        if (!$this->authorize($request, 'update')) {
+            return;
+        }
         $resource = $request->params['resource'] ?? '';
         $item = $this->repo($resource)->update((int) $request->params['id'], $request->body);
         Logger::activity((int) ($request->user['sub'] ?? 0), $resource . '.updated', ['id' => $request->params['id']]);
@@ -56,6 +69,9 @@ final class ModuleController extends Controller
 
     public function destroy(Request $request): void
     {
+        if (!$this->authorize($request, 'delete')) {
+            return;
+        }
         $resource = $request->params['resource'] ?? '';
         $this->repo($resource)->delete((int) $request->params['id']);
         Logger::activity((int) ($request->user['sub'] ?? 0), $resource . '.deleted', ['id' => $request->params['id']]);
@@ -64,6 +80,9 @@ final class ModuleController extends Controller
 
     public function export(Request $request): void
     {
+        if (!$this->authorize($request, 'export')) {
+            return;
+        }
         $resource = $request->params['resource'] ?? '';
         $format = strtolower((string) ($request->query['format'] ?? 'csv'));
         $rows = $this->repo($resource)->exportRows($request->query);
@@ -81,6 +100,9 @@ final class ModuleController extends Controller
 
     public function importCsv(Request $request): void
     {
+        if (!$this->authorize($request, 'import')) {
+            return;
+        }
         $resource = $request->params['resource'] ?? '';
         if (!isset($_FILES['file']['tmp_name']) || !is_uploaded_file($_FILES['file']['tmp_name'])) {
             $this->error('CSV file is required');
@@ -112,6 +134,10 @@ final class ModuleController extends Controller
 
     public function transferReceive(Request $request): void
     {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['transfers.manage'])) {
+            $this->error('Forbidden', 403);
+            return;
+        }
         $id = (int) $request->params['id'];
         Database::pdo()->prepare('UPDATE transfers SET status = "received", received_at = NOW(), signature_path = COALESCE(:signature_path, signature_path) WHERE id = :id')
             ->execute(['id' => $id, 'signature_path' => $request->input('signature_path')]);
@@ -121,6 +147,10 @@ final class ModuleController extends Controller
 
     public function posCheckout(Request $request): void
     {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['pos.use'])) {
+            $this->error('Forbidden', 403);
+            return;
+        }
         $items = (array) $request->input('items', []);
         $customerId = $request->input('customer_id');
         $warehouseId = (int) $request->input('warehouse_id', 1);
@@ -187,6 +217,18 @@ final class ModuleController extends Controller
         $config = $resources[$resource];
 
         return new Repository($config['table'], $config['fields'], $config['search']);
+    }
+
+    private function authorize(Request $request, string $action): bool
+    {
+        $resource = $request->params['resource'] ?? '';
+        $permission = ModuleRegistry::permissionFor($resource, $action);
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), [$permission])) {
+            $this->error('Forbidden: missing ' . $permission, 403);
+            return false;
+        }
+
+        return true;
     }
 
     private function storeUser(Request $request): array

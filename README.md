@@ -49,6 +49,18 @@ php bin/websocket-server.php
 
 Le serveur écoute par défaut sur `0.0.0.0:8090`.
 
+Production Linux:
+
+```bash
+sudo bash scripts/install-websocket-systemd.sh /var/www/evasion
+```
+
+XAMPP Windows:
+
+```text
+scripts/start-websocket-xampp.bat
+```
+
 ## Premier administrateur
 
 Après avoir importé le schéma et les rôles:
@@ -145,3 +157,24 @@ Endpoints spécialisés:
 - Logs applicatifs et activités.
 
 Avant production, générer un `JWT_SECRET` long et aléatoire, forcer HTTPS, configurer une passerelle email/SMS/WhatsApp, déplacer les secrets WooCommerce vers un coffre sécurisé et placer `public/` comme document root unique.
+
+## Permissions fines
+
+Les écrans et endpoints sont protégés par permissions:
+
+- `products.manage`
+- `stock.manage`
+- `transfers.manage`
+- `pos.use`
+- `tickets.manage`
+- `hr.manage`
+- `deliveries.manage`
+- `woocommerce.manage`
+- `customers.manage`
+- `marketing.manage`
+- `accounting.manage`
+- `notifications.manage`
+- `users.manage`
+- `analytics.view`
+
+Le menu masque automatiquement les modules non autorisés et l'API retourne `403` si la permission manque.

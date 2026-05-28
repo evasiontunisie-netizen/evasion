@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Auth\Jwt;
+use App\Core\Auth\AuthGuard;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Logger;
@@ -36,11 +37,12 @@ final class AuthController extends Controller
             return;
         }
 
-        $token = Jwt::issue(['sub' => (int) $user['id'], 'name' => $user['name'], 'email' => $user['email'], 'role' => $user['role_slug']]);
+        $permissions = AuthGuard::permissions((int) $user['id']);
+        $token = Jwt::issue(['sub' => (int) $user['id'], 'name' => $user['name'], 'email' => $user['email'], 'role' => $user['role_slug'], 'permissions' => $permissions]);
         Database::pdo()->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')->execute(['id' => $user['id']]);
         Logger::activity((int) $user['id'], 'login_success');
 
-        $this->ok(['token' => $token, 'user' => ['id' => (int) $user['id'], 'name' => $user['name'], 'email' => $user['email'], 'role' => $user['role_slug']]]);
+        $this->ok(['token' => $token, 'user' => ['id' => (int) $user['id'], 'name' => $user['name'], 'email' => $user['email'], 'role' => $user['role_slug'], 'permissions' => $permissions, 'two_factor_enabled' => (bool) $user['two_factor_enabled']]]);
     }
 
     public function registerAdmin(Request $request): void
@@ -114,7 +116,12 @@ final class AuthController extends Controller
 
     public function me(Request $request): void
     {
-        $this->ok(['user' => $request->user]);
+        $userId = (int) ($request->user['sub'] ?? 0);
+        $statement = Database::pdo()->prepare('SELECT id, name, email, two_factor_enabled, status FROM users WHERE id = :id LIMIT 1');
+        $statement->execute(['id' => $userId]);
+        $profile = $statement->fetch() ?: [];
+        $profile['permissions'] = AuthGuard::permissions($userId);
+        $this->ok(['user' => $profile]);
     }
 
     public function twoFactorSetup(Request $request): void

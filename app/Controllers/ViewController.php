@@ -103,7 +103,7 @@ final class ViewController
             </div>
             <nav class="flex gap-1 overflow-x-auto px-3 py-2 lg:block lg:space-y-1 lg:px-4">
                 <?php foreach ($nav as $item): ?>
-                    <button @click="setModule('<?= Security::e($item['key']) ?>')" class="nav-item" :class="module === '<?= Security::e($item['key']) ?>' && 'active'">
+                    <button x-show="can('<?= Security::e($item['permission']) ?>')" @click="setModule('<?= Security::e($item['key']) ?>')" class="nav-item" :class="module === '<?= Security::e($item['key']) ?>' && 'active'">
                         <span><?= Security::e($item['label']) ?></span>
                     </button>
                 <?php endforeach; ?>
@@ -128,9 +128,9 @@ final class ViewController
                         <button @click="open2fa()" class="btn-secondary">2FA</button>
                         <button @click="darkMode = !darkMode; persistTheme()" class="btn-secondary" x-text="darkMode ? 'Light' : 'Dark'"></button>
                         <button @click="logout()" class="btn-secondary">Déconnexion</button>
-                        <button @click="openCreate()" class="btn-primary">Créer</button>
-                        <button x-show="module === 'invoices'" @click="openInvoicePdf()" class="btn-primary">PDF facture</button>
-                        <label x-show="module === 'products'" class="btn-secondary grid cursor-pointer place-items-center">
+                        <button x-show="canCreateCurrent()" @click="openCreate()" class="btn-primary">Créer</button>
+                        <button x-show="module === 'invoices' && can('accounting.manage')" @click="openInvoicePdf()" class="btn-primary">PDF facture</button>
+                        <label x-show="module === 'products' && can('products.manage')" class="btn-secondary grid cursor-pointer place-items-center">
                             Import CSV
                             <input class="hidden" type="file" accept=".csv" @change="importCsv($event)">
                         </label>
@@ -138,8 +138,8 @@ final class ViewController
                 </div>
                 <div class="mt-4 flex flex-col gap-3 md:flex-row">
                     <input x-model.debounce.300ms="query" @input="load()" class="input flex-1" placeholder="Recherche instantanée: produit, ticket, client, commande...">
-                    <button @click="exportData('csv')" class="btn-secondary">CSV</button>
-                    <button @click="exportData('pdf')" class="btn-secondary">PDF</button>
+                    <button x-show="canReadCurrent()" @click="exportData('csv')" class="btn-secondary">CSV</button>
+                    <button x-show="canReadCurrent()" @click="exportData('pdf')" class="btn-secondary">PDF</button>
                 </div>
             </header>
 

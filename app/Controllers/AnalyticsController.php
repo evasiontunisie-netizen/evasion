@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Cache;
 use App\Core\Controller;
+use App\Core\Auth\AuthGuard;
 use App\Core\Database;
 use App\Core\Request;
 
@@ -13,6 +14,11 @@ final class AnalyticsController extends Controller
 {
     public function dashboard(Request $request): void
     {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['analytics.view'])) {
+            $this->error('Forbidden', 403);
+            return;
+        }
+
         $data = Cache::remember('dashboard:' . date('Y-m-d-H'), 300, static function (): array {
             $pdo = Database::pdo();
 
@@ -38,6 +44,11 @@ final class AnalyticsController extends Controller
 
     public function accounting(Request $request): void
     {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['accounting.manage'])) {
+            $this->error('Forbidden', 403);
+            return;
+        }
+
         $pdo = Database::pdo();
         $revenue = (float) $pdo->query('SELECT COALESCE(SUM(grand_total),0) FROM invoices')->fetchColumn();
         $expenses = (float) $pdo->query('SELECT COALESCE(SUM(amount),0) FROM expenses')->fetchColumn();

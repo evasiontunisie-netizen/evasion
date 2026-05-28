@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Auth\AuthGuard;
 use App\Core\Database;
 use App\Core\Request;
 
@@ -12,6 +13,11 @@ final class AiController extends Controller
 {
     public function insights(Request $request): void
     {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['analytics.view'])) {
+            $this->error('Forbidden', 403);
+            return;
+        }
+
         $pdo = Database::pdo();
         $lowStock = (int) $pdo->query('SELECT COUNT(*) FROM stock s JOIN products p ON p.id = s.product_id WHERE s.quantity <= p.minimum_stock')->fetchColumn();
         $openTickets = (int) $pdo->query("SELECT COUNT(*) FROM tickets WHERE status IN ('open','in_progress')")->fetchColumn();
@@ -51,6 +57,11 @@ final class AiController extends Controller
 
     public function ask(Request $request): void
     {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['analytics.view'])) {
+            $this->error('Forbidden', 403);
+            return;
+        }
+
         $question = strtolower((string) $request->input('question', ''));
         $answer = 'Je recommande de commencer par dashboard, stock faible, tickets urgents et ventes du jour.';
         if (str_contains($question, 'stock')) {
