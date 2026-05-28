@@ -26,7 +26,7 @@ final class Repository
         $count->execute($params);
         $total = (int) $count->fetchColumn();
 
-        $sql = "SELECT * FROM {$this->table} {$where} ORDER BY id DESC LIMIT :limit OFFSET :offset";
+        $sql = $this->selectSql($where) . ' ORDER BY id DESC LIMIT :limit OFFSET :offset';
         $statement = Database::pdo()->prepare($sql);
         foreach ($params as $key => $value) {
             $statement->bindValue($key, $value);
@@ -43,7 +43,7 @@ final class Repository
 
     public function find(int $id): ?array
     {
-        $statement = Database::pdo()->prepare("SELECT * FROM {$this->table} WHERE id = :id LIMIT 1");
+        $statement = Database::pdo()->prepare($this->selectSql('WHERE id = :id') . ' LIMIT 1');
         $statement->execute([':id' => $id]);
         $row = $statement->fetch();
 
@@ -86,10 +86,23 @@ final class Repository
     public function exportRows(array $query): array
     {
         [$where, $params] = $this->where($query);
-        $statement = Database::pdo()->prepare("SELECT * FROM {$this->table} {$where} ORDER BY id DESC LIMIT 5000");
+        $statement = Database::pdo()->prepare($this->selectSql($where) . ' ORDER BY id DESC LIMIT 5000');
         $statement->execute($params);
 
         return $statement->fetchAll();
+    }
+
+    private function selectSql(string $where): string
+    {
+        if ($this->table === 'products') {
+            return "SELECT products.*, (SELECT path FROM product_images WHERE product_id = products.id ORDER BY sort_order ASC, id ASC LIMIT 1) AS image_url FROM products {$where}";
+        }
+
+        if ($this->table === 'users') {
+            return "SELECT id, role_id, name, email, avatar_path, two_factor_enabled, status, last_login_at, created_at, updated_at FROM users {$where}";
+        }
+
+        return "SELECT * FROM {$this->table} {$where}";
     }
 
     private function payload(array $data): array

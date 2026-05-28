@@ -38,6 +38,7 @@ final class ModuleRegistry
             'notifications' => ['table' => 'notifications', 'search' => ['title', 'channel', 'status'], 'fields' => ['user_id', 'title', 'body', 'channel', 'status', 'payload']],
             'woocommerce-sites' => ['table' => 'woocommerce_sites', 'search' => ['name', 'url'], 'fields' => ['name', 'url', 'consumer_key', 'consumer_secret', 'status', 'last_sync_at']],
             'marketing-campaigns' => ['table' => 'marketing_campaigns', 'search' => ['name', 'channel'], 'fields' => ['name', 'channel', 'budget', 'revenue', 'starts_at', 'ends_at', 'status']],
+            'users' => ['table' => 'users', 'search' => ['name', 'email', 'status'], 'fields' => ['role_id', 'name', 'email', 'avatar_path', 'status']],
         ];
     }
 
@@ -51,6 +52,7 @@ final class ModuleRegistry
             ['key' => 'pos', 'label' => 'POS Caisse', 'icon' => 'terminal'],
             ['key' => 'tickets', 'label' => 'Tickets SAV', 'icon' => 'message'],
             ['key' => 'employees', 'label' => 'RH', 'icon' => 'users'],
+            ['key' => 'users', 'label' => 'Users', 'icon' => 'user'],
             ['key' => 'deliveries', 'label' => 'Livraison', 'icon' => 'truck'],
             ['key' => 'woocommerce-sites', 'label' => 'WooCommerce', 'icon' => 'globe'],
             ['key' => 'customers', 'label' => 'CRM', 'icon' => 'heart'],

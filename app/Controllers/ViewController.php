@@ -126,6 +126,10 @@ final class ViewController
                         <button @click="darkMode = !darkMode; persistTheme()" class="btn-secondary" x-text="darkMode ? 'Light' : 'Dark'"></button>
                         <button @click="logout()" class="btn-secondary">Déconnexion</button>
                         <button @click="openCreate()" class="btn-primary">Créer</button>
+                        <label x-show="module === 'products'" class="btn-secondary grid cursor-pointer place-items-center">
+                            Import CSV
+                            <input class="hidden" type="file" accept=".csv" @change="importCsv($event)">
+                        </label>
                     </div>
                 </div>
                 <div class="mt-4 flex flex-col gap-3 md:flex-row">
@@ -162,6 +166,13 @@ final class ViewController
                                 <canvas id="channelChart" height="190"></canvas>
                             </article>
                         </div>
+                        <article class="card">
+                            <div class="mb-4 flex items-center justify-between">
+                                <h3 class="section-title">Produits par catégorie</h3>
+                                <span class="text-sm text-zinc-500">Depuis WooCommerce / ERP</span>
+                            </div>
+                            <canvas id="productChart" height="90"></canvas>
+                        </article>
                     </div>
                 </template>
 
@@ -199,7 +210,58 @@ final class ViewController
                     </div>
                 </template>
 
-                <template x-if="module !== 'dashboard' && module !== 'pos'">
+                <template x-if="module === 'products'">
+                    <article class="card">
+                        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <h3 class="section-title">Catalogue produits avec photos</h3>
+                                <p class="text-sm text-zinc-500">Compatible CSV WooCommerce: Nom, UGS, prix, stock, catégories, images.</p>
+                            </div>
+                            <span class="rounded-full border border-black/10 px-3 py-1 text-sm text-zinc-500 dark:border-white/10" x-text="rows.length + ' produits'"></span>
+                        </div>
+                        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                            <template x-for="product in rows" :key="product.id">
+                                <article class="overflow-hidden rounded-[1.5rem] border border-black/10 bg-white dark:border-white/10 dark:bg-white/5">
+                                    <img :src="product.image_url || '/assets/icon-192.svg'" :alt="product.name" class="h-44 w-full object-cover" loading="lazy">
+                                    <div class="space-y-2 p-4">
+                                        <p class="line-clamp-2 font-bold" x-text="product.name"></p>
+                                        <p class="text-xs text-zinc-500" x-text="product.sku"></p>
+                                        <div class="flex items-center justify-between">
+                                            <strong class="text-accent" x-text="money(product.promo_price || product.sale_price || 0)"></strong>
+                                            <span class="rounded-full bg-zinc-100 px-2 py-1 text-xs dark:bg-white/10" x-text="product.status"></span>
+                                        </div>
+                                    </div>
+                                </article>
+                            </template>
+                        </div>
+                    </article>
+                </template>
+
+                <template x-if="module === 'users'">
+                    <article class="card">
+                        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <h3 class="section-title">Utilisateurs avec photos</h3>
+                                <p class="text-sm text-zinc-500">Comptes, rôles, avatars et statut.</p>
+                            </div>
+                            <span class="rounded-full border border-black/10 px-3 py-1 text-sm text-zinc-500 dark:border-white/10" x-text="rows.length + ' users'"></span>
+                        </div>
+                        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                            <template x-for="user in rows" :key="user.id">
+                                <article class="rounded-[1.5rem] border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+                                    <img :src="user.avatar_path || '/assets/icon-192.svg'" :alt="user.name" class="mx-auto h-24 w-24 rounded-full object-cover ring-4 ring-orange-100 dark:ring-orange-500/20" loading="lazy">
+                                    <div class="mt-4 text-center">
+                                        <p class="font-bold" x-text="user.name"></p>
+                                        <p class="text-sm text-zinc-500" x-text="user.email"></p>
+                                        <span class="mt-3 inline-flex rounded-full bg-zinc-100 px-3 py-1 text-xs dark:bg-white/10" x-text="user.status"></span>
+                                    </div>
+                                </article>
+                            </template>
+                        </div>
+                    </article>
+                </template>
+
+                <template x-if="module !== 'dashboard' && module !== 'pos' && module !== 'products' && module !== 'users'">
                     <article class="card">
                         <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
                             <div>

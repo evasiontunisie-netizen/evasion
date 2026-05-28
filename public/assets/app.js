@@ -19,6 +19,7 @@ function erpApp() {
     analytics: null,
     salesChart: null,
     channelChart: null,
+    productChart: null,
     posSearch: '',
     cart: [],
     demoProducts: [
@@ -35,6 +36,7 @@ function erpApp() {
       pos: 'Caisse POS',
       tickets: 'Tickets & SAV',
       employees: 'Ressources humaines',
+      users: 'Utilisateurs',
       deliveries: 'Livraison',
       'woocommerce-sites': 'Sites WooCommerce',
       customers: 'CRM clients',
@@ -144,6 +146,14 @@ function erpApp() {
         { name: 'body', label: 'Message', type: 'textarea' },
         { name: 'channel', label: 'Canal', type: 'select', options: [['in_app', 'In app'], ['email', 'Email'], ['sms', 'SMS'], ['whatsapp', 'WhatsApp']] },
         { name: 'status', label: 'Statut', type: 'select', options: [['queued', 'En attente'], ['sent', 'Envoyée'], ['read', 'Lue'], ['failed', 'Échec']] }
+      ],
+      users: [
+        { name: 'name', label: 'Nom', required: true },
+        { name: 'email', label: 'Email', type: 'email', required: true },
+        { name: 'password', label: 'Mot de passe', type: 'password', required: true, value: 'ChangeMeSecure123!' },
+        { name: 'role_id', label: 'ID rôle', type: 'number', value: 10 },
+        { name: 'avatar_path', label: 'URL photo/avatar' },
+        { name: 'status', label: 'Statut', type: 'select', options: [['active', 'Actif'], ['inactive', 'Inactif'], ['suspended', 'Suspendu']] }
       ]
     },
     get title() {
@@ -299,6 +309,44 @@ function erpApp() {
           data: { labels: channels.map(row => row.channel), datasets: [{ data: channels.map(row => row.revenue), backgroundColor: ['#111111', '#ff4d19', '#f59e0b', '#737373'] }] },
           options: { plugins: { legend: { position: 'bottom' } } }
         });
+      }
+      const productCanvas = document.getElementById('productChart');
+      const categories = this.analytics?.product_categories || [];
+      if (productCanvas) {
+        this.productChart?.destroy();
+        this.productChart = new Chart(productCanvas, {
+          type: 'bar',
+          data: {
+            labels: categories.map(row => row.name),
+            datasets: [{ label: 'Produits', data: categories.map(row => row.products), backgroundColor: '#ff4d19', borderRadius: 12 }]
+          },
+          options: { plugins: { legend: { display: false } }, responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+      }
+    },
+    async importCsv(event) {
+      const file = event.target.files?.[0];
+      event.target.value = '';
+      if (!file) return;
+      if (!this.token) {
+        Swal.fire('Connexion requise', 'Connecte-toi en admin pour importer le CSV WooCommerce.', 'info');
+        return;
+      }
+
+      const form = new FormData();
+      form.append('file', file);
+      try {
+        const response = await fetch('/api/products/import', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${this.token}`, 'Accept': 'application/json' },
+          body: form
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'Import impossible');
+        await this.load();
+        Swal.fire('Import terminé', `${payload.data.imported} produits et ${payload.data.images} images importés depuis le CSV WooCommerce.`, 'success');
+      } catch (error) {
+        Swal.fire('Erreur import', error.message || 'Vérifie le fichier CSV et la base de données.', 'error');
       }
     },
     async openCreate() {

@@ -29,6 +29,7 @@ final class AnalyticsController extends Controller
                 'sales_by_channel' => $pdo->query('SELECT channel, COALESCE(SUM(grand_total),0) AS revenue FROM orders GROUP BY channel ORDER BY revenue DESC')->fetchAll(),
                 'top_products' => $pdo->query('SELECT name, SUM(quantity) AS units, SUM(total) AS revenue FROM order_items GROUP BY name ORDER BY revenue DESC LIMIT 10')->fetchAll(),
                 'showroom_sales' => $pdo->query('SELECT w.name, COALESCE(SUM(o.grand_total),0) AS revenue FROM warehouses w LEFT JOIN orders o ON o.warehouse_id = w.id GROUP BY w.id, w.name ORDER BY revenue DESC')->fetchAll(),
+                'product_categories' => $pdo->query('SELECT COALESCE(c.name, "Sans catégorie") AS name, COUNT(p.id) AS products FROM products p LEFT JOIN categories c ON c.id = p.category_id GROUP BY c.id, c.name ORDER BY products DESC LIMIT 12')->fetchAll(),
             ];
         });
 
