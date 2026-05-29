@@ -474,6 +474,41 @@ final class ModuleController extends Controller
         return $this->repo('users')->find((int) Database::pdo()->lastInsertId()) ?? [];
     }
 
+    private function updateUser(Request $request): ?array
+    {
+        $id = (int) $request->params['id'];
+        $existing = $this->repo('users')->find($id);
+        if (!$existing) {
+            return null;
+        }
+
+        $password = trim((string) $request->input('password', ''));
+        if ($password !== '') {
+            $statement = Database::pdo()->prepare('UPDATE users SET role_id = :role_id, name = :name, email = :email, password_hash = :password_hash, avatar_path = :avatar_path, status = :status WHERE id = :id');
+            $statement->execute([
+                'id' => $id,
+                'role_id' => (int) $request->input('role_id', $existing['role_id'] ?? 10),
+                'name' => $request->input('name', $existing['name']),
+                'email' => strtolower((string) $request->input('email', $existing['email'])),
+                'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+                'avatar_path' => $request->input('avatar_path', $existing['avatar_path'] ?? null),
+                'status' => $request->input('status', $existing['status'] ?? 'active'),
+            ]);
+        } else {
+            $statement = Database::pdo()->prepare('UPDATE users SET role_id = :role_id, name = :name, email = :email, avatar_path = :avatar_path, status = :status WHERE id = :id');
+            $statement->execute([
+                'id' => $id,
+                'role_id' => (int) $request->input('role_id', $existing['role_id'] ?? 10),
+                'name' => $request->input('name', $existing['name']),
+                'email' => strtolower((string) $request->input('email', $existing['email'])),
+                'avatar_path' => $request->input('avatar_path', $existing['avatar_path'] ?? null),
+                'status' => $request->input('status', $existing['status'] ?? 'active'),
+            ]);
+        }
+
+        return $this->repo('users')->find($id);
+    }
+
     private function importWooCommerceProducts($handle, array $headers): array
     {
         $pdo = Database::pdo();
