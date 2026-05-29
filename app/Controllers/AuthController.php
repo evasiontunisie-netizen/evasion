@@ -32,9 +32,12 @@ final class AuthController extends Controller
             return;
         }
 
-        if ((int) ($user['two_factor_enabled'] ?? 0) === 1 && !Security::verifyTotp((string) $user['two_factor_secret'], (string) $request->input('otp', ''))) {
-            $this->ok(['requires_2fa' => true], 202);
-            return;
+        if ((int) ($user['two_factor_enabled'] ?? 0) === 1) {
+            $otp = (string) $request->input('otp', '');
+            if (!Security::verifyTotp((string) $user['two_factor_secret'], $otp) && !$this->consumeRecoveryCode((int) $user['id'], $otp)) {
+                $this->ok(['requires_2fa' => true], 202);
+                return;
+            }
         }
 
         $permissions = AuthGuard::permissions((int) $user['id']);
@@ -140,6 +143,7 @@ final class AuthController extends Controller
             'secret' => $secret,
             'otpauth_url' => $otpauth,
             'qr_url' => 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . rawurlencode($otpauth),
+            'recovery_codes' => $this->refreshRecoveryCodes($userId),
         ]);
     }
 
@@ -159,11 +163,49 @@ final class AuthController extends Controller
         $this->ok(['enabled' => true]);
     }
 
+    public function twoFactorRecoveryCodes(Request $request): void
+    {
+        $userId = (int) ($request->user['sub'] ?? 0);
+        Logger::activity($userId, '2fa.recovery_codes_refreshed');
+        $this->ok(['recovery_codes' => $this->refreshRecoveryCodes($userId)]);
+    }
+
     public function twoFactorDisable(Request $request): void
     {
         $userId = (int) ($request->user['sub'] ?? 0);
         Database::pdo()->prepare('UPDATE users SET two_factor_enabled = 0, two_factor_secret = NULL WHERE id = :id')->execute(['id' => $userId]);
         Logger::activity($userId, '2fa.disabled');
         $this->ok(['enabled' => false]);
+    }
+
+    private function refreshRecoveryCodes(int $userId): array
+    {
+        Database::pdo()->prepare('DELETE FROM user_recovery_codes WHERE user_id = :id')->execute(['id' => $userId]);
+        $insert = Database::pdo()->prepare('INSERT INTO user_recovery_codes (user_id, code_hash) VALUES (:user_id, :code_hash)');
+        $codes = [];
+        for ($i = 0; $i < 6; $i++) {
+            $code = strtoupper(substr(bin2hex(random_bytes(4)), 0, 4) . '-' . substr(bin2hex(random_bytes(4)), 0, 4));
+            $codes[] = $code;
+            $insert->execute(['user_id' => $userId, 'code_hash' => hash('sha256', $code)]);
+        }
+
+        return $codes;
+    }
+
+    private function consumeRecoveryCode(int $userId, string $code): bool
+    {
+        $normalized = strtoupper(trim($code));
+        if ($normalized === '') {
+            return false;
+        }
+        $statement = Database::pdo()->prepare('SELECT id FROM user_recovery_codes WHERE user_id = :user_id AND code_hash = :hash AND used_at IS NULL LIMIT 1');
+        $statement->execute(['user_id' => $userId, 'hash' => hash('sha256', $normalized)]);
+        $id = (int) $statement->fetchColumn();
+        if ($id <= 0) {
+            return false;
+        }
+        Database::pdo()->prepare('UPDATE user_recovery_codes SET used_at = NOW() WHERE id = :id')->execute(['id' => $id]);
+
+        return true;
     }
 }

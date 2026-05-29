@@ -121,6 +121,27 @@ paths:
       responses:
         '200':
           description: Produits actifs prêts pour la caisse
+  /pos/history:
+    get:
+      summary: Historique de caisse filtrable par date, caissier et statut paiement
+      parameters:
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: payment_status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste des ventes POS récentes
   /pos/checkout:
     post:
       summary: Encaissement POS avancé avec lignes, paiements multiples, facture et ticket PDF

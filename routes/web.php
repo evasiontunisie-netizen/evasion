@@ -37,6 +37,7 @@ $router->get('/api/auth/me', [AuthController::class, 'me'], [$apiLimiter, $auth]
 $router->post('/api/auth/2fa/setup', [AuthController::class, 'twoFactorSetup'], [$apiLimiter, $auth]);
 $router->post('/api/auth/2fa/confirm', [AuthController::class, 'twoFactorConfirm'], [$apiLimiter, $auth]);
 $router->post('/api/auth/2fa/disable', [AuthController::class, 'twoFactorDisable'], [$apiLimiter, $auth]);
+$router->post('/api/auth/2fa/recovery-codes', [AuthController::class, 'twoFactorRecoveryCodes'], [$apiLimiter, $auth]);
 
 $router->get('/api/analytics/dashboard', [AnalyticsController::class, 'dashboard'], [$apiLimiter, $auth]);
 $router->get('/api/analytics/accounting', [AnalyticsController::class, 'accounting'], [$apiLimiter, $auth]);
@@ -45,6 +46,7 @@ $router->post('/api/ai/ask', [AiController::class, 'ask'], [$apiLimiter, $auth])
 
 $router->post('/api/uploads', [UploadController::class, 'store'], [$apiLimiter, $auth]);
 $router->get('/api/pos/catalog', [ModuleController::class, 'posCatalog'], [$apiLimiter, $auth]);
+$router->get('/api/pos/history', [ModuleController::class, 'posHistory'], [$apiLimiter, $auth]);
 $router->post('/api/pos/checkout', [ModuleController::class, 'posCheckout'], [$apiLimiter, $auth]);
 $router->get('/api/pos/orders/{id}/ticket-pdf', [ModuleController::class, 'posTicketPdf'], [$apiLimiter, $auth]);
 $router->get('/api/invoices/{id}/pdf', [InvoiceController::class, 'pdf'], [$apiLimiter, $auth]);

@@ -138,6 +138,7 @@ Chaque ressource supporte:
 Endpoints spécialisés:
 
 - `GET /api/pos/catalog`
+- `GET /api/pos/history`
 - `POST /api/pos/checkout`
 - `GET /api/pos/orders/{id}/ticket-pdf`
 - `POST /api/transfers/{id}/receive`
@@ -149,6 +150,7 @@ Endpoints spécialisés:
 - `POST /api/auth/2fa/setup`
 - `POST /api/auth/2fa/confirm`
 - `POST /api/auth/2fa/disable`
+- `POST /api/auth/2fa/recovery-codes`
 - `POST /api/woocommerce-sites/{id}/sync`
 - `POST /api/woocommerce/webhook`
 

@@ -49,15 +49,17 @@ final class AnalyticsController extends Controller
             return;
         }
 
-        $pdo = Database::pdo();
-        $revenue = (float) $pdo->query('SELECT COALESCE(SUM(grand_total),0) FROM invoices')->fetchColumn();
-        $expenses = (float) $pdo->query('SELECT COALESCE(SUM(amount),0) FROM expenses')->fetchColumn();
-        $tax = (float) $pdo->query('SELECT COALESCE(SUM(tax_total),0) FROM invoices')->fetchColumn();
-        $paid = (float) $pdo->query("SELECT COALESCE(SUM(grand_total),0) FROM invoices WHERE status = 'paid'")->fetchColumn();
-        $unpaid = (float) $pdo->query("SELECT COALESCE(SUM(grand_total),0) FROM invoices WHERE status IN ('draft','sent')")->fetchColumn();
-        $monthly = $pdo->query("SELECT DATE_FORMAT(issue_date, '%Y-%m') AS month, COALESCE(SUM(grand_total),0) AS revenue, COALESCE(SUM(tax_total),0) AS tax FROM invoices GROUP BY DATE_FORMAT(issue_date, '%Y-%m') ORDER BY month DESC LIMIT 12")->fetchAll();
-        $expenseCategories = $pdo->query('SELECT category, COALESCE(SUM(amount),0) AS amount FROM expenses GROUP BY category ORDER BY amount DESC LIMIT 10')->fetchAll();
-        $this->ok([
+        $data = Cache::remember('accounting:' . date('Y-m-d-H-i'), 60, static function (): array {
+            $pdo = Database::pdo();
+            $revenue = (float) $pdo->query('SELECT COALESCE(SUM(grand_total),0) FROM invoices')->fetchColumn();
+            $expenses = (float) $pdo->query('SELECT COALESCE(SUM(amount),0) FROM expenses')->fetchColumn();
+            $tax = (float) $pdo->query('SELECT COALESCE(SUM(tax_total),0) FROM invoices')->fetchColumn();
+            $paid = (float) $pdo->query("SELECT COALESCE(SUM(grand_total),0) FROM invoices WHERE status = 'paid'")->fetchColumn();
+            $unpaid = (float) $pdo->query("SELECT COALESCE(SUM(grand_total),0) FROM invoices WHERE status IN ('draft','sent')")->fetchColumn();
+            $monthly = $pdo->query("SELECT DATE_FORMAT(issue_date, '%Y-%m') AS month, COALESCE(SUM(grand_total),0) AS revenue, COALESCE(SUM(tax_total),0) AS tax FROM invoices GROUP BY DATE_FORMAT(issue_date, '%Y-%m') ORDER BY month DESC LIMIT 12")->fetchAll();
+            $expenseCategories = $pdo->query('SELECT category, COALESCE(SUM(amount),0) AS amount FROM expenses GROUP BY category ORDER BY amount DESC LIMIT 10')->fetchAll();
+
+            return [
             'revenue' => $revenue,
             'paid' => $paid,
             'unpaid' => $unpaid,
@@ -67,6 +69,9 @@ final class AnalyticsController extends Controller
             'margin_rate' => $revenue > 0 ? round((($revenue - $expenses) / $revenue) * 100, 2) : 0,
             'monthly' => $monthly,
             'expense_categories' => $expenseCategories,
-        ]);
+            ];
+        });
+
+        $this->ok($data);
     }
 }

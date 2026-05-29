@@ -26,7 +26,7 @@ final class Repository
         $count->execute($params);
         $total = (int) $count->fetchColumn();
 
-        $sql = $this->selectSql($where) . ' ORDER BY id DESC LIMIT :limit OFFSET :offset';
+        $sql = $this->selectSql($where) . ' ORDER BY ' . $this->orderBy($query) . ' LIMIT :limit OFFSET :offset';
         $statement = Database::pdo()->prepare($sql);
         foreach ($params as $key => $value) {
             $statement->bindValue($key, $value);
@@ -86,7 +86,7 @@ final class Repository
     public function exportRows(array $query): array
     {
         [$where, $params] = $this->where($query);
-        $statement = Database::pdo()->prepare($this->selectSql($where) . ' ORDER BY id DESC LIMIT 5000');
+        $statement = Database::pdo()->prepare($this->selectSql($where) . ' ORDER BY ' . $this->orderBy($query) . ' LIMIT 5000');
         $statement->execute($params);
 
         return $statement->fetchAll();
@@ -131,13 +131,40 @@ final class Repository
             $clauses[] = '(' . implode(' OR ', $parts) . ')';
         }
 
-        foreach (['status', 'warehouse_id', 'showroom_id', 'customer_id'] as $filter) {
+        foreach (['status', 'warehouse_id', 'showroom_id', 'customer_id', 'user_id', 'role_id', 'channel', 'payment_status'] as $filter) {
             if (isset($query[$filter]) && $query[$filter] !== '') {
                 $clauses[] = "{$filter} = :{$filter}";
                 $params[':' . $filter] = $query[$filter];
             }
         }
 
+        $dateColumn = $this->dateColumn();
+        if (!empty($query['date_from'])) {
+            $clauses[] = "{$dateColumn} >= :date_from";
+            $params[':date_from'] = $query['date_from'] . ' 00:00:00';
+        }
+        if (!empty($query['date_to'])) {
+            $clauses[] = "{$dateColumn} <= :date_to";
+            $params[':date_to'] = $query['date_to'] . ' 23:59:59';
+        }
+
         return [$clauses === [] ? '' : 'WHERE ' . implode(' AND ', $clauses), $params];
+    }
+
+    private function orderBy(array $query): string
+    {
+        $allowed = array_merge(['id', 'created_at', 'updated_at', 'status'], $this->fillable, $this->searchable);
+        $column = (string) ($query['sort_by'] ?? 'id');
+        if (!in_array($column, array_unique($allowed), true)) {
+            $column = 'id';
+        }
+        $direction = strtolower((string) ($query['sort_dir'] ?? 'desc')) === 'asc' ? 'ASC' : 'DESC';
+
+        return "{$column} {$direction}";
+    }
+
+    private function dateColumn(): string
+    {
+        return in_array($this->table, ['expenses', 'invoices'], true) ? ($this->table === 'expenses' ? 'expense_date' : 'issue_date') : 'created_at';
     }
 }

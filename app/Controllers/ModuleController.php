@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Auth\AuthGuard;
+use App\Core\Cache;
 use App\Core\Database;
 use App\Core\Export\Exporter;
 use App\Core\Logger;
@@ -153,6 +154,8 @@ final class ModuleController extends Controller
             return;
         }
 
+        $cacheKey = 'pos_catalog:' . sha1(json_encode($request->query, JSON_UNESCAPED_SLASHES) ?: '');
+        $items = Cache::remember($cacheKey, 20, function () use ($request): array {
         $q = trim((string) $request->input('q', ''));
         $params = ['warehouse_id' => (int) $request->input('warehouse_id', 1)];
         $where = 'p.status = "active"';
@@ -174,7 +177,7 @@ final class ModuleController extends Controller
         $statement = Database::pdo()->prepare($sql);
         $statement->execute($params);
 
-        $this->ok(['items' => array_map(static function (array $row): array {
+        return array_map(static function (array $row): array {
             $row['product_id'] = (int) $row['product_id'];
             $row['price'] = (float) $row['price'];
             $row['sale_price'] = (float) $row['sale_price'];
@@ -184,7 +187,59 @@ final class ModuleController extends Controller
             $row['image_url'] = $row['image_url'] ?: '/assets/icon-192.svg';
 
             return $row;
-        }, $statement->fetchAll())]);
+        }, $statement->fetchAll());
+        });
+
+        $this->ok(['items' => $items]);
+    }
+
+    public function posHistory(Request $request): void
+    {
+        if (!AuthGuard::can((int) ($request->user['sub'] ?? 0), ['pos.use'])) {
+            $this->error('Forbidden', 403);
+            return;
+        }
+
+        $cacheKey = 'pos_history:' . sha1(json_encode($request->query, JSON_UNESCAPED_SLASHES) ?: '');
+        $items = Cache::remember($cacheKey, 20, function () use ($request): array {
+        $where = ['o.channel = "pos"'];
+        $params = [];
+        foreach (['payment_status', 'status', 'warehouse_id', 'user_id'] as $filter) {
+            if ($request->input($filter, '') !== '') {
+                $where[] = "o.{$filter} = :{$filter}";
+                $params[$filter] = $request->input($filter);
+            }
+        }
+        if ($request->input('date_from', '') !== '') {
+            $where[] = 'o.created_at >= :date_from';
+            $params['date_from'] = $request->input('date_from') . ' 00:00:00';
+        }
+        if ($request->input('date_to', '') !== '') {
+            $where[] = 'o.created_at <= :date_to';
+            $params['date_to'] = $request->input('date_to') . ' 23:59:59';
+        }
+
+        $sql = 'SELECT o.id, o.order_number, o.payment_status, o.status, o.subtotal, o.tax_total, o.discount_total, o.grand_total, o.created_at,
+                       u.name AS cashier_name, c.name AS customer_name,
+                       COUNT(DISTINCT oi.id) AS items_count,
+                       COALESCE(SUM(p.amount), 0) AS paid_total,
+                       GROUP_CONCAT(DISTINCT p.method ORDER BY p.method SEPARATOR ", ") AS payment_methods
+                FROM orders o
+                LEFT JOIN users u ON u.id = o.user_id
+                LEFT JOIN customers c ON c.id = o.customer_id
+                LEFT JOIN order_items oi ON oi.order_id = o.id
+                LEFT JOIN payments p ON p.order_id = o.id
+                WHERE ' . implode(' AND ', $where) . '
+                GROUP BY o.id
+                ORDER BY o.created_at DESC
+                LIMIT 100';
+        $statement = Database::pdo()->prepare($sql);
+        $statement->execute($params);
+
+        return $statement->fetchAll();
+        });
+
+        $this->ok(['items' => $items]);
     }
 
     public function posCheckout(Request $request): void
