@@ -64,21 +64,41 @@ function erpApp() {
     ],
     cart: [],
     posHistory: [],
+    readOnlyModules: ['dashboard', 'pos'],
     titles: {
       dashboard: 'Dashboard principal',
       products: 'Gestion produits',
+      categories: 'Catégories',
+      brands: 'Marques',
+      suppliers: 'Fournisseurs',
+      'product-variants': 'Variantes produit',
+      'product-images': 'Images produit',
+      warehouses: 'Entrepôts & showrooms',
       stock: 'Stock avancé',
+      'stock-movements': 'Mouvements de stock',
       transfers: 'Transferts magasins',
+      'transfer-items': 'Lignes de transfert',
       pos: 'Caisse POS',
+      orders: 'Commandes',
+      'order-items': 'Lignes commande',
+      payments: 'Paiements',
       tickets: 'Tickets & SAV',
-      employees: 'Ressources humaines',
+      'ticket-messages': 'Messages SAV',
+      employees: 'Employés',
+      departments: 'Départements',
+      attendance: 'Présence',
+      leaves: 'Congés',
+      salaries: 'Salaires',
+      'employee-documents': 'Documents RH',
       users: 'Utilisateurs',
-      roles: 'Permissions',
+      roles: 'Rôles',
+      permissions: 'Permissions',
       deliveries: 'Livraison',
       'woocommerce-sites': 'Sites WooCommerce',
       customers: 'CRM clients',
-      'marketing-campaigns': 'Marketing & analytics',
-      invoices: 'Comptabilité',
+      'marketing-campaigns': 'Marketing',
+      invoices: 'Factures',
+      expenses: 'Dépenses',
       notifications: 'Notifications'
     },
     formSchemas: {
@@ -199,22 +219,164 @@ function erpApp() {
       permissions: [
         { name: 'name', label: 'Nom permission', required: true },
         { name: 'slug', label: 'Slug', required: true }
-      ]
+      ],
+      categories: [
+        { name: 'name', label: 'Nom', required: true },
+        { name: 'slug', label: 'Slug', required: true },
+        { name: 'parent_id', label: 'ID parent', type: 'number' },
+        { name: 'description', label: 'Description', type: 'textarea' },
+        { name: 'status', label: 'Statut', type: 'select', options: [['active', 'Actif'], ['inactive', 'Inactif']] }
+      ],
+      brands: [
+        { name: 'name', label: 'Nom', required: true },
+        { name: 'description', label: 'Description', type: 'textarea' },
+        { name: 'status', label: 'Statut', type: 'select', options: [['active', 'Actif'], ['inactive', 'Inactif']] }
+      ],
+      suppliers: [
+        { name: 'name', label: 'Nom', required: true },
+        { name: 'email', label: 'Email', type: 'email' },
+        { name: 'phone', label: 'Téléphone' },
+        { name: 'address', label: 'Adresse', type: 'textarea' },
+        { name: 'status', label: 'Statut', type: 'select', options: [['active', 'Actif'], ['inactive', 'Inactif']] }
+      ],
+      'product-variants': [
+        { name: 'product_id', label: 'ID produit', type: 'number', required: true },
+        { name: 'sku', label: 'SKU', required: true },
+        { name: 'barcode', label: 'Barcode' },
+        { name: 'size', label: 'Taille' },
+        { name: 'color', label: 'Couleur' },
+        { name: 'price_delta', label: 'Écart prix', type: 'number', step: '0.001', value: 0 },
+        { name: 'status', label: 'Statut', type: 'select', options: [['active', 'Actif'], ['inactive', 'Inactif']] }
+      ],
+      'product-images': [
+        { name: 'product_id', label: 'ID produit', type: 'number', required: true },
+        { name: 'path', label: 'URL image', required: true },
+        { name: 'alt_text', label: 'Texte alternatif' },
+        { name: 'sort_order', label: 'Ordre', type: 'number', value: 0 }
+      ],
+      warehouses: [
+        { name: 'name', label: 'Nom', required: true },
+        { name: 'code', label: 'Code', required: true },
+        { name: 'type', label: 'Type', type: 'select', options: [['showroom', 'Showroom'], ['main', 'Principal'], ['depot', 'Dépôt'], ['web', 'Web']] },
+        { name: 'address', label: 'Adresse' },
+        { name: 'city', label: 'Ville' },
+        { name: 'phone', label: 'Téléphone' },
+        { name: 'status', label: 'Statut', type: 'select', options: [['active', 'Actif'], ['inactive', 'Inactif']] }
+      ],
+      'stock-movements': [
+        { name: 'product_id', label: 'ID produit', type: 'number', required: true },
+        { name: 'warehouse_id', label: 'ID entrepôt', type: 'number', required: true },
+        { name: 'user_id', label: 'ID utilisateur', type: 'number' },
+        { name: 'type', label: 'Type', type: 'select', options: [['in', 'Entrée'], ['out', 'Sortie'], ['adjustment', 'Ajustement']] },
+        { name: 'quantity', label: 'Quantité', type: 'number', required: true },
+        { name: 'reference', label: 'Référence' },
+        { name: 'notes', label: 'Notes', type: 'textarea' }
+      ],
+      'transfer-items': [
+        { name: 'transfer_id', label: 'ID transfert', type: 'number', required: true },
+        { name: 'product_id', label: 'ID produit', type: 'number', required: true },
+        { name: 'quantity', label: 'Quantité', type: 'number', value: 1 },
+        { name: 'scanned_code', label: 'Code scanné' }
+      ],
+      'ticket-messages': [
+        { name: 'ticket_id', label: 'ID ticket', type: 'number', required: true },
+        { name: 'user_id', label: 'ID utilisateur', type: 'number' },
+        { name: 'customer_id', label: 'ID client', type: 'number' },
+        { name: 'message', label: 'Message', type: 'textarea', required: true },
+        { name: 'attachment_path', label: 'Pièce jointe URL' },
+        { name: 'internal', label: 'Interne (0/1)', type: 'number', value: 0 }
+      ],
+      departments: [
+        { name: 'name', label: 'Nom département', required: true }
+      ],
+      'employee-documents': [
+        { name: 'employee_id', label: 'ID employé', type: 'number', required: true },
+        { name: 'label', label: 'Libellé', required: true },
+        { name: 'path', label: 'URL document', required: true }
+      ],
+      attendance: [
+        { name: 'employee_id', label: 'ID employé', type: 'number', required: true },
+        { name: 'work_date', label: 'Date', type: 'date', value: new Date().toISOString().slice(0, 10) },
+        { name: 'clock_in', label: 'Entrée (HH:MM:SS)' },
+        { name: 'clock_out', label: 'Sortie (HH:MM:SS)' },
+        { name: 'status', label: 'Statut', type: 'select', options: [['present', 'Présent'], ['absent', 'Absent'], ['late', 'Retard']] },
+        { name: 'notes', label: 'Notes', type: 'textarea' }
+      ],
+      leaves: [
+        { name: 'employee_id', label: 'ID employé', type: 'number', required: true },
+        { name: 'starts_at', label: 'Début', type: 'date', required: true },
+        { name: 'ends_at', label: 'Fin', type: 'date', required: true },
+        { name: 'type', label: 'Type', type: 'select', options: [['annual', 'Annuel'], ['sick', 'Maladie'], ['unpaid', 'Sans solde']] },
+        { name: 'status', label: 'Statut', type: 'select', options: [['pending', 'En attente'], ['approved', 'Approuvé'], ['rejected', 'Refusé']] }
+      ],
+      salaries: [
+        { name: 'employee_id', label: 'ID employé', type: 'number', required: true },
+        { name: 'period', label: 'Période (YYYY-MM)', required: true },
+        { name: 'base_salary', label: 'Salaire base', type: 'number', step: '0.001', value: 0 },
+        { name: 'bonuses', label: 'Primes', type: 'number', step: '0.001', value: 0 },
+        { name: 'commissions', label: 'Commissions', type: 'number', step: '0.001', value: 0 },
+        { name: 'advances', label: 'Avances', type: 'number', step: '0.001', value: 0 },
+        { name: 'deductions', label: 'Retenues', type: 'number', step: '0.001', value: 0 },
+        { name: 'net_salary', label: 'Net', type: 'number', step: '0.001', value: 0 },
+        { name: 'status', label: 'Statut', type: 'select', options: [['draft', 'Brouillon'], ['paid', 'Payé']] }
+      ],
+      orders: [
+        { name: 'order_number', label: 'N° commande', required: true, value: `ORD-${Date.now()}` },
+        { name: 'customer_id', label: 'ID client', type: 'number' },
+        { name: 'warehouse_id', label: 'ID entrepôt', type: 'number' },
+        { name: 'channel', label: 'Canal', type: 'select', options: [['pos', 'POS'], ['web', 'Web'], ['phone', 'Téléphone']] },
+        { name: 'status', label: 'Statut', type: 'select', options: [['pending', 'En attente'], ['confirmed', 'Confirmée'], ['completed', 'Terminée'], ['cancelled', 'Annulée']] },
+        { name: 'payment_status', label: 'Paiement', type: 'select', options: [['unpaid', 'Impayé'], ['partial', 'Partiel'], ['paid', 'Payé']] },
+        { name: 'grand_total', label: 'Total', type: 'number', step: '0.001', value: 0 }
+      ],
+      'order-items': [
+        { name: 'order_id', label: 'ID commande', type: 'number', required: true },
+        { name: 'product_id', label: 'ID produit', type: 'number' },
+        { name: 'sku', label: 'SKU', required: true },
+        { name: 'name', label: 'Nom', required: true },
+        { name: 'quantity', label: 'Quantité', type: 'number', value: 1 },
+        { name: 'unit_price', label: 'Prix unitaire', type: 'number', step: '0.001', value: 0 },
+        { name: 'total', label: 'Total ligne', type: 'number', step: '0.001', value: 0 }
+      ],
+      payments: [
+        { name: 'order_id', label: 'ID commande', type: 'number', required: true },
+        { name: 'method', label: 'Méthode', type: 'select', options: [['cash', 'Espèces'], ['card', 'Carte'], ['transfer', 'Virement'], ['mobile', 'Mobile']] },
+        { name: 'amount', label: 'Montant', type: 'number', step: '0.001', required: true },
+        { name: 'reference', label: 'Référence' }
+      ],
     },
     permissionMap: {
       dashboard: 'analytics.view',
       products: 'products.manage',
+      categories: 'products.manage',
+      brands: 'products.manage',
+      suppliers: 'products.manage',
+      'product-variants': 'products.manage',
+      'product-images': 'products.manage',
+      warehouses: 'stock.manage',
       stock: 'stock.manage',
+      'stock-movements': 'stock.manage',
       transfers: 'transfers.manage',
+      'transfer-items': 'transfers.manage',
       pos: 'pos.use',
+      orders: 'analytics.view',
+      'order-items': 'analytics.view',
+      payments: 'pos.use',
       tickets: 'tickets.manage',
+      'ticket-messages': 'tickets.manage',
       employees: 'hr.manage',
+      departments: 'hr.manage',
+      attendance: 'hr.manage',
+      leaves: 'hr.manage',
+      salaries: 'hr.manage',
+      'employee-documents': 'hr.manage',
       users: 'users.manage',
       deliveries: 'deliveries.manage',
       'woocommerce-sites': 'woocommerce.manage',
       customers: 'customers.manage',
       'marketing-campaigns': 'marketing.manage',
       invoices: 'accounting.manage',
+      expenses: 'accounting.manage',
       notifications: 'notifications.manage',
       roles: 'users.manage',
       permissions: 'users.manage'
@@ -457,7 +619,36 @@ function erpApp() {
       return this.can(this.currentPermission());
     },
     canCreateCurrent() {
-      return !['dashboard', 'pos'].includes(this.module) && this.can(this.currentPermission());
+      return !this.readOnlyModules.includes(this.module) && this.can(this.currentPermission());
+    },
+    canEditCurrent() {
+      return !this.readOnlyModules.includes(this.module) && this.can(this.currentPermission());
+    },
+    canDeleteCurrent() {
+      return !this.readOnlyModules.includes(this.module) && this.can(this.currentPermission());
+    },
+    hasFormSchema() {
+      return Boolean(this.formSchemas[this.module]);
+    },
+    getFormSchema(row = null) {
+      const base = this.formSchemas[this.module];
+      if (!base) return null;
+      return base.map(field => {
+        const copy = { ...field };
+        if (row && Object.prototype.hasOwnProperty.call(row, field.name)) {
+          const value = row[field.name];
+          copy.value = value === null || value === undefined ? '' : value;
+        }
+        if (row && field.name === 'password') {
+          copy.required = false;
+          copy.value = '';
+          copy.label = 'Nouveau mot de passe (vide = inchangé)';
+        }
+        return copy;
+      });
+    },
+    rowLabel(row) {
+      return row.name || row.subject || row.invoice_number || row.reference || row.order_number || row.tracking_number || row.sku || row.email || row.title || `ID ${row.id}`;
     },
     async loadAnalytics() {
       try {
@@ -570,7 +761,7 @@ function erpApp() {
         return;
       }
 
-      const schema = this.formSchemas[this.module];
+      const schema = this.getFormSchema();
       if (!schema) {
         Swal.fire('Module non disponible', 'Ce module n’a pas encore de formulaire rapide.', 'info');
         return;
@@ -584,7 +775,7 @@ function erpApp() {
         confirmButtonText: 'Enregistrer',
         cancelButtonText: 'Annuler',
         confirmButtonColor: '#ff4d19',
-        preConfirm: () => this.collectCreatePayload(schema)
+        preConfirm: () => this.collectFormPayload(schema)
       });
 
       if (!result.isConfirmed) return;
@@ -596,6 +787,101 @@ function erpApp() {
         Swal.fire('Créé', `${this.title} enregistré avec succès.`, 'success');
       } catch (error) {
         Swal.fire('Erreur création', error.message || 'Vérifie les champs obligatoires et la base de données.', 'error');
+      }
+    },
+    async openEdit(row) {
+      if (!row?.id) return;
+      if (!this.canEditCurrent()) {
+        Swal.fire('Accès refusé', 'Ton rôle ne peut pas modifier dans ce module.', 'error');
+        return;
+      }
+
+      const schema = this.getFormSchema(row);
+      if (!schema) {
+        Swal.fire('Module non disponible', 'Ce module n’a pas encore de formulaire de modification.', 'info');
+        return;
+      }
+
+      const result = await Swal.fire({
+        title: `Modifier - ${this.rowLabel(row)}`,
+        html: `<div class="swal-form-grid">${schema.map(field => this.formFieldHtml(field)).join('')}</div>`,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Mettre à jour',
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: '#ff4d19',
+        preConfirm: () => this.collectFormPayload(schema, true)
+      });
+
+      if (!result.isConfirmed) return;
+
+      try {
+        await this.api(`/api/${this.module}/${row.id}`, { method: 'PUT', body: JSON.stringify(result.value) });
+        this.clearApiCache(`/api/${this.module}`);
+        await this.load();
+        Swal.fire('Modifié', 'Enregistrement mis à jour.', 'success');
+      } catch (error) {
+        Swal.fire('Erreur modification', error.message || 'Vérifie les champs et réessaie.', 'error');
+      }
+    },
+    async openDelete(row) {
+      if (!row?.id) return;
+      if (!this.canDeleteCurrent()) {
+        Swal.fire('Accès refusé', 'Ton rôle ne peut pas supprimer dans ce module.', 'error');
+        return;
+      }
+
+      const result = await Swal.fire({
+        title: 'Supprimer ?',
+        text: `Confirmer la suppression de « ${this.rowLabel(row)} » (ID ${row.id}) ?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Supprimer',
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: '#dc2626'
+      });
+
+      if (!result.isConfirmed) return;
+
+      try {
+        await this.api(`/api/${this.module}/${row.id}`, { method: 'DELETE' });
+        this.clearApiCache(`/api/${this.module}`);
+        await this.load();
+        Swal.fire('Supprimé', 'L’enregistrement a été retiré.', 'success');
+      } catch (error) {
+        Swal.fire('Erreur suppression', error.message || 'Impossible de supprimer (contraintes liées ?).', 'error');
+      }
+    },
+    async receiveTransfer(row) {
+      if (!row?.id || this.module !== 'transfers') return;
+      const result = await Swal.fire({
+        title: 'Réception transfert',
+        input: 'text',
+        inputLabel: 'Signature / référence réception',
+        inputValue: row.reference || '',
+        showCancelButton: true,
+        confirmButtonText: 'Valider réception',
+        confirmButtonColor: '#ff4d19'
+      });
+      if (!result.isConfirmed) return;
+      try {
+        await this.api(`/api/transfers/${row.id}/receive`, { method: 'POST', body: JSON.stringify({ signature_path: result.value || null }) });
+        this.clearApiCache('/api/transfers');
+        await this.load();
+        Swal.fire('Transfert reçu', 'Stock mis à jour.', 'success');
+      } catch (error) {
+        Swal.fire('Erreur', error.message || 'Réception impossible.', 'error');
+      }
+    },
+    async syncWooSite(row) {
+      if (!row?.id || this.module !== 'woocommerce-sites') return;
+      try {
+        await this.api(`/api/woocommerce-sites/${row.id}/sync`, { method: 'POST', body: '{}' });
+        this.clearApiCache('/api/woocommerce-sites');
+        await this.load();
+        Swal.fire('Synchronisation', 'Sync WooCommerce lancée.', 'success');
+      } catch (error) {
+        Swal.fire('Erreur sync', error.message || 'Sync impossible.', 'error');
       }
     },
     async openAi() {
@@ -623,7 +909,7 @@ function erpApp() {
       const steps = [
         ['1. Recherche', 'Tape un mot, un SKU, un client ou un statut dans la barre de recherche.'],
         ['2. Filtres', 'Ouvre Filtres pour choisir statut, dates, tri et nombre de lignes.'],
-        ['3. CRUD', 'Utilise Créer pour ajouter une ligne, clique Export CSV/PDF pour sortir les données.'],
+        ['3. CRUD', 'Créer, Modifier et Supprimer sur chaque ligne. Export CSV/PDF disponible.'],
         ['4. Caisse', 'Dans POS Caisse: produit -> panier -> clavier -> paiements -> Encaisser.'],
         ['5. Sécurité', 'Active 2FA; chaque utilisateur reçoit ses propres codes de secours.']
       ];
@@ -723,7 +1009,7 @@ function erpApp() {
 
       return `<label class="swal-form-label" for="${id}">${label}<input id="${id}" data-name="${field.name}" data-type="${field.type || 'text'}" class="swal2-input" type="${field.type || 'text'}" step="${field.step || '1'}" value="${value}" ${required}></label>`;
     },
-    collectCreatePayload(schema) {
+    collectFormPayload(schema, isEdit = false) {
       const payload = {};
       for (const field of schema) {
         const id = `swal-field-${field.name.replace(/[^a-z0-9_-]/gi, '-')}`;
@@ -731,11 +1017,12 @@ function erpApp() {
         if (!element) continue;
 
         const rawValue = element.value.trim();
-        if (field.required && rawValue === '') {
+        if (field.required && rawValue === '' && !(isEdit && field.name === 'password')) {
           Swal.showValidationMessage(`${field.label} est obligatoire`);
           return false;
         }
         if (rawValue === '') continue;
+        if (isEdit && field.name === 'password' && rawValue === '') continue;
 
         payload[field.name] = field.type === 'number' ? Number(rawValue) : rawValue;
       }

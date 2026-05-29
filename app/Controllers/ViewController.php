@@ -322,6 +322,10 @@ final class ViewController
                                             <strong class="text-accent" x-text="money(product.promo_price || product.sale_price || 0)"></strong>
                                             <span class="rounded-full bg-zinc-100 px-2 py-1 text-xs dark:bg-white/10" x-text="product.status"></span>
                                         </div>
+                                        <div class="mt-3 flex flex-wrap gap-2">
+                                            <button type="button" x-show="canEditCurrent()" @click="openEdit(product)" class="row-action-btn edit">Modifier</button>
+                                            <button type="button" x-show="canDeleteCurrent()" @click="openDelete(product)" class="row-action-btn delete">Supprimer</button>
+                                        </div>
                                     </div>
                                 </article>
                             </template>
@@ -346,6 +350,10 @@ final class ViewController
                                         <p class="font-bold" x-text="user.name"></p>
                                         <p class="text-sm text-zinc-500" x-text="user.email"></p>
                                         <span class="mt-3 inline-flex rounded-full bg-zinc-100 px-3 py-1 text-xs dark:bg-white/10" x-text="user.status"></span>
+                                        <div class="mt-4 flex flex-wrap justify-center gap-2">
+                                            <button type="button" x-show="canEditCurrent()" @click="openEdit(user)" class="row-action-btn edit">Modifier</button>
+                                            <button type="button" x-show="canDeleteCurrent()" @click="openDelete(user)" class="row-action-btn delete">Supprimer</button>
+                                        </div>
                                     </div>
                                 </article>
                             </template>
@@ -376,7 +384,10 @@ final class ViewController
                         <div class="overflow-x-auto">
                             <table class="modern-table">
                                 <thead>
-                                    <tr><template x-for="column in columns" :key="column"><th x-text="column"></th></template></tr>
+                                    <tr>
+                                        <template x-for="column in columns" :key="column"><th x-text="column"></th></template>
+                                        <th class="w-48">Actions</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     <template x-for="row in rows" :key="row.id">
@@ -384,6 +395,15 @@ final class ViewController
                                             <template x-for="column in columns" :key="column">
                                                 <td x-text="row[column] ?? '-'"></td>
                                             </template>
+                                            <td>
+                                                <div class="flex flex-wrap gap-1">
+                                                    <button type="button" x-show="canEditCurrent()" @click="openEdit(row)" class="row-action-btn edit">Modifier</button>
+                                                    <button type="button" x-show="canDeleteCurrent()" @click="openDelete(row)" class="row-action-btn delete">Supprimer</button>
+                                                    <button type="button" x-show="module === 'transfers' && canEditCurrent() && row.status !== 'received'" @click="receiveTransfer(row)" class="row-action-btn">Réception</button>
+                                                    <button type="button" x-show="module === 'woocommerce-sites' && canEditCurrent()" @click="syncWooSite(row)" class="row-action-btn">Sync</button>
+                                                    <button type="button" x-show="module === 'invoices' && can('accounting.manage')" @click="downloadPdf(`/api/invoices/${row.id}/pdf`, `facture-${row.id}.pdf`)" class="row-action-btn">PDF</button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     </template>
                                 </tbody>

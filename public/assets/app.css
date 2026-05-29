@@ -365,6 +365,45 @@ body {
   border-right: 1px solid rgba(17, 17, 17, .05);
 }
 
+.row-action-btn {
+  border: 1px solid rgba(17, 17, 17, .12);
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  font-size: .72rem;
+  font-weight: 700;
+  padding: .35rem .7rem;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+.row-action-btn:hover {
+  background: #f4f4f5;
+}
+
+.row-action-btn.edit {
+  border-color: rgba(255, 77, 25, .35);
+  color: #c2410c;
+}
+
+.row-action-btn.delete {
+  border-color: rgba(220, 38, 38, .35);
+  color: #b91c1c;
+}
+
+.dark .row-action-btn {
+  background: rgba(255, 255, 255, .06);
+  border-color: rgba(255, 255, 255, .12);
+  color: #fafafa;
+}
+
+.dark .row-action-btn.edit {
+  color: #fdba74;
+}
+
+.dark .row-action-btn.delete {
+  color: #fca5a5;
+}
+
 .dark .modern-table td {
   background: rgba(255, 255, 255, .055);
   border-color: rgba(255, 255, 255, .08);
